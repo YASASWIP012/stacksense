@@ -862,6 +862,13 @@ def choose_supporting(c, combo, dbs, hp):
         ci = ("GitLab CE (self-managed) or GitHub Actions with self-hosted runners", "Builds run on runners inside your network.")
     else:
         ci = ("GitHub Actions", "Runs tests and deploys on every merge; free minutes cover a small team.")
+    if combo.get("mobile") and combo["mobile"]["id"] == "rn_expo" and not onprem:
+        ci = (ci[0] + " + Expo EAS (Build, Submit, Update)", ci[1] + " EAS builds signed Android/iOS binaries in the cloud, submits them to the stores and ships JavaScript-only fixes over the air.")
+    if "geo" in c.signals and db in ("postgres",) and not any("PostGIS" in x["choice"] for x in out):
+        out.append(S("other", "PostGIS extension (spatial types and indexes)",
+                     "The description mentions %s data: store points as geography(Point), index them with GiST and query by "
+                     "distance/area in SQL, inside the same Postgres database." % c.signals["geo"],
+                     ["project.description"], [("Lat/long as plain numbers", "No spatial indexes; distance queries scan every row.")], [], (0, 0)))
     out.append(S("ci_cd", ci[0], ci[1], ["infrastructure.deployment_model", "team.size"],
                  [("Jenkins", "Self-hosted server to maintain.")], [], (0, 0) if L <= 2 else (0, 50)))
     if onprem:

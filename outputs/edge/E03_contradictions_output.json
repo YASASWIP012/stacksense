@@ -232,8 +232,8 @@
       },
       {
         "layer": "ci_cd",
-        "choice": "GitHub Actions",
-        "justification": "Runs tests and deploys on every merge; free minutes cover a small team.",
+        "choice": "GitHub Actions + Expo EAS (Build, Submit, Update)",
+        "justification": "Runs tests and deploys on every merge; free minutes cover a small team. EAS builds signed Android/iOS binaries in the cloud, submits them to the stores and ships JavaScript-only fixes over the air.",
         "driven_by": [
           "infrastructure.deployment_model",
           "team.size"

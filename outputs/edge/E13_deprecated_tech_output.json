@@ -231,9 +231,28 @@
         ]
       },
       {
+        "layer": "other",
+        "choice": "PostGIS extension (spatial types and indexes)",
+        "justification": "The description mentions gps data: store points as geography(Point), index them with GiST and query by distance/area in SQL, inside the same Postgres database.",
+        "driven_by": [
+          "project.description"
+        ],
+        "alternatives": [
+          {
+            "choice": "Lat/long as plain numbers",
+            "why_not": "No spatial indexes; distance queries scan every row."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
         "layer": "ci_cd",
-        "choice": "GitHub Actions",
-        "justification": "Runs tests and deploys on every merge; free minutes cover a small team.",
+        "choice": "GitHub Actions + Expo EAS (Build, Submit, Update)",
+        "justification": "Runs tests and deploys on every merge; free minutes cover a small team. EAS builds signed Android/iOS binaries in the cloud, submits them to the stores and ships JavaScript-only fixes over the air.",
         "driven_by": [
           "infrastructure.deployment_model",
           "team.size"
