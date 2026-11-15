@@ -5,6 +5,15 @@
   "status": "ok",
   "summary": "Static site built with Astro and served free from Cloudflare Pages; no backend or database to run.",
   "architecture_style": "static",
+  "architecture_rationale": {
+    "text": "No server-side needs (no accounts, payments or user data), so pre-built pages on a CDN: nothing to run or patch. Microservices rejected: 1 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "Astro",
@@ -170,6 +179,136 @@
     "cloud_preference=any: provider chosen by scoring (Cloudflare)."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "web": [
+      {
+        "candidate": "Astro",
+        "score": 12.32,
+        "chosen": true,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "+1.80 well suited to content site projects",
+          "+1.40 strong cost, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Nuxt (Vue)",
+        "score": 7.24,
+        "chosen": false,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "+1.20 seo_critical=true and it serves pre-rendered HTML",
+          "-0.80 app framework is heavier than this content site needs"
+        ]
+      },
+      {
+        "candidate": "SvelteKit",
+        "score": 6.74,
+        "chosen": false,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "+1.20 seo_critical=true and it serves pre-rendered HTML",
+          "-0.80 app framework is heavier than this content site needs"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+        "score": 10.6,
+        "chosen": false,
+        "top_factors": [
+          "+9.50 team.languages includes JavaScript",
+          "-3.00 a server is unnecessary for a static content site",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Firebase (Firestore + Cloud Functions)",
+        "score": 9.3,
+        "chosen": false,
+        "top_factors": [
+          "+9.50 team.languages includes JavaScript",
+          "-3.00 a server is unnecessary for a static content site",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Node.js + Fastify",
+        "score": 7.9,
+        "chosen": false,
+        "top_factors": [
+          "+9.50 team.languages includes JavaScript",
+          "-3.00 a server is unnecessary for a static content site",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "None",
+        "score": 6.5,
+        "chosen": true,
+        "top_factors": [
+          "+3.00 content is Markdown in the repository; no database to run",
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "SQLite",
+        "score": 0.15,
+        "chosen": false,
+        "top_factors": [
+          "-3.00 a database is unnecessary for static content",
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "PostgreSQL",
+        "score": -0.38,
+        "chosen": false,
+        "top_factors": [
+          "-3.00 a database is unnecessary for static content",
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.52 strong time to market, which you rated 4/5"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "Cloudflare Pages",
+        "score": 5.35,
+        "chosen": true,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.20 well suited to content site projects",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Cloud Storage + Cloud CDN (static site)",
+        "score": 5.22,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.00 fits a $0 budget on the free tier",
+          "+1.00 serves pre-built static files from a CDN"
+        ]
+      },
+      {
+        "candidate": "Amazon S3 + CloudFront (static site)",
+        "score": 5.22,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.00 fits a $0 budget on the free tier",
+          "+1.00 serves pre-built static files from a CDN"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 1,
     "peak_concurrent_users": 50,

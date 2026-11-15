@@ -5,6 +5,16 @@
   "status": "ok_with_warnings",
   "summary": "Monolith Laravel on DigitalOcean App Platform with DigitalOcean Managed PostgreSQL as the database; front end: React + Vite, Progressive Web App.",
   "architecture_style": "monolith",
+  "architecture_rationale": {
+    "text": "One deployable Laravel app: 3 engineer(s) and scale level L3 do not justify splitting services. Microservices rejected: 3 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops",
+      "requirements.realtime"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA) (web) + Progressive Web App (mobile)",
@@ -49,7 +59,7 @@
       ],
       "alternatives": [
         {
-          "choice": "ASP.NET Core (C#)",
+          "choice": "ASP.NET Core on .NET 10 LTS (C#)",
           "why_not": "Lower overall fit: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes PHP)."
         },
         {
@@ -266,9 +276,10 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 316,
-    "max": 2065,
+    "max": 998,
     "assumptions": [
       "Scale level L3: ~80000 users, ~4000 peak concurrent, ~800 req/s at peak, ~156.2 GB stored",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -314,7 +325,7 @@
     {
       "code": "BUDGET_RISK",
       "severity": "warning",
-      "message": "The low estimate ($316) fits the $400 budget, but growth to the high estimate ($2065) would be more than double it; set billing alerts and revisit sizing.",
+      "message": "The low estimate ($316) fits the $400 budget, but growth to the high estimate ($998) would be more than double it; set billing alerts and revisit sizing.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -356,6 +367,166 @@
     "cloud_preference=any: provider chosen by scoring (DigitalOcean)."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "mobile": [
+      {
+        "candidate": "Progressive Web App",
+        "score": 2.0,
+        "chosen": true,
+        "top_factors": [
+          "-1.25 the team would have to learn JavaScript/TypeScript",
+          "+1.05 strong time to market, which you rated 4/5",
+          "+0.80 reuses the web codebase"
+        ]
+      },
+      {
+        "candidate": "React Native (Expo)",
+        "score": 1.2,
+        "chosen": false,
+        "top_factors": [
+          "-1.25 the team would have to learn JavaScript/TypeScript",
+          "+1.05 strong time to market, which you rated 4/5",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Ionic Capacitor",
+        "score": 0.07,
+        "chosen": false,
+        "top_factors": [
+          "-1.25 the team would have to learn JavaScript/TypeScript",
+          "+0.80 reuses the web codebase",
+          "+0.52 strong time to market, which you rated 4/5"
+        ]
+      }
+    ],
+    "web": [
+      {
+        "candidate": "React + Vite (SPA)",
+        "score": 1.97,
+        "chosen": true,
+        "top_factors": [
+          "-1.25 the team would have to learn JavaScript/TypeScript",
+          "+0.70 strong performance, which you rated 5/5",
+          "+0.60 well suited to gaming projects"
+        ]
+      },
+      {
+        "candidate": "Next.js (React)",
+        "score": 1.25,
+        "chosen": false,
+        "top_factors": [
+          "-1.25 the team would have to learn JavaScript/TypeScript",
+          "+1.05 strong time to market, which you rated 4/5",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Nuxt (Vue)",
+        "score": 1.02,
+        "chosen": false,
+        "top_factors": [
+          "-1.25 the team would have to learn JavaScript/TypeScript",
+          "+0.70 strong performance, which you rated 5/5",
+          "+0.52 strong time to market, which you rated 4/5"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Laravel (PHP)",
+        "score": 7.2,
+        "chosen": true,
+        "top_factors": [
+          "+5.50 team.languages includes PHP",
+          "+1.05 strong time to market, which you rated 4/5",
+          "-1.00 per-request overhead is tight for p95=150ms"
+        ]
+      },
+      {
+        "candidate": "ASP.NET Core on .NET 10 LTS (C#)",
+        "score": 0.42,
+        "chosen": false,
+        "top_factors": [
+          "-5.50 the team would have to learn C#",
+          "+1.40 strong performance, which you rated 5/5",
+          "+1.20 native WebSocket/real-time support"
+        ]
+      },
+      {
+        "candidate": "Firebase (Firestore + Cloud Functions)",
+        "score": -0.1,
+        "chosen": false,
+        "top_factors": [
+          "-5.50 the team would have to learn JavaScript/TypeScript",
+          "+1.20 native WebSocket/real-time support",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "PostgreSQL",
+        "score": 3.32,
+        "chosen": true,
+        "top_factors": [
+          "+0.70 strong performance, which you rated 5/5",
+          "+0.52 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Amazon DynamoDB",
+        "score": 3.15,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong performance, which you rated 5/5",
+          "+1.20 well suited to gaming projects",
+          "-0.60 proprietary API increases lock-in"
+        ]
+      },
+      {
+        "candidate": "MySQL",
+        "score": 2.62,
+        "chosen": false,
+        "top_factors": [
+          "+0.70 strong performance, which you rated 5/5",
+          "+0.52 strong time to market, which you rated 4/5"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "Azure Static Web Apps",
+        "score": 3.6,
+        "chosen": false,
+        "top_factors": [
+          "+1.05 strong time to market, which you rated 4/5",
+          "+0.80 scales automatically with spiky traffic",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Netlify",
+        "score": 3.25,
+        "chosen": false,
+        "top_factors": [
+          "+1.05 strong time to market, which you rated 4/5",
+          "+0.80 scales automatically with spiky traffic",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Vercel",
+        "score": 2.9,
+        "chosen": false,
+        "top_factors": [
+          "+1.05 strong time to market, which you rated 4/5",
+          "+0.80 scales automatically with spiky traffic",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 3,
     "peak_concurrent_users": 4000,

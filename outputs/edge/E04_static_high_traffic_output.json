@@ -5,6 +5,15 @@
   "status": "ok",
   "summary": "Static site built with Astro and served free from Cloudflare Pages; no backend or database to run.",
   "architecture_style": "static",
+  "architecture_rationale": {
+    "text": "No server-side needs (no accounts, payments or user data), so pre-built pages on a CDN: nothing to run or patch. Microservices rejected: 2 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "Astro",
@@ -182,6 +191,136 @@
     "cloud_preference=any: provider chosen by scoring (Cloudflare)."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "web": [
+      {
+        "candidate": "Astro",
+        "score": 13.45,
+        "chosen": true,
+        "top_factors": [
+          "+3.60 team.languages includes JavaScript",
+          "+1.80 well suited to content site projects",
+          "+1.40 strong cost, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Django templates + HTMX",
+        "score": 9.6,
+        "chosen": false,
+        "top_factors": [
+          "+3.60 team.languages includes Python",
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.20 seo_critical=true and it serves pre-rendered HTML"
+        ]
+      },
+      {
+        "candidate": "Next.js (React)",
+        "score": 7.81,
+        "chosen": false,
+        "top_factors": [
+          "+3.60 team.languages includes JavaScript",
+          "+1.20 seo_critical=true and it serves pre-rendered HTML",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Django (Python)",
+        "score": 7.97,
+        "chosen": false,
+        "top_factors": [
+          "+7.92 team.languages includes Python",
+          "-3.00 a server is unnecessary for a static content site",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "NestJS (Node.js, TypeScript)",
+        "score": 7.6,
+        "chosen": false,
+        "top_factors": [
+          "+7.92 team.languages includes JavaScript",
+          "-3.00 a server is unnecessary for a static content site",
+          "+0.80 JavaScript is listed first (treated as the team's primary language)"
+        ]
+      },
+      {
+        "candidate": "Node.js + Fastify",
+        "score": 7.47,
+        "chosen": false,
+        "top_factors": [
+          "+7.92 team.languages includes JavaScript",
+          "-3.00 a server is unnecessary for a static content site",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "None",
+        "score": 6.85,
+        "chosen": true,
+        "top_factors": [
+          "+3.00 content is Markdown in the repository; no database to run",
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "PostgreSQL",
+        "score": 0.32,
+        "chosen": false,
+        "top_factors": [
+          "-3.00 a database is unnecessary for static content",
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.52 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "MySQL",
+        "score": 0.22,
+        "chosen": false,
+        "top_factors": [
+          "-3.00 a database is unnecessary for static content",
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.60 well suited to content site projects"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "Cloudflare Pages",
+        "score": 6.05,
+        "chosen": true,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.20 well suited to content site projects",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "GitHub Pages",
+        "score": 5.35,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.20 well suited to content site projects",
+          "+1.05 strong time to market, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Amazon S3 + CloudFront (static site)",
+        "score": 4.92,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.00 serves pre-built static files from a CDN",
+          "+0.60 well suited to content site projects"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 3,
     "peak_concurrent_users": 20000,

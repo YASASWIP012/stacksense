@@ -38,6 +38,14 @@
       ]
     },
     {
+      "code": "CERT_IN_LOGS",
+      "severity": "info",
+      "message": "CERT-In Directions (28 Apr 2022): keep system logs for 180 days within India and report cyber incidents to CERT-In within 6 hours; size log retention and the incident runbook accordingly. Source: https://www.cert-in.org.in/Directions70B.jsp",
+      "fields": [
+        "infrastructure.data_residency"
+      ]
+    },
+    {
       "code": "DPDP_NOTES",
       "severity": "info",
       "message": "DPDP Act 2023: collect consent per purpose, honour erasure requests and report breaches; the Act itself does not force India-only storage unless data_residency requires it.",

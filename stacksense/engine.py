@@ -1238,17 +1238,54 @@ def _recommend(raw, _nested=False):
         "status": status,
         "summary": summary(c, combo, dbs, style, host),
         "architecture_style": style,
+        "architecture_rationale": architecture_rationale(c, combo, style, supporting),
+        "kb_version": "StackSense KB %s" % kb.KB_DATE,
         "stack": stack,
         "estimated_monthly_cost_usd": cost,
         "warnings": warnings,
         "assumptions": assumptions,
         "validation_errors": [],
+        "decision_trace": decision_trace(layers, scored, combo),
         "derived": {"scale_level": c.L, "peak_concurrent_users": c.peak, "estimated_peak_rps": c.rps,
                     "data_volume_gb": c.data_gb, "effective_data_residency": c.eff_residency,
                     "description_signals": c.signals, "combinations_evaluated": len(combos),
                     "input_hash": hashlib.sha256(json.dumps(raw, sort_keys=True).encode()).hexdigest()[:16]},
     })
     return base
+
+
+def architecture_rationale(c, combo, style, supporting):
+    be = combo["backend"]["name"].split(" (")[0]
+    txt = {
+        "static": "No server-side needs (no accounts, payments or user data), so pre-built pages on a CDN: nothing to run or patch.",
+        "serverless": "%s provides the API, auth and data as managed services, so a %d-person team ships without operating servers." % (be, c.size),
+        "monolith": "One deployable %s app: %d engineer(s) and scale level L%d do not justify splitting services." % (be, c.size, c.L),
+        "modular_monolith": "One %s deployable split into internal modules: clear boundaries for %d engineers without the operational cost of "
+                            "microservices%s." % (be, c.size, "; real-time sync runs as a separate process" if any(
+                                s_["layer"] == "realtime" and s_.get("separate_service") for s_ in supporting) else ""),
+        "service_oriented": "A %s core plus %s as separate services, because they have different runtimes/scaling needs; a %d-person "
+                            "team with DevOps can operate a few services." % (be, " and ".join(sorted({s_["layer"] for s_ in supporting
+                                                                                                         if s_.get("separate_service")})) or "supporting",
+                                                                             c.size),
+        "microservices": "Scale level L%d and %d engineers with DevOps justify independently deployable services." % (c.L, c.size),
+    }.get(style, style)
+    if style not in ("microservices",) and c.size < 15:
+        txt += " Microservices rejected: %d engineer(s) cannot absorb their operational overhead." % c.size
+    return {"text": txt, "driven_by": ["team.size", "scale.users_12_months", "team.has_devops"] +
+            (["requirements.realtime"] if c.req["realtime"] else []) + (["requirements.ml_features"] if c.req["ml_features"] != "none" else [])}
+
+
+def decision_trace(layers, scored, combo):
+    """Top-3 candidates per layer with their own score and strongest factors (from the scoring contributions)."""
+    out = {}
+    for layer in layers:
+        rows = []
+        for cand, sc, contribs in scored.get(layer, [])[:3]:
+            top = sorted([x for x in contribs if x[2]], key=lambda x: (-abs(x[1]), x[0]))[:3]
+            rows.append({"candidate": cand["name"], "score": round(sc, 2), "chosen": cand["id"] == combo.get(layer, {}).get("id"),
+                         "top_factors": ["%+.2f %s" % (d, t) for _, d, t in top]})
+        out[layer] = rows
+    return out
 
 
 def supporting_preview(c, combo, dbs, host):

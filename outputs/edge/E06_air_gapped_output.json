@@ -5,6 +5,15 @@
   "status": "ok_with_warnings",
   "summary": "Modular monolith Spring Boot on On-premise servers with PostgreSQL as the database in India; front end: React + Vite.",
   "architecture_style": "modular_monolith",
+  "architecture_rationale": {
+    "text": "One Spring Boot deployable split into internal modules: clear boundaries for 4 engineers without the operational cost of microservices. Microservices rejected: 4 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA)",
@@ -43,7 +52,7 @@
       ],
       "alternatives": [
         {
-          "choice": "ASP.NET Core (C#)",
+          "choice": "ASP.NET Core on .NET 10 LTS (C#)",
           "why_not": "Lower overall fit: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java)."
         },
         {
@@ -297,6 +306,114 @@
     "Relaxed: requirements.auth social -> email_password (air-gapped)."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "web": [
+      {
+        "candidate": "Django templates + HTMX",
+        "score": 2.55,
+        "chosen": false,
+        "top_factors": [
+          "-2.50 the team would have to learn Python",
+          "+1.40 strong security, which you rated 5/5",
+          "+1.20 well suited to internal tool projects"
+        ]
+      },
+      {
+        "candidate": "React + Vite (SPA)",
+        "score": 2.05,
+        "chosen": true,
+        "top_factors": [
+          "-1.25 the team would have to learn JavaScript/TypeScript",
+          "+1.20 well suited to internal tool projects"
+        ]
+      },
+      {
+        "candidate": "Angular",
+        "score": 1.55,
+        "chosen": false,
+        "top_factors": [
+          "-1.25 the team would have to learn TypeScript",
+          "+0.70 strong security, which you rated 5/5",
+          "+0.60 well suited to internal tool projects"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Spring Boot (Java/Kotlin)",
+        "score": 8.85,
+        "chosen": true,
+        "top_factors": [
+          "+5.50 team.languages includes Java",
+          "+1.40 strong security, which you rated 5/5",
+          "+0.80 mature transaction management for money/ledger flows"
+        ]
+      },
+      {
+        "candidate": "ASP.NET Core on .NET 10 LTS (C#)",
+        "score": 0.45,
+        "chosen": false,
+        "top_factors": [
+          "-5.50 the team would have to learn C#",
+          "+1.40 strong security, which you rated 5/5",
+          "+1.20 well suited to internal tool projects"
+        ]
+      },
+      {
+        "candidate": "Django (Python)",
+        "score": -0.1,
+        "chosen": false,
+        "top_factors": [
+          "-5.50 the team would have to learn Python",
+          "+1.40 strong security, which you rated 5/5",
+          "+1.20 well suited to internal tool projects"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "PostgreSQL",
+        "score": 6.7,
+        "chosen": true,
+        "top_factors": [
+          "+1.50 ACID transactions keep related records consistent",
+          "+1.40 strong security, which you rated 5/5",
+          "+0.60 well suited to internal tool projects"
+        ]
+      },
+      {
+        "candidate": "MySQL",
+        "score": 5.05,
+        "chosen": false,
+        "top_factors": [
+          "+1.50 ACID transactions keep related records consistent",
+          "+0.70 strong security, which you rated 5/5",
+          "+0.60 the team already writes SQL"
+        ]
+      },
+      {
+        "candidate": "SQL Server / Azure SQL Database",
+        "score": 3.65,
+        "chosen": false,
+        "top_factors": [
+          "-2.00 SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates",
+          "+1.50 ACID transactions keep related records consistent",
+          "+1.40 strong security, which you rated 5/5"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "On-premise servers (Docker Compose; k3s for HA)",
+        "score": -0.35,
+        "chosen": true,
+        "top_factors": [
+          "-0.75 a lot of infrastructure to operate",
+          "-0.30 learning curve 3/5 for a intermediate team"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 1,
     "peak_concurrent_users": 200,

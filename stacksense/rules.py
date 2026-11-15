@@ -181,6 +181,11 @@ def conflicts(c, warnings, assumptions):
                       "PCI DSS: keep card data out of your systems with the gateway's tokenised checkout; your own "
                       "scope then covers the pages that load it, plus access control, logging and quarterly scans.",
                       ["compliance", "requirements.payments"]))
+    if c.eff_residency == "india" and c.deploy != "air_gapped":
+        soft.append(W("CERT_IN_LOGS", "info",
+                      "CERT-In Directions (28 Apr 2022): keep system logs for 180 days within India and report cyber "
+                      "incidents to CERT-In within 6 hours; size log retention and the incident runbook accordingly. "
+                      "Source: https://www.cert-in.org.in/Directions70B.jsp", ["infrastructure.data_residency"]))
     if "dpdp" in c.compliance:
         soft.append(W("DPDP_NOTES", "info",
                       "DPDP Act 2023: collect consent per purpose, honour erasure requests and report breaches; the "

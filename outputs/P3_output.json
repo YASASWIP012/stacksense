@@ -2,9 +2,19 @@
   "scenario_id": "P3",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok_with_warnings",
+  "status": "ok",
   "summary": "Modular monolith Go on Azure Container Apps with Azure Database for PostgreSQL – Flexible Server as the database; front end: React + Vite.",
   "architecture_style": "modular_monolith",
+  "architecture_rationale": {
+    "text": "One Go deployable split into internal modules: clear boundaries for 5 engineers without the operational cost of microservices; real-time sync runs as a separate process. Microservices rejected: 5 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops",
+      "requirements.realtime"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA)",
@@ -323,9 +333,10 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 474,
-    "max": 3315,
+    "max": 1472,
     "assumptions": [
       "Scale level L3: ~50000 users, ~5000 peak concurrent, ~1000 req/s at peak, ~200 GB stored",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -377,14 +388,6 @@
   },
   "warnings": [
     {
-      "code": "BUDGET_RISK",
-      "severity": "warning",
-      "message": "The low estimate ($474) fits the $1500 budget, but growth to the high estimate ($3315) would be more than double it; set billing alerts and revisit sizing.",
-      "fields": [
-        "budget.monthly_infra_usd"
-      ]
-    },
-    {
       "code": "PCI_SCOPE",
       "severity": "info",
       "message": "Taking payments: use the gateway's hosted checkout/SDK so card data never touches your servers (PCI DSS SAQ A).",
@@ -408,6 +411,136 @@
     "cloud_preference=any: provider chosen by scoring (Microsoft Azure)."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "web": [
+      {
+        "candidate": "React + Vite (SPA)",
+        "score": 7.22,
+        "chosen": true,
+        "top_factors": [
+          "+2.00 team.languages includes TypeScript",
+          "+1.80 well suited to realtime collab projects",
+          "+0.80 TypeScript is listed first (treated as the team's primary language)"
+        ]
+      },
+      {
+        "candidate": "Angular",
+        "score": 6.1,
+        "chosen": false,
+        "top_factors": [
+          "+2.00 team.languages includes TypeScript",
+          "+1.40 strong scalability, which you rated 5/5",
+          "+1.05 strong maintainability, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Next.js (React)",
+        "score": 5.33,
+        "chosen": false,
+        "top_factors": [
+          "+2.00 team.languages includes TypeScript",
+          "+0.80 TypeScript is listed first (treated as the team's primary language)",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Go (net/http + chi)",
+        "score": 12.18,
+        "chosen": true,
+        "top_factors": [
+          "+4.40 team.languages includes Go",
+          "+1.40 strong performance, which you rated 5/5",
+          "+1.40 strong scalability, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "NestJS (Node.js, TypeScript)",
+        "score": 9.45,
+        "chosen": false,
+        "top_factors": [
+          "+4.40 team.languages includes TypeScript",
+          "+1.20 native WebSocket/real-time support",
+          "+1.05 strong maintainability, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Firebase (Firestore + Cloud Functions)",
+        "score": 9.35,
+        "chosen": false,
+        "top_factors": [
+          "+4.40 team.languages includes TypeScript",
+          "+1.40 strong scalability, which you rated 5/5",
+          "+1.20 native WebSocket/real-time support"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "PostgreSQL",
+        "score": 5.5,
+        "chosen": true,
+        "top_factors": [
+          "+1.50 ACID transactions keep payments and subscriptions consistent",
+          "+1.05 strong maintainability, which you rated 4/5",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "MySQL",
+        "score": 4.62,
+        "chosen": false,
+        "top_factors": [
+          "+1.50 ACID transactions keep payments and subscriptions consistent",
+          "+0.70 strong performance, which you rated 5/5",
+          "+0.70 strong scalability, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "PostgreSQL + TimescaleDB",
+        "score": 3.82,
+        "chosen": false,
+        "top_factors": [
+          "-1.50 time-series extension adds operations without a time-series need",
+          "+1.50 ACID transactions keep payments and subscriptions consistent",
+          "+1.40 strong performance, which you rated 5/5"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "Azure Static Web Apps",
+        "score": 3.25,
+        "chosen": false,
+        "top_factors": [
+          "+0.80 scales automatically with spiky traffic",
+          "+0.70 strong performance, which you rated 5/5",
+          "+0.70 strong scalability, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Azure Container Apps",
+        "score": 3.0,
+        "chosen": true,
+        "top_factors": [
+          "+1.40 strong scalability, which you rated 5/5",
+          "+0.80 scales automatically with spiky traffic",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Google Cloud Run",
+        "score": 3.0,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong scalability, which you rated 5/5",
+          "+0.80 scales automatically with spiky traffic",
+          "+0.70 strong performance, which you rated 5/5"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 3,
     "peak_concurrent_users": 5000,

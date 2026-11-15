@@ -5,6 +5,16 @@
   "status": "ok",
   "summary": "Service oriented Spring Boot on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL Multi-AZ as the database in India; front end: Angular, React Native.",
   "architecture_style": "service_oriented",
+  "architecture_rationale": {
+    "text": "A Spring Boot core plus ml as separate services, because they have different runtimes/scaling needs; a 8-person team with DevOps can operate a few services. Microservices rejected: 8 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops",
+      "requirements.ml_features"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "Angular (web) + React Native (Expo) (mobile)",
@@ -381,11 +391,12 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 1155,
-    "max": 6455,
+    "max": 3515,
     "assumptions": [
       "Scale level L3: ~300000 users, ~10000 peak concurrent, ~2000 req/s at peak, ~500 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
       "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -445,14 +456,6 @@
   },
   "warnings": [
     {
-      "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "The low estimate ($1155) fits the $6000 budget, but the upper estimate ($6455) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
-      "fields": [
-        "budget.monthly_infra_usd"
-      ]
-    },
-    {
       "code": "RBI_LOCALISATION",
       "severity": "info",
       "message": "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, must stay in India. Keep the DR copy in a second Indian region (AWS ap-south-2 Hyderabad) and keep observability data in-country.",
@@ -468,6 +471,14 @@
       "fields": [
         "compliance",
         "requirements.payments"
+      ]
+    },
+    {
+      "code": "CERT_IN_LOGS",
+      "severity": "info",
+      "message": "CERT-In Directions (28 Apr 2022): keep system logs for 180 days within India and report cyber incidents to CERT-In within 6 hours; size log retention and the incident runbook accordingly. Source: https://www.cert-in.org.in/Directions70B.jsp",
+      "fields": [
+        "infrastructure.data_residency"
       ]
     },
     {
@@ -492,6 +503,166 @@
     "team.languages lists several languages; the first (java) is treated as the team's primary language."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "mobile": [
+      {
+        "candidate": "React Native (Expo)",
+        "score": 4.7,
+        "chosen": true,
+        "top_factors": [
+          "+2.00 team.languages includes TypeScript",
+          "+0.60 well suited to fintech projects",
+          "+0.52 strong maintainability, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Kotlin Multiplatform + Compose Multiplatform",
+        "score": 4.45,
+        "chosen": false,
+        "top_factors": [
+          "+2.00 team.languages includes Java/Kotlin",
+          "+0.80 Java is listed first (treated as the team's primary language)",
+          "+0.60 well suited to fintech projects"
+        ]
+      },
+      {
+        "candidate": "Ionic Capacitor",
+        "score": 3.15,
+        "chosen": false,
+        "top_factors": [
+          "+2.00 team.languages includes TypeScript",
+          "+0.80 reuses the web codebase"
+        ]
+      }
+    ],
+    "web": [
+      {
+        "candidate": "Angular",
+        "score": 5.55,
+        "chosen": true,
+        "top_factors": [
+          "+2.00 team.languages includes TypeScript",
+          "+1.05 strong maintainability, which you rated 4/5",
+          "+1.05 strong scalability, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "React + Vite (SPA)",
+        "score": 4.7,
+        "chosen": false,
+        "top_factors": [
+          "+2.00 team.languages includes TypeScript",
+          "+0.60 well suited to fintech projects",
+          "+0.52 strong maintainability, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Next.js (React)",
+        "score": 4.0,
+        "chosen": false,
+        "top_factors": [
+          "+2.00 team.languages includes TypeScript",
+          "+0.52 strong maintainability, which you rated 4/5",
+          "+0.52 strong scalability, which you rated 4/5"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Spring Boot (Java/Kotlin)",
+        "score": 11.75,
+        "chosen": true,
+        "top_factors": [
+          "+4.40 team.languages includes Java/Kotlin",
+          "+1.80 well suited to fintech projects",
+          "+1.40 strong security, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "AWS Lambda + API Gateway",
+        "score": 10.0,
+        "chosen": false,
+        "top_factors": [
+          "+4.40 team.languages includes Java/Kotlin/TypeScript",
+          "+1.40 strong security, which you rated 5/5",
+          "+1.05 strong scalability, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "NestJS (Node.js, TypeScript)",
+        "score": 6.97,
+        "chosen": false,
+        "top_factors": [
+          "+4.40 team.languages includes TypeScript",
+          "+1.05 strong maintainability, which you rated 4/5",
+          "+0.70 strong security, which you rated 5/5"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "PostgreSQL",
+        "score": 6.38,
+        "chosen": true,
+        "top_factors": [
+          "+1.50 ACID transactions keep balances and ledger entries consistent",
+          "+1.40 strong security, which you rated 5/5",
+          "+1.20 well suited to fintech projects"
+        ]
+      },
+      {
+        "candidate": "MySQL",
+        "score": 3.95,
+        "chosen": false,
+        "top_factors": [
+          "+1.50 ACID transactions keep balances and ledger entries consistent",
+          "+0.70 strong security, which you rated 5/5",
+          "+0.52 strong maintainability, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "PostgreSQL + TimescaleDB",
+        "score": 2.8,
+        "chosen": false,
+        "top_factors": [
+          "-1.50 time-series extension adds operations without a time-series need",
+          "+1.50 ACID transactions keep balances and ledger entries consistent",
+          "+0.70 strong security, which you rated 5/5"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "AWS serverless (Lambda + API Gateway + S3/CloudFront)",
+        "score": 3.2,
+        "chosen": false,
+        "top_factors": [
+          "+1.05 strong scalability, which you rated 4/5",
+          "+1.00 multi-zone deployments for 99.95%",
+          "+0.80 scales automatically with spiky traffic"
+        ]
+      },
+      {
+        "candidate": "AWS Elastic Beanstalk",
+        "score": 2.57,
+        "chosen": true,
+        "top_factors": [
+          "+1.00 multi-zone deployments for 99.95%",
+          "+0.52 strong scalability, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Amazon S3 + CloudFront (static site)",
+        "score": 2.45,
+        "chosen": false,
+        "top_factors": [
+          "+1.05 strong scalability, which you rated 4/5",
+          "-1.00 static hosting only; the API must run elsewhere",
+          "+1.00 multi-zone deployments for 99.95%"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 3,
     "peak_concurrent_users": 10000,

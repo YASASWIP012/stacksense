@@ -2,9 +2,19 @@
   "scenario_id": "E12",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok_with_warnings",
+  "status": "ok",
   "summary": "Modular monolith Django on DigitalOcean Droplet + Docker Compose with PostgreSQL as the database in EU; front end: Next.js, React Native.",
   "architecture_style": "modular_monolith",
+  "architecture_rationale": {
+    "text": "One Django deployable split into internal modules: clear boundaries for 3 engineers without the operational cost of microservices. Microservices rejected: 3 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops",
+      "requirements.realtime"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "Next.js (React) (web) + React Native (Expo) (mobile)",
@@ -372,10 +382,11 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 56,
-    "max": 274,
+    "max": 218,
     "assumptions": [
       "Scale level L2: ~30000 users, ~800 peak concurrent, ~160 req/s at peak, ~50 GB stored",
       "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -440,8 +451,8 @@
   "warnings": [
     {
       "code": "BUDGET_HEADROOM",
-      "severity": "warning",
-      "message": "The low estimate ($56) fits the $150 budget, but the upper estimate ($274) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
+      "severity": "info",
+      "message": "The low estimate ($56) fits the $150 budget, but the upper estimate ($218) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -460,6 +471,158 @@
     "cloud_preference=any: provider chosen by scoring (DigitalOcean)."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "mobile": [
+      {
+        "candidate": "React Native (Expo)",
+        "score": 6.35,
+        "chosen": true,
+        "top_factors": [
+          "+2.50 team.languages includes JavaScript/TypeScript",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+0.80 JavaScript is listed first (treated as the team's primary language)"
+        ]
+      },
+      {
+        "candidate": "Progressive Web App",
+        "score": 6.25,
+        "chosen": false,
+        "top_factors": [
+          "+2.50 team.languages includes JavaScript/TypeScript",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+1.05 strong cost, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Ionic Capacitor",
+        "score": 4.8,
+        "chosen": false,
+        "top_factors": [
+          "+2.50 team.languages includes JavaScript/TypeScript",
+          "+0.80 reuses the web codebase",
+          "+0.80 JavaScript is listed first (treated as the team's primary language)"
+        ]
+      }
+    ],
+    "web": [
+      {
+        "candidate": "Next.js (React)",
+        "score": 8.38,
+        "chosen": true,
+        "top_factors": [
+          "+2.50 team.languages includes JavaScript/TypeScript",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+1.20 well suited to marketplace projects"
+        ]
+      },
+      {
+        "candidate": "Nuxt (Vue)",
+        "score": 6.77,
+        "chosen": false,
+        "top_factors": [
+          "+2.50 team.languages includes JavaScript/TypeScript",
+          "+1.20 seo_critical=true and it serves pre-rendered HTML",
+          "+0.80 JavaScript is listed first (treated as the team's primary language)"
+        ]
+      },
+      {
+        "candidate": "SvelteKit",
+        "score": 6.27,
+        "chosen": false,
+        "top_factors": [
+          "+2.50 team.languages includes JavaScript/TypeScript",
+          "+1.20 seo_critical=true and it serves pre-rendered HTML",
+          "+0.80 JavaScript is listed first (treated as the team's primary language)"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Django (Python)",
+        "score": 11.1,
+        "chosen": true,
+        "top_factors": [
+          "+5.50 team.languages includes Python",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+1.20 well suited to marketplace projects"
+        ]
+      },
+      {
+        "candidate": "NestJS (Node.js, TypeScript)",
+        "score": 10.85,
+        "chosen": false,
+        "top_factors": [
+          "+5.50 team.languages includes JavaScript/TypeScript",
+          "+1.20 well suited to marketplace projects",
+          "+1.20 native WebSocket/real-time support"
+        ]
+      },
+      {
+        "candidate": "Node.js + Fastify",
+        "score": 9.6,
+        "chosen": false,
+        "top_factors": [
+          "+5.50 team.languages includes JavaScript/TypeScript",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+1.20 native WebSocket/real-time support"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "PostgreSQL",
+        "score": 6.52,
+        "chosen": true,
+        "top_factors": [
+          "+1.50 ACID transactions keep bookings and payouts consistent",
+          "+1.20 well suited to marketplace projects",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "MySQL",
+        "score": 4.62,
+        "chosen": false,
+        "top_factors": [
+          "+1.50 ACID transactions keep bookings and payouts consistent",
+          "+0.70 strong time to market, which you rated 5/5",
+          "+0.52 strong cost, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "PostgreSQL + TimescaleDB",
+        "score": 2.97,
+        "chosen": false,
+        "top_factors": [
+          "-1.50 time-series extension adds operations without a time-series need",
+          "+1.50 ACID transactions keep bookings and payouts consistent",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "Cloud VM + Docker Compose",
+        "score": 1.8,
+        "chosen": true,
+        "top_factors": [
+          "-1.80 a fair amount of infrastructure to operate with no DevOps engineer",
+          "+1.50 matches deployment_model=self_hosted_cloud_vm",
+          "+1.05 strong cost, which you rated 4/5"
+        ]
+      },
+      {
+        "candidate": "Managed Kubernetes (EKS/GKE/AKS)",
+        "score": -12.77,
+        "chosen": false,
+        "top_factors": [
+          "-4.44 starts around $250/month against a $150 budget",
+          "-4.00 Kubernetes is over-engineering for 3 engineers at this scale",
+          "-3.60 a large amount of infrastructure to operate with no DevOps engineer"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 2,
     "peak_concurrent_users": 800,

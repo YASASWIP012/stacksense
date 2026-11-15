@@ -5,6 +5,15 @@
   "status": "ok_with_warnings",
   "summary": "Monolith Django on Railway with MongoDB Atlas as the database; front end: Django templates + HTMX.",
   "architecture_style": "monolith",
+  "architecture_rationale": {
+    "text": "One deployable Django app: 1 engineer(s) and scale level L1 do not justify splitting services. Microservices rejected: 1 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "Django templates + HTMX",
@@ -217,6 +226,132 @@
     "cloud_preference=any: provider chosen by scoring (Railway)."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "web": [
+      {
+        "candidate": "Django templates + HTMX",
+        "score": 9.72,
+        "chosen": true,
+        "top_factors": [
+          "+4.32 team.languages includes Python",
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.40 strong time to market, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "React + Vite (SPA)",
+        "score": 1.84,
+        "chosen": false,
+        "top_factors": [
+          "-2.16 the team would have to learn JavaScript/TypeScript",
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.20 well suited to internal tool projects"
+        ]
+      },
+      {
+        "candidate": "Nuxt (Vue)",
+        "score": -0.06,
+        "chosen": false,
+        "top_factors": [
+          "-2.16 the team would have to learn JavaScript/TypeScript",
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Django (Python)",
+        "score": 14.55,
+        "chosen": true,
+        "top_factors": [
+          "+9.50 team.languages includes Python",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+1.20 well suited to internal tool projects"
+        ]
+      },
+      {
+        "candidate": "FastAPI (Python)",
+        "score": 11.25,
+        "chosen": false,
+        "top_factors": [
+          "+9.50 team.languages includes Python",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "AWS Lambda + API Gateway",
+        "score": 9.14,
+        "chosen": false,
+        "top_factors": [
+          "+9.50 team.languages includes Python",
+          "-1.17 some infrastructure to operate with no DevOps engineer",
+          "-1.04 learning curve 3/5 for a beginner team"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "SQLite",
+        "score": 4.45,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+0.60 well suited to internal tool projects"
+        ]
+      },
+      {
+        "candidate": "PostgreSQL",
+        "score": 3.75,
+        "chosen": false,
+        "top_factors": [
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.70 strong time to market, which you rated 5/5",
+          "+0.60 well suited to internal tool projects"
+        ]
+      },
+      {
+        "candidate": "MySQL",
+        "score": 2.45,
+        "chosen": false,
+        "top_factors": [
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "Azure Static Web Apps",
+        "score": 3.15,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.40 strong time to market, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "No separate hosting (BaaS)",
+        "score": 3.15,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.40 strong time to market, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Cloudflare Pages",
+        "score": 2.5,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.40 strong time to market, which you rated 5/5",
+          "-1.00 static hosting only; the API must run elsewhere"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 1,
     "peak_concurrent_users": 10,

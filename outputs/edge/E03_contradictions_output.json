@@ -5,6 +5,16 @@
   "status": "ok_with_warnings",
   "summary": "Serverless Supabase on Cloudflare Pages with PostgreSQL as the database; front end: React + Vite, React Native.",
   "architecture_style": "serverless",
+  "architecture_rationale": {
+    "text": "Supabase provides the API, auth and data as managed services, so a 1-person team ships without operating servers. Microservices rejected: 1 engineer(s) cannot absorb their operational overhead.",
+    "driven_by": [
+      "team.size",
+      "scale.users_12_months",
+      "team.has_devops",
+      "requirements.realtime"
+    ]
+  },
+  "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA) (web) + React Native (Expo) (mobile)",
@@ -263,10 +273,11 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 1035,
-    "max": 3981,
+    "max": 3155,
     "assumptions": [
       "Scale level L4: ~2000000 users, ~80000 peak concurrent, ~16000 req/s at peak, ~20000 GB stored",
       "Supabase Pro ($25/month) for production: free projects pause when idle and include ~1 GB of file storage",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -312,7 +323,7 @@
     {
       "code": "OVER_BUDGET",
       "severity": "critical",
-      "message": "Even the leanest compliant stack costs about $1035-3981/month; the $0 budget cannot cover it. Shown as a reduced-cost stack with the budget relaxed.",
+      "message": "Even the leanest compliant stack costs about $1035-3155/month; the $0 budget cannot cover it. Shown as a reduced-cost stack with the budget relaxed.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -373,6 +384,166 @@
     "cloud_preference=any: provider chosen by scoring (Cloudflare)."
   ],
   "validation_errors": [],
+  "decision_trace": {
+    "mobile": [
+      {
+        "candidate": "React Native (Expo)",
+        "score": 7.37,
+        "chosen": true,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+0.60 well suited to social projects"
+        ]
+      },
+      {
+        "candidate": "Ionic Capacitor",
+        "score": 5.82,
+        "chosen": false,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "+0.80 reuses the web codebase",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Progressive Web App",
+        "score": 4.62,
+        "chosen": false,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "-3.00 iOS restricts PWAs (no reliable background sync)",
+          "+1.40 strong cost, which you rated 5/5"
+        ]
+      }
+    ],
+    "web": [
+      {
+        "candidate": "React + Vite (SPA)",
+        "score": 7.47,
+        "chosen": true,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "+1.40 strong cost, which you rated 5/5",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Next.js (React)",
+        "score": 7.03,
+        "chosen": false,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "+1.40 strong time to market, which you rated 5/5",
+          "-1.04 learning curve 3/5 for a beginner team"
+        ]
+      },
+      {
+        "candidate": "Nuxt (Vue)",
+        "score": 6.77,
+        "chosen": false,
+        "top_factors": [
+          "+4.32 team.languages includes JavaScript",
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      }
+    ],
+    "backend": [
+      {
+        "candidate": "Node.js + Fastify",
+        "score": 13.4,
+        "chosen": false,
+        "top_factors": [
+          "+9.50 team.languages includes JavaScript",
+          "+1.40 strong time to market, which you rated 5/5",
+          "+1.20 native WebSocket/real-time support"
+        ]
+      },
+      {
+        "candidate": "NestJS (Node.js, TypeScript)",
+        "score": 12.71,
+        "chosen": false,
+        "top_factors": [
+          "+9.50 team.languages includes JavaScript",
+          "+1.20 native WebSocket/real-time support",
+          "-1.04 learning curve 3/5 for a beginner team"
+        ]
+      },
+      {
+        "candidate": "Next.js Route Handlers + Server Actions",
+        "score": 10.4,
+        "chosen": false,
+        "top_factors": [
+          "+9.50 team.languages includes JavaScript",
+          "+1.40 strong time to market, which you rated 5/5",
+          "-1.20 no long-lived connections; a separate real-time service is needed"
+        ]
+      }
+    ],
+    "database": [
+      {
+        "candidate": "PostgreSQL",
+        "score": 4.1,
+        "chosen": true,
+        "top_factors": [
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.70 strong time to market, which you rated 5/5",
+          "+0.60 well suited to social projects"
+        ]
+      },
+      {
+        "candidate": "Cloud Firestore",
+        "score": 2.8,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong time to market, which you rated 5/5",
+          "-0.60 proprietary API increases lock-in",
+          "+0.60 well suited to social projects"
+        ]
+      },
+      {
+        "candidate": "MySQL",
+        "score": 2.8,
+        "chosen": false,
+        "top_factors": [
+          "+0.70 strong cost, which you rated 5/5",
+          "+0.70 strong time to market, which you rated 5/5"
+        ]
+      }
+    ],
+    "hosting": [
+      {
+        "candidate": "No separate hosting (BaaS)",
+        "score": 3.5,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.40 strong time to market, which you rated 5/5"
+        ]
+      },
+      {
+        "candidate": "Cloudflare Pages",
+        "score": 3.2,
+        "chosen": true,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.40 strong time to market, which you rated 5/5",
+          "-1.00 static hosting only; the API must run elsewhere"
+        ]
+      },
+      {
+        "candidate": "Firebase Hosting",
+        "score": 2.85,
+        "chosen": false,
+        "top_factors": [
+          "+1.40 strong cost, which you rated 5/5",
+          "+1.40 strong time to market, which you rated 5/5",
+          "-1.00 static hosting only; the API must run elsewhere"
+        ]
+      }
+    ]
+  },
   "derived": {
     "scale_level": 4,
     "peak_concurrent_users": 80000,

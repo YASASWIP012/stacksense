@@ -73,6 +73,9 @@ def estimate(c, combo, dbs, supporting, host_pid):
         assumptions.append("SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)")
     mn = sum(x[1] for x in items)
     mx = sum(x[2] for x in items)
+    if mn > 0 and mx > 3 * mn + 50:
+        mx = 3 * mn + 50
+        assumptions.append("Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month")
     assumptions.insert(0, "Scale level L%d: ~%d users, ~%d peak concurrent, ~%d req/s at peak, ~%s GB stored" % (
         c.L, c.users, c.peak, c.rps, ("%g" % c.data_gb)))
     assumptions.append("List prices for the smallest production tier that fits; no reserved-instance or startup "
