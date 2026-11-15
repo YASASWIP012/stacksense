@@ -11,7 +11,7 @@ from . import kb
 
 # SaaS region facts for supporting vendors (conservative; see kb sources)
 SAAS = {
-    "auth0": {"india": False, "eu": True, "us": True, "src": "https://auth0.com/docs/deploy-monitor/deploy-public-cloud/public-cloud-regions"},
+    "auth0": {"india": False, "eu": True, "us": True, "none": True, "src": "https://auth0.com/docs/deploy-monitor/deploy-public-cloud/public-cloud-regions"},
     "pusher": {"india": True, "eu": True, "us": True, "src": "https://pusher.com/docs/channels/miscellaneous/clusters/"},
     "sentry": {"india": False, "eu": True, "us": True, "src": "https://docs.sentry.io/organization/data-storage-location/"},
     "msg91": {"india": True, "eu": False, "us": False, "src": "https://msg91.com/help/what-is-dlt"},
@@ -357,7 +357,14 @@ def choose_supporting(c, combo, dbs, hp):
             ch, why = "Amazon Cognito", "Managed user pools that API Gateway authorizers verify directly."
             alts = [("Auth0", "Extra vendor; Cognito is native to API Gateway.")]
         elif r["auth"] == "social" and c.type in ("saas_b2b", "realtime_collab") and r["multi_tenant"]:
-            if c.devops:
+            if _saas_ok("auth0", c) and c.users <= 200000:
+                ch = "Auth0 by Okta (Organizations, %s tenant)" % ("EU" if ("gdpr" in c.compliance or c.eff_residency == "eu") else "US")
+                why = ("Multi-tenant B2B SaaS with social login: Auth0 Organizations models each customer team (invites, roles, "
+                       "per-tenant login) as a managed service, so engineering time goes into the product rather than running an IdP"
+                       "%s." % ("; the EU tenant keeps identity data in the EU for GDPR" if ("gdpr" in c.compliance or c.eff_residency == "eu") else ""))
+                alts = [("Keycloak (self-hosted, Organizations)", "No per-MAU fees, but the team must run, patch and back up an IdP."),
+                        ("Clerk", "Stores data in the US; weaker fit for GDPR-minded EU customers.")]
+            elif c.devops:
                 ch = "Keycloak (self-hosted, Organizations for tenants)"
                 why = ("Multi-tenant B2B SaaS with social login: Keycloak's Organizations feature models customer "
                        "teams, and the DevOps engineer can run it. No per-MAU fees as seats grow.")

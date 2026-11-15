@@ -93,6 +93,10 @@
         {
           "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
           "why_not": "Close runner-up: the chosen option wins on project.type (well suited to content site projects)."
+        },
+        {
+          "choice": "GitHub Pages",
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": []

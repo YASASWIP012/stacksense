@@ -71,6 +71,10 @@
         {
           "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": [
@@ -94,6 +98,10 @@
         {
           "choice": "DigitalOcean App Platform (NYC3 New York)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "Render (Oregon/Ohio/Virginia)",
+          "why_not": "Close runner-up: starts around $7/month against a $10 budget."
         }
       ],
       "tradeoffs": [

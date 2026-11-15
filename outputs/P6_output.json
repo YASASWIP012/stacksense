@@ -63,6 +63,10 @@
           "why_not": "Lower overall fit: learning curve 3/5 for a mixed team; the chosen option wins on timeline.mvp_weeks (a 2-person team ships in 10 weeks without building auth/storage)."
         },
         {
+          "choice": "Node.js + Fastify",
+          "why_not": "Lower overall fit: the chosen option wins on timeline.mvp_weeks (a 2-person team ships in 10 weeks without building auth/storage)."
+        },
+        {
           "choice": "Firebase (Firestore + Cloud Functions)",
           "why_not": "Excluded: Firebase (Google) stores Firebase Authentication data in the US (Firestore itself can run in Mumbai) (infrastructure.data_residency)."
         }
@@ -93,7 +97,7 @@
       ]
     },
     "hosting": {
-      "choice": "None (the mobile app calls the managed backend directly)",
+      "choice": "Supabase (managed; the mobile app calls it directly, no separate app hosting)",
       "justification": "A mobile-only app on a backend-as-a-service needs no web hosting. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
       "driven_by": [
         "priorities.cost",
@@ -106,6 +110,10 @@
         },
         {
           "choice": "AWS Elastic Beanstalk (ap-south-1 Mumbai)",
+          "why_not": "Lower overall fit: the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
+        },
+        {
+          "choice": "DigitalOcean App Platform (BLR1 Bengaluru)",
           "why_not": "Lower overall fit: the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         }
       ],

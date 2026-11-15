@@ -85,6 +85,10 @@
           "why_not": "Lower overall fit: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates; the chosen option wins on team.languages (the team already writes SQL)."
         },
         {
+          "choice": "PostgreSQL + TimescaleDB (self-hosted)",
+          "why_not": "Lower overall fit: time-series extension adds operations without a time-series need; the chosen option wins on project.type (ACID transactions keep related records consistent)."
+        },
+        {
           "choice": "Cloud Firestore",
           "why_not": "Excluded: Cloud Firestore is a managed cloud service and cannot run air-gapped (infrastructure.deployment_model)."
         }

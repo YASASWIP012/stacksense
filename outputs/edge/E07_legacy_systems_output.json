@@ -71,6 +71,10 @@
           "why_not": "Lower overall fit: the chosen option wins on timeline.mvp_weeks (a 3-person team ships in 8 weeks without building auth/storage)."
         },
         {
+          "choice": "Node.js + Fastify",
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
+        },
+        {
           "choice": "Firebase (Firestore + Cloud Functions)",
           "why_not": "Excluded: Firebase (Google) stores Firebase Authentication data in the US (Firestore itself can run in Mumbai) (infrastructure.data_residency)."
         }
@@ -116,6 +120,10 @@
         },
         {
           "choice": "AWS Elastic Beanstalk (ap-south-1 Mumbai)",
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "DigitalOcean App Platform (BLR1 Bengaluru)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],

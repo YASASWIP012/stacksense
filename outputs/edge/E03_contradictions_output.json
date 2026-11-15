@@ -67,6 +67,10 @@
         {
           "choice": "NestJS (Node.js, TypeScript)",
           "why_not": "Lower overall fit: learning curve 3/5 for a beginner team."
+        },
+        {
+          "choice": "Firebase (Firestore + Cloud Functions)",
+          "why_not": "Lower overall fit: costs at least $800/month but the budget is $0; large scale outgrows a single BaaS project; the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         }
       ],
       "tradeoffs": [
@@ -92,6 +96,10 @@
         {
           "choice": "Amazon RDS for MySQL Multi-AZ (us-east-1 N. Virginia)",
           "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to social projects)."
+        },
+        {
+          "choice": "MongoDB Atlas (AWS N. Virginia)",
+          "why_not": "Lower overall fit: the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         }
       ],
       "tradeoffs": [
@@ -116,6 +124,10 @@
         {
           "choice": "Azure Static Web Apps (East US 2)",
           "why_not": "Lower overall fit: costs at least $100/month but the budget is $0."
+        },
+        {
+          "choice": "AWS Elastic Beanstalk (us-east-1 N. Virginia)",
+          "why_not": "Lower overall fit: costs at least $900/month but the budget is $0."
         }
       ],
       "tradeoffs": [

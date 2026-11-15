@@ -65,6 +65,10 @@
         {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
           "why_not": "Close runner-up: the chosen option wins on project.type (well suited to realtime collab projects)."
+        },
+        {
+          "choice": "Node.js + Fastify",
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to realtime collab projects)."
         }
       ],
       "tradeoffs": [
@@ -89,6 +93,10 @@
         {
           "choice": "TimescaleDB on Azure VM (self-managed) (West Europe)",
           "why_not": "Lower overall fit: time-series extension adds operations without a time-series need."
+        },
+        {
+          "choice": "Azure SQL Database (West Europe)",
+          "why_not": "Lower overall fit: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates."
         }
       ],
       "tradeoffs": [
@@ -111,6 +119,10 @@
         {
           "choice": "Google Cloud Run (europe-west1 Belgium)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "Netlify (eu-central-1)",
+          "why_not": "Lower overall fit: the chosen option wins on priorities.scalability (strong scalability, which you rated 5/5)."
         }
       ],
       "tradeoffs": [
@@ -120,8 +132,8 @@
     "supporting": [
       {
         "layer": "auth",
-        "choice": "Keycloak (self-hosted, Organizations for tenants)",
-        "justification": "Multi-tenant B2B SaaS with social login: Keycloak's Organizations feature models customer teams, and the DevOps engineer can run it. No per-MAU fees as seats grow.",
+        "choice": "Auth0 by Okta (Organizations, EU tenant)",
+        "justification": "Multi-tenant B2B SaaS with social login: Auth0 Organizations models each customer team (invites, roles, per-tenant login) as a managed service, so engineering time goes into the product rather than running an IdP; the EU tenant keeps identity data in the EU for GDPR.",
         "driven_by": [
           "requirements.auth",
           "requirements.multi_tenant",
@@ -129,8 +141,8 @@
         ],
         "alternatives": [
           {
-            "choice": "Auth0 Organizations",
-            "why_not": "Per-MAU pricing climbs quickly as seats grow."
+            "choice": "Keycloak (self-hosted, Organizations)",
+            "why_not": "No per-MAU fees, but the team must run, patch and back up an IdP."
           },
           {
             "choice": "Clerk",
@@ -141,8 +153,8 @@
           "Account recovery and MFA flows must still be designed."
         ],
         "estimated_monthly_usd": [
-          0,
-          0
+          25,
+          250
         ]
       },
       {
@@ -332,8 +344,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 474,
-    "max": 1472,
+    "min": 499,
+    "max": 1547,
     "assumptions": [
       "Scale level L3: ~50000 users, ~5000 peak concurrent, ~1000 req/s at peak, ~200 GB stored",
       "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
@@ -349,8 +361,8 @@
         850
       ],
       "auth": [
-        0,
-        0
+        25,
+        250
       ],
       "payments": [
         0,
@@ -387,6 +399,14 @@
     }
   },
   "warnings": [
+    {
+      "code": "BUDGET_HEADROOM",
+      "severity": "info",
+      "message": "The low estimate ($499) fits the $1500 budget, but the upper estimate ($1547) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    },
     {
       "code": "PCI_SCOPE",
       "severity": "info",

@@ -87,6 +87,10 @@
         {
           "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
           "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to content site projects)."
+        },
+        {
+          "choice": "Azure Static Web Apps (East US 2)",
+          "why_not": "Lower overall fit: starts around $20/month against a $20 budget."
         }
       ],
       "tradeoffs": []

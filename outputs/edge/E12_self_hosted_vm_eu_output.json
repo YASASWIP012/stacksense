@@ -68,6 +68,10 @@
           "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
+          "choice": "FastAPI (Python)",
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
+        },
+        {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
           "why_not": "Excluded: Supabase (Postgres + Auth + Storage + Realtime + Edge Functions) is not suited to deployment_model=self_hosted_cloud_vm (infrastructure.deployment_model)."
         }
@@ -96,6 +100,10 @@
         {
           "choice": "PostgreSQL + TimescaleDB (in Docker Compose on the VM)",
           "why_not": "Lower overall fit: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
+        },
+        {
+          "choice": "SQL Server / Azure SQL Database (in Docker Compose on the VM)",
+          "why_not": "Lower overall fit: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates; weaker cost, which you rated 4/5."
         },
         {
           "choice": "Cloud Firestore",

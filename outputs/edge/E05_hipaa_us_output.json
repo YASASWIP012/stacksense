@@ -65,6 +65,10 @@
           "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
+          "choice": "Node.js + Fastify",
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to healthtech projects)."
+        },
+        {
           "choice": "Firebase (Firestore + Cloud Functions)",
           "why_not": "Excluded: Firebase (Google) lacks HIPAA attestation/BAA (compliance)."
         }
@@ -112,6 +116,10 @@
         {
           "choice": "AWS ECS on Fargate (+ ALB) (us-east-1 N. Virginia)",
           "why_not": "Close runner-up: a fair amount of infrastructure to operate."
+        },
+        {
+          "choice": "Cloud Storage + Cloud CDN (static site) (us-central1 Iowa)",
+          "why_not": "Lower overall fit: static hosting only; the API must run elsewhere."
         }
       ],
       "tradeoffs": [

@@ -957,6 +957,10 @@ def _component(choice, cand, contribs, pair, alts, ctx=None):
             "alternatives": alts, "tradeoffs": trade, "id": cand["id"]}
 
 
+def combo_backend_name(c):
+    return getattr(c, "_backend_short", None) or "Backend platform"
+
+
 def _host_name(h, c):
     pid = host_provider(h, c)
     if h["id"] == "vm_compose":
@@ -971,7 +975,8 @@ def _host_name(h, c):
     if h["id"] == "baas_hosted":
         kinds = [p for p in ("mobile" if ("android" in c.platforms or "ios" in c.platforms) else None,
                              "desktop" if "desktop" in c.platforms else None) if p]
-        return "None (the %s calls the managed backend directly)" % (" and ".join(k + " app" for k in kinds) if kinds else "client")
+        return "%s (managed; the %s calls it directly, no separate app hosting)" % (
+            combo_backend_name(c), " and ".join(k + " app" for k in kinds) if kinds else "client")
     if pid in ("github", "cloudflare"):
         return h["name"]
     if c.is_static and h["provider"] in ("netlify", "vercel"):
@@ -979,7 +984,7 @@ def _host_name(h, c):
     return "%s (%s)" % (h["name"], _region(pid, c))
 
 
-def _alternatives(layer, best, combos, scored, excluded, c, chosen_contribs, n=2):
+def _alternatives(layer, best, combos, scored, excluded, c, chosen_contribs, n=3):
     chosen_id = best[2][layer]["id"]
     best_with = {}
     for combo_row in combos:
@@ -1110,6 +1115,7 @@ def _recommend(raw, _nested=False):
                     best = row
                     break
     total, key, combo, pair, dbs, parts = best
+    c._backend_short = combo["backend"]["name"].split(" (")[0]
     if budget_note:
         assumptions.append(budget_note)
     pair_by_layer = {}

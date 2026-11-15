@@ -87,6 +87,10 @@
         {
           "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "DigitalOcean Managed MongoDB (NYC3 New York)",
+          "why_not": "Lower overall fit: it scores lower once team skills, priorities and the other layers are combined."
         }
       ],
       "tradeoffs": [
@@ -107,6 +111,10 @@
         },
         {
           "choice": "AWS Elastic Beanstalk (us-east-1 N. Virginia)",
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "Render (Oregon/Ohio/Virginia)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
