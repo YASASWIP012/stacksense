@@ -20,11 +20,7 @@
       "alternatives": [
         {
           "choice": "Django templates + HTMX",
-          "why_not": "Scored 23.5 points lower: the chosen option wins on project.type (well suited to content site projects)."
-        },
-        {
-          "choice": "Next.js (React)",
-          "why_not": "Scored 6.3 points lower: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
+          "why_not": "Fit score 22.9 lower than the chosen option: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": [
@@ -45,11 +41,7 @@
       "alternatives": [
         {
           "choice": "Django (Python)",
-          "why_not": "Scored 23.4 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
-        },
-        {
-          "choice": "FastAPI (Python)",
-          "why_not": "Scored 24.6 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "why_not": "Fit score 22.0 lower than the chosen option: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         }
       ],
       "tradeoffs": []
@@ -65,11 +57,7 @@
       "alternatives": [
         {
           "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
-          "why_not": "Scored 17.5 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
-        },
-        {
-          "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
-          "why_not": "Scored 21.7 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "why_not": "Fit score 15.3 lower than the chosen option: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
       "tradeoffs": []
@@ -85,16 +73,14 @@
       "alternatives": [
         {
           "choice": "GitHub Pages",
-          "why_not": "Scored 0.7 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Fit score 0.7 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
           "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
-          "why_not": "Scored 1.1 points lower: the chosen option wins on project.type (well suited to content site projects)."
+          "why_not": "Fit score 1.1 lower than the chosen option: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
-      "tradeoffs": [
-        "Workers runtime is not Node.js; some libraries need adapters."
-      ]
+      "tradeoffs": []
     },
     "supporting": [
       {
@@ -191,7 +177,9 @@
     "requirements.ml_features not given; defaulted to \"none\".",
     "compliance not given; defaulted to [].",
     "Priorities not given for performance, maintainability, security; defaulted to 3.",
-    "scale.data_volume_gb_12_months not given; a content site is assumed to store ~1 GB."
+    "scale.data_volume_gb_12_months not given; a content site is assumed to store ~1 GB.",
+    "team.languages lists several languages; the first (javascript) is treated as the team's primary language.",
+    "cloud_preference=any: provider chosen by scoring (Cloudflare)."
   ],
   "validation_errors": [],
   "derived": {

@@ -34,6 +34,8 @@
       ]
     }
   ],
-  "assumptions": [],
+  "assumptions": [
+    "team.languages lists several languages; the first (javascript) is treated as the team's primary language."
+  ],
   "validation_errors": []
 }

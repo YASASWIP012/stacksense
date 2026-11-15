@@ -16,11 +16,11 @@
       "alternatives": [
         {
           "choice": "Django templates + HTMX",
-          "why_not": "Scored 6.4 points lower: the team would have to learn Python."
+          "why_not": "Fit score 8.4 lower than the chosen option: the team would have to learn Python."
         },
         {
           "choice": "Angular",
-          "why_not": "Scored 0.5 points lower: the team would have to learn TypeScript; learning curve 4/5 for a intermediate team; the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Fit score 0.5 lower than the chosen option: the team would have to learn TypeScript; learning curve 4/5 for a intermediate team; the chosen option wins on project.type (well suited to internal tool projects)."
         }
       ],
       "tradeoffs": [
@@ -44,11 +44,7 @@
       "alternatives": [
         {
           "choice": "ASP.NET Core (C#)",
-          "why_not": "Scored 6.4 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java)."
-        },
-        {
-          "choice": "Django (Python)",
-          "why_not": "Scored 6.4 points lower: the team would have to learn Python; the chosen option wins on team.languages (team.languages includes Java)."
+          "why_not": "Fit score 8.4 lower than the chosen option: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java)."
         },
         {
           "choice": "AWS Lambda + API Gateway",
@@ -73,11 +69,11 @@
       "alternatives": [
         {
           "choice": "MySQL (self-hosted)",
-          "why_not": "Scored 1.7 points lower: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "why_not": "Fit score 1.7 lower than the chosen option: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "SQL Server (licensed) (self-hosted)",
-          "why_not": "Scored 3.1 points lower: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates; the chosen option wins on team.languages (the team already writes SQL)."
+          "why_not": "Fit score 3.1 lower than the chosen option: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates; the chosen option wins on team.languages (the team already writes SQL)."
         },
         {
           "choice": "Cloud Firestore",
@@ -104,7 +100,7 @@
       ],
       "tradeoffs": [
         "Hardware, power, backups and patching are yours (capex not in the estimate).",
-        "Operational burden (ops 4/5)."
+        "A lot of infrastructure to operate."
       ]
     },
     "supporting": [

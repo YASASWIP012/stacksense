@@ -58,7 +58,7 @@ def _domain_items(c, combo, dbs, hp, onprem, prior=()):
                      [("Devices calling the REST API directly", "HTTP per reading wastes battery and collapses under bursts.")],
                      ["Device provisioning and certificate rotation must be planned."], (10, 300)))
     ex_wh = next((x for x in c.existing if any(k in x.lower() for k in ("snowflake", "bigquery", "redshift", "databricks"))), None)
-    if c.type == "data_analytics" and ex_wh:
+    if ex_wh:
         out.append(S("other", "%s (existing warehouse, reused)" % ex_wh, "The organisation already runs this warehouse; analytical "
                      "queries and dashboards use it rather than adding a second one.", ["infrastructure.existing_systems", "project.type"],
                      [("A new warehouse", "Duplicates data, cost and governance.")], [], (0, 0)))
@@ -123,7 +123,7 @@ def _domain_items(c, combo, dbs, hp, onprem, prior=()):
                      "egress, not storage, dominates the cost.", ["project.description", "requirements.file_media_storage"],
                      [("Serving MP4 files from object storage", "No adaptive bitrate: buffering on mobile networks.")],
                      ["Video egress cost grows with watch time."], (30, 800)))
-    if c.type == "ecommerce" and (c.traffic == "spiky" or any(k in d for k in ("flash", "oversell", "limited stock", "drop"))):
+    if c.type == "ecommerce" and (c.L >= 3 or any(k in d for k in ("flash", "oversell", "limited stock"))) and (c.traffic == "spiky" or "flash" in d):
         out.append(S("other", "Inventory reservation (atomic Valkey DECR + DB row lock) and a virtual waiting room",
                      "Flash sales oversell when many checkouts read the same stock; reserving stock atomically in Valkey, confirming "
                      "with a row lock in the transaction, and queueing excess visitors keeps orders correct under spikes.",
@@ -370,6 +370,12 @@ def choose_supporting(c, combo, dbs, hp):
                     " in %s" % c.eff_residency.upper() if c.eff_residency in ("eu", "us") else (" in India" if c.eff_residency == "india" else ""))
                 alts = [("Auth0 / Clerk", "Separate vendor with per-MAU pricing%s." % (
                     "; no India region" if c.eff_residency == "india" else ""))]
+        dsa = (c.spec.get("project.description") or "").lower()
+        if re.search(r"aadhaar|digilocker|e-?kyc", dsa) and not airgap:
+            ch = "%s + Aadhaar OTP/eKYC via a UIDAI-licensed AUA/KUA partner or DigiLocker OAuth" % ch
+            why += (" Aadhaar-based login/verification cannot use a plain SMS OTP: it must go through a UIDAI-licensed "
+                    "AUA/KUA (or DigiLocker's OAuth), and Aadhaar numbers must be stored only as tokens/reference keys.")
+            drv.append("project.description")
         if r["auth"] == "phone_otp" and not airgap:
             sms = "MSG91 (DLT-registered SMS OTP)" if _india(c) else "Twilio Verify"
             ch = "%s + %s" % (ch, sms)
@@ -571,7 +577,7 @@ def choose_supporting(c, combo, dbs, hp):
                   "go_chi": "WebSockets in Go (coder/websocket) + Redis pub/sub"}.get(be, "WebSockets")
             why = "Runs inside the existing backend; a Redis adapter lets several instances share connections."
             alts = [("Pusher/Ably", "Per-connection pricing for something the backend can do itself.")]
-        out.append(S("realtime", ch, why, drv, alts, ["Long-lived connections need sticky sessions or a pub/sub layer."],
+        out.append(S("realtime", ch, why, drv, alts, ["Long-lived connections must be drained on deploys; size Redis pub/sub for peak fan-out."] if not (be in ("supabase", "firebase")) else ["Channel limits depend on the Supabase/Firebase plan."],
                      (0, 0) if be in ("supabase", "firebase") else ((0, 30) if L <= 2 else (50, 400)),
                      separate_service=sep_rt))
 
@@ -588,8 +594,10 @@ def choose_supporting(c, combo, dbs, hp):
             ch = {"aws": "Amazon ElastiCache for Valkey", "gcp": "Memorystore for Valkey",
                   "azure": "Azure Managed Redis", "digitalocean": "DigitalOcean Managed Caching (Valkey)",
                   "render": "Render Key Value (Valkey)", "railway": "Redis on Railway"}.get(hp, "Valkey (managed)")
-        why = ("Caches hot reads and sessions%s, and doubles as the pub/sub and job-queue broker."
-               % (" to hold p95=%dms" % r["p95_latency_ms"] if r["p95_latency_ms"] else " to keep latency low at peak"))
+        why = ("Caches hot reads and sessions%s" % (" to hold p95=%dms" % r["p95_latency_ms"] if r["p95_latency_ms"] else " to keep latency low at peak")
+               + (", and carries pub/sub for real-time fan-out." if r["realtime"] else "."))
+        if any(x["layer"] == "queue" and ("Redis" in x["choice"] or "Valkey" in x["choice"] or "BullMQ" in x["choice"] or "Celery" in x["choice"]) for x in out):
+            why += " It is also the job-queue broker."
         out.append(S("cache", ch, why,
                      [x for x, on in (("requirements.p95_latency_ms", bool(r["p95_latency_ms"])), ("scale.peak_concurrent_users", L >= 3),
                                       ("requirements.realtime", r["realtime"])) if on] or ["scale.users_12_months"],
@@ -647,10 +655,13 @@ def choose_supporting(c, combo, dbs, hp):
     # ---------------------------------------------------------------- search
     if r["full_text_search"]:
         drv = ["requirements.full_text_search"]
-        indic = any(k in (c.spec.get("project.description") or "").lower() for k in ("hindi", "telugu", "tamil", "kannada", "marathi", "bengali", "indic", "multilingual", "regional language"))
+        indic = bool(re.search(r"\b(hindi|telugu|tamil|kannada|marathi|bengali|gujarati|indic|regional languages?)\b", (c.spec.get("project.description") or "").lower()))
         if indic:
-            ch = ("Amazon OpenSearch Service (ap-south-1) with ICU + Indic analysers" if hp == "aws" or (c.eff_residency == "india" and not onprem and c.cloud in ("any", "aws"))
-                  else "OpenSearch (self-hosted) with ICU + Indic analysers")
+            zone = c.eff_residency if c.eff_residency in ("india", "eu", "us") else "india"
+            if not onprem and (hp == "aws" or c.cloud in ("any", "aws")):
+                ch = "Amazon OpenSearch Service (%s) with ICU + Indic analysers" % kb.PROVIDERS["aws"]["region_label"][zone]
+            else:
+                ch = "OpenSearch (self-hosted, same region as the database) with ICU + Indic analysers"
             why = ("Hindi/Telugu and other Indic scripts need Unicode-aware tokenisation and transliteration-friendly matching; "
                    "PostgreSQL has no Indic dictionaries, so a Lucene-based engine with ICU analysis is used.")
             alts = [("PostgreSQL full-text search", "No stemming/dictionaries for Indic languages."),
@@ -789,7 +800,8 @@ def choose_supporting(c, combo, dbs, hp):
                      ["Conflict rules must be explicit (field agents rarely edit the same record)."], (0, 0)))
     if mobile and not airgap:
         out.append(S("other", "Firebase Cloud Messaging (push notifications)",
-                     "Free push delivery to Android%s for %s." % (" and iOS (via APNs)" if "ios" in c.platforms else "", _push_use(c)),
+                     "Free push delivery to Android%s for %s.%s" % (" and iOS (via APNs)" if "ios" in c.platforms else "", _push_use(c),
+                     " Android push always goes through FCM; payloads carry only an ID and a short text, never personal data, so residency is unaffected." if c.eff_residency in ("india", "eu", "us") or c.deploy != "managed_cloud" else ""),
                      ["project.platforms"], [("SMS for every notification", "Costs per message and DLT templates.")],
                      ["Notification payloads must not contain sensitive data%s." % (" (no PHI: FCM is not covered by a HIPAA BAA)" if "hipaa" in c.compliance else "")], (0, 0)))
     integ = [v for k, v in c.hints if k == "integration"]
@@ -819,7 +831,7 @@ def choose_supporting(c, combo, dbs, hp):
     regulated = set(c.compliance) & {"pci_dss", "hipaa", "iso27001", "soc2", "rbi_localisation"}
     if regulated and not onprem:
         ch = {"aws": "AWS KMS + Secrets Manager + CloudTrail + AWS WAF", "gcp": "Cloud KMS + Secret Manager + Cloud Audit Logs + Cloud Armor",
-              "azure": "Azure Key Vault + Activity Log + Azure WAF"}.get(hp, "Managed KMS/secrets + audit logging + WAF")
+              "azure": "Azure Key Vault + Activity Log + Azure WAF"}.get(hp, "Supabase Vault (secrets) + Postgres audit logging (pgAudit) + Cloudflare WAF" if be == "supabase" else "Doppler (secrets) + provider audit logs + Cloudflare WAF")
         out.append(S("other", ch, "Compliance controls for %s: encryption keys you control, no secrets in code, "
                      "tamper-evident audit logs and a web application firewall." % ", ".join(sorted(x.upper() for x in regulated)),
                      ["compliance"], [("Application-level only", "Auditors expect platform-level key management and logs.")],
@@ -849,8 +861,8 @@ def choose_supporting(c, combo, dbs, hp):
                   "Free Developer plan catches errors in the backend%s with stack traces." % (
                       " and mobile apps" if ("android" in c.platforms or "ios" in c.platforms) else (" and web front end" if "web" in c.platforms else "")), (0, 26))
         else:
-            ob = ("Grafana Cloud (free tier) + OpenTelemetry",
-                  "Free tier for logs/metrics; scrub personal data before export since data residency applies.", (0, 50))
+            ob = ("Grafana Cloud (free tier) + OpenTelemetry, metrics and PII-scrubbed logs only",
+                  "Free tier for metrics and logs. Because data residency applies, only metrics and logs scrubbed of personal data leave the region; request payloads are never exported.", (0, 50))
     if r["availability"] in ("99.95", "99.99"):
         ob = (ob[0] + " + uptime checks and on-call paging", ob[1] + " %s%% needs alerting that wakes someone up." % r["availability"], ob[2])
     out.append(S("observability", ob[0], ob[1], [f for f, on in (("requirements.availability", True),

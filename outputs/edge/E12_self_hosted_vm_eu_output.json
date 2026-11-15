@@ -8,7 +8,7 @@
   "stack": {
     "frontend": {
       "choice": "Next.js (React) (web) + React Native (Expo) (mobile)",
-      "justification": "Web: One React codebase gives SSR/SSG pages for SEO and app-style screens. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects; seo_critical=true and it serves pre-rendered HTML. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects.",
+      "justification": "Web: One React codebase gives SSR/SSG pages for SEO and app-style screens. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects; seo_critical=true and it serves pre-rendered HTML. Mobile: Builds Android and iOS apps from one TypeScript/JavaScript codebase. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; JavaScript is listed first (treated as the team's primary language); well suited to marketplace projects.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
@@ -20,11 +20,11 @@
       "alternatives": [
         {
           "choice": "Nuxt (Vue)",
-          "why_not": "Scored 1.6 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Fit score 1.6 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Progressive Web App",
-          "why_not": "Scored 0.1 points lower: limited camera/GPS access."
+          "why_not": "Fit score 0.1 lower than the chosen option: limited camera/GPS access."
         }
       ],
       "tradeoffs": [
@@ -50,11 +50,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 1.1 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Fit score 0.2 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
-          "choice": "FastAPI (Python)",
-          "why_not": "Scored 2.3 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+          "choice": "Node.js + Fastify",
+          "why_not": "Fit score 1.5 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
@@ -80,11 +80,11 @@
       "alternatives": [
         {
           "choice": "MySQL (in Docker Compose on the VM)",
-          "why_not": "Scored 1.9 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Fit score 1.9 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "PostgreSQL + TimescaleDB (in Docker Compose on the VM)",
-          "why_not": "Scored 3.6 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Fit score 3.5 lower than the chosen option: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Cloud Firestore",
@@ -107,7 +107,7 @@
       "alternatives": [
         {
           "choice": "DigitalOcean Kubernetes (FRA1 Frankfurt)",
-          "why_not": "Scored 17.8 points lower: starts around $250/month against a $150 budget; Kubernetes is over-engineering for 3 engineers at this scale."
+          "why_not": "Fit score 17.8 lower than the chosen option: starts around $250/month against a $150 budget; Kubernetes is over-engineering for 3 engineers at this scale."
         },
         {
           "choice": "Azure Static Web Apps",
@@ -116,7 +116,7 @@
       ],
       "tradeoffs": [
         "You patch the OS, run backups and handle failover yourself.",
-        "Operational burden (ops 3/5) with no DevOps engineer."
+        "A fair amount of infrastructure to operate with no DevOps engineer."
       ]
     },
     "supporting": [
@@ -227,7 +227,7 @@
           }
         ],
         "tradeoffs": [
-          "Long-lived connections need sticky sessions or a pub/sub layer."
+          "Long-lived connections must be drained on deploys; size Redis pub/sub for peak fan-out."
         ],
         "estimated_monthly_usd": [
           0,
@@ -238,7 +238,7 @@
       {
         "layer": "cache",
         "choice": "Valkey (Redis-compatible, container)",
-        "justification": "Caches hot reads and sessions to hold p95=500ms, and doubles as the pub/sub and job-queue broker.",
+        "justification": "Caches hot reads and sessions to hold p95=500ms, and carries pub/sub for real-time fan-out.",
         "driven_by": [
           "requirements.p95_latency_ms",
           "requirements.realtime"
@@ -310,7 +310,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android for booking and job-status updates.",
+        "justification": "Free push delivery to Android for booking and job-status updates. Android push always goes through FCM; payloads carry only an ID and a short text, never personal data, so residency is unaffected.",
         "driven_by": [
           "project.platforms"
         ],
@@ -450,7 +450,10 @@
       ]
     }
   ],
-  "assumptions": [],
+  "assumptions": [
+    "team.languages lists several languages; the first (javascript) is treated as the team's primary language.",
+    "cloud_preference=any: provider chosen by scoring (DigitalOcean)."
+  ],
   "validation_errors": [],
   "derived": {
     "scale_level": 2,

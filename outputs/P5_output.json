@@ -2,13 +2,13 @@
   "scenario_id": "P5",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok_with_warnings",
+  "status": "ok",
   "summary": "Monolith ASP.NET Core on Azure App Service with Azure SQL Database as the database in India; front end: Blazor.",
   "architecture_style": "monolith",
   "stack": {
     "frontend": {
       "choice": "Blazor (ASP.NET Core)",
-      "justification": "Lets a C# team build the UI without switching to JavaScript. Fit for this project: team.languages includes C#; well suited to internal tool projects; strong maintainability, which you rated 5/5; strong time to market, which you rated 5/5.",
+      "justification": "Lets a C# team build the UI without switching to JavaScript. Fit for this project: team.languages includes C#; well suited to internal tool projects; C# is listed first (treated as the team's primary language); strong maintainability, which you rated 5/5.",
       "driven_by": [
         "team.languages",
         "project.type",
@@ -19,11 +19,7 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 3.2 points lower: the chosen option wins on priorities.security (strong security, which you rated 4/5)."
-        },
-        {
-          "choice": "Next.js (React)",
-          "why_not": "Scored 4.3 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Fit score 4.0 lower than the chosen option: the chosen option wins on team.languages (team.languages includes C#)."
         }
       ],
       "tradeoffs": [
@@ -49,15 +45,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 4.9 points lower: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
+          "why_not": "Fit score 6.6 lower than the chosen option: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
         },
         {
-          "choice": "Node.js + Fastify",
-          "why_not": "Scored 5.9 points lower: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
-        },
-        {
-          "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-          "why_not": "Excluded: Supabase is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
+          "choice": "AWS Lambda + API Gateway",
+          "why_not": "Excluded: AWS is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
         }
       ],
       "tradeoffs": [
@@ -79,11 +71,11 @@
       "alternatives": [
         {
           "choice": "Azure Database for PostgreSQL – Flexible Server (Central India (Pune))",
-          "why_not": "Scored 2.4 points lower: the chosen option wins on infrastructure.existing_systems (reuses the existing SQL Server / Azure SQL Database data and skills)."
+          "why_not": "Fit score 2.4 lower than the chosen option: the chosen option wins on infrastructure.existing_systems (reuses the existing SQL Server / Azure SQL Database data and skills)."
         },
         {
           "choice": "Azure Database for MySQL – Flexible Server (Central India (Pune))",
-          "why_not": "Scored 4.2 points lower: the chosen option wins on infrastructure.existing_systems (reuses the existing SQL Server / Azure SQL Database data and skills)."
+          "why_not": "Fit score 4.2 lower than the chosen option: the chosen option wins on infrastructure.existing_systems (reuses the existing SQL Server / Azure SQL Database data and skills)."
         },
         {
           "choice": "Cloud Firestore",
@@ -106,11 +98,11 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Scored 11.4 points lower: no india region (fine for public static files, but keeps the app outside the residency zone)."
+          "why_not": "Fit score 11.6 lower than the chosen option: no india region (fine for public static files, but keeps the app outside the residency zone)."
         },
         {
           "choice": "Azure Container Apps (Central India (Pune))",
-          "why_not": "Scored 3.7 points lower: operational burden (ops 2/5) with no DevOps engineer; the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Fit score 3.7 lower than the chosen option: some infrastructure to operate with no DevOps engineer; the chosen option wins on project.type (well suited to internal tool projects)."
         },
         {
           "choice": "AWS Elastic Beanstalk",
@@ -335,17 +327,17 @@
   },
   "warnings": [
     {
-      "code": "END_OF_LIFE",
-      "severity": "warning",
-      "message": "Existing system 'On-prem SQL Server 2019': Mainstream support ended 28 Feb 2025; extended (security-only) support runs to 8 Jan 2030. Plan an upgrade or migrate to Azure SQL Database. Source: https://learn.microsoft.com/en-us/lifecycle/products/sql-server-2019",
+      "code": "RENAMED_PRODUCT",
+      "severity": "info",
+      "message": "Existing system 'Microsoft Entra ID (Azure AD)': Azure AD is now Microsoft Entra ID; same service, new name. Integrate via OIDC/SAML. Source: https://learn.microsoft.com/en-us/entra/fundamentals/new-name",
       "fields": [
         "infrastructure.existing_systems"
       ]
     },
     {
-      "code": "RENAMED_PRODUCT",
+      "code": "END_OF_LIFE",
       "severity": "info",
-      "message": "Existing system 'Microsoft Entra ID (Azure AD)': Azure AD is now Microsoft Entra ID; same service, new name. Integrate via OIDC/SAML. Source: https://learn.microsoft.com/en-us/entra/fundamentals/new-name",
+      "message": "Existing system 'On-prem SQL Server 2019': Mainstream support ended 28 Feb 2025; extended (security-only) support runs to 8 Jan 2030. Plan an upgrade or migrate to Azure SQL Database. Source: https://learn.microsoft.com/en-us/lifecycle/products/sql-server-2019",
       "fields": [
         "infrastructure.existing_systems"
       ]
@@ -367,7 +359,9 @@
       ]
     }
   ],
-  "assumptions": [],
+  "assumptions": [
+    "team.languages lists several languages; the first (csharp) is treated as the team's primary language."
+  ],
   "validation_errors": [],
   "derived": {
     "scale_level": 2,

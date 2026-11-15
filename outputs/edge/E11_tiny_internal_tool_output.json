@@ -18,11 +18,7 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 10.9 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
-        },
-        {
-          "choice": "Nuxt (Vue)",
-          "why_not": "Scored 12.8 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
+          "why_not": "Fit score 10.9 lower than the chosen option: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
         }
       ],
       "tradeoffs": [
@@ -44,11 +40,7 @@
       "alternatives": [
         {
           "choice": "FastAPI (Python)",
-          "why_not": "Scored 14.2 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
-        },
-        {
-          "choice": "AWS Lambda + API Gateway",
-          "why_not": "Scored 17.3 points lower: operational burden (ops 2/5) with no DevOps engineer; learning curve 3/5 for a beginner team; the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Fit score 14.2 lower than the chosen option: the chosen option wins on project.type (well suited to internal tool projects)."
         }
       ],
       "tradeoffs": [
@@ -67,11 +59,11 @@
       "alternatives": [
         {
           "choice": "SQLite (in Docker Compose on the VM)",
-          "why_not": "Scored 4.6 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
+          "why_not": "Fit score 4.6 lower than the chosen option: weaker overall fit once team skills, priorities and the other layers are combined."
         },
         {
           "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
-          "why_not": "Scored 1.3 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Fit score 1.3 lower than the chosen option: the chosen option wins on project.type (well suited to internal tool projects)."
         }
       ],
       "tradeoffs": [
@@ -89,11 +81,11 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Scored 14.5 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
+          "why_not": "Fit score 14.5 lower than the chosen option: weaker overall fit once team skills, priorities and the other layers are combined."
         },
         {
-          "choice": "Cloudflare Pages",
-          "why_not": "Scored 22.7 points lower: static hosting only; the API must run elsewhere."
+          "choice": "Railway (US East/West)",
+          "why_not": "Fit score 0.1 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
@@ -223,7 +215,8 @@
     "compliance not given; defaulted to [].",
     "Priorities not given for performance, maintainability, security; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; estimated 0.1 GB (2 MB per user).",
-    "Relaxed: budget.monthly_infra_usd ($10) is below the ~$12 minimum of the compliant stack; the cheapest viable stack is shown."
+    "Relaxed: budget.monthly_infra_usd ($10) is below the ~$12 minimum of the compliant stack; the cheapest viable stack is shown.",
+    "cloud_preference=any: provider chosen by scoring (DigitalOcean)."
   ],
   "validation_errors": [],
   "derived": {

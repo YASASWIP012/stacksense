@@ -8,7 +8,7 @@
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA)",
-      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes TypeScript; well suited to realtime collab projects; strong performance, which you rated 5/5; strong scalability, which you rated 5/5.",
+      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes TypeScript; well suited to realtime collab projects; TypeScript is listed first (treated as the team's primary language); strong performance, which you rated 5/5.",
       "driven_by": [
         "team.languages",
         "project.type",
@@ -20,11 +20,11 @@
       "alternatives": [
         {
           "choice": "Angular",
-          "why_not": "Scored 1.1 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
+          "why_not": "Fit score 1.1 lower than the chosen option: the chosen option wins on project.type (well suited to realtime collab projects)."
         },
         {
           "choice": "Next.js (React)",
-          "why_not": "Scored 1.9 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
+          "why_not": "Fit score 1.9 lower than the chosen option: the chosen option wins on project.type (well suited to realtime collab projects)."
         }
       ],
       "tradeoffs": [
@@ -50,11 +50,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 3.5 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
+          "why_not": "Fit score 2.7 lower than the chosen option: the chosen option wins on project.type (well suited to realtime collab projects)."
         },
         {
-          "choice": "Firebase (Firestore + Cloud Functions)",
-          "why_not": "Scored 6.3 points lower: proprietary API increases lock-in; the chosen option wins on project.type (well suited to realtime collab projects)."
+          "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+          "why_not": "Fit score 0.7 lower than the chosen option: the chosen option wins on project.type (well suited to realtime collab projects)."
         }
       ],
       "tradeoffs": [
@@ -74,11 +74,11 @@
       "alternatives": [
         {
           "choice": "Azure Database for MySQL – Flexible Server (West Europe)",
-          "why_not": "Scored 0.9 points lower: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
+          "why_not": "Fit score 0.9 lower than the chosen option: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
         },
         {
           "choice": "TimescaleDB on Azure VM (self-managed) (West Europe)",
-          "why_not": "Scored 1.7 points lower: time-series extension adds operations without a time-series need."
+          "why_not": "Fit score 1.7 lower than the chosen option: time-series extension adds operations without a time-series need."
         }
       ],
       "tradeoffs": [
@@ -96,11 +96,11 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (West Europe)",
-          "why_not": "Scored 1.5 points lower: the chosen option wins on priorities.scalability (strong scalability, which you rated 5/5)."
+          "why_not": "Fit score 0.7 lower than the chosen option: the chosen option wins on priorities.scalability (strong scalability, which you rated 5/5)."
         },
         {
           "choice": "Google Cloud Run (europe-west1 Belgium)",
-          "why_not": "Scored 0.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Fit score 0.1 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
@@ -222,7 +222,7 @@
           }
         ],
         "tradeoffs": [
-          "Long-lived connections need sticky sessions or a pub/sub layer."
+          "Long-lived connections must be drained on deploys; size Redis pub/sub for peak fan-out."
         ],
         "estimated_monthly_usd": [
           50,
@@ -233,7 +233,7 @@
       {
         "layer": "cache",
         "choice": "Azure Managed Redis",
-        "justification": "Caches hot reads and sessions to hold p95=100ms, and doubles as the pub/sub and job-queue broker.",
+        "justification": "Caches hot reads and sessions to hold p95=100ms, and carries pub/sub for real-time fan-out.",
         "driven_by": [
           "requirements.p95_latency_ms",
           "scale.peak_concurrent_users",
@@ -402,7 +402,11 @@
       ]
     }
   ],
-  "assumptions": [],
+  "assumptions": [
+    "team.languages lists several languages; the first (typescript) is treated as the team's primary language.",
+    "No data_residency given but GDPR applies: services are placed in an EU region.",
+    "cloud_preference=any: provider chosen by scoring (Microsoft Azure)."
+  ],
   "validation_errors": [],
   "derived": {
     "scale_level": 3,
@@ -416,7 +420,7 @@
       "realtime": "live",
       "subscription": "per seat"
     },
-    "combinations_evaluated": 754,
+    "combinations_evaluated": 629,
     "input_hash": "5ce3c181265effaa"
   }
 }

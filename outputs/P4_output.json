@@ -8,7 +8,7 @@
   "stack": {
     "frontend": {
       "choice": "Angular (web) + React Native (Expo) (mobile)",
-      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5; strong security, which you rated 5/5. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes TypeScript; well suited to fintech projects; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5.",
+      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5; strong security, which you rated 5/5. Mobile: Builds Android and iOS apps from one TypeScript/JavaScript codebase. Fit for this project: team.languages includes TypeScript; well suited to fintech projects; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5.",
       "driven_by": [
         "team.languages",
         "priorities.maintainability",
@@ -19,11 +19,11 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 0.9 points lower: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "why_not": "Fit score 0.8 lower than the chosen option: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "Kotlin Multiplatform + Compose Multiplatform",
-          "why_not": "Scored 1.1 points lower: younger ecosystem and smaller hiring pool."
+          "why_not": "Fit score 0.2 lower than the chosen option: younger ecosystem and smaller hiring pool."
         }
       ],
       "tradeoffs": [
@@ -51,11 +51,11 @@
       "alternatives": [
         {
           "choice": "AWS Lambda + API Gateway",
-          "why_not": "Scored 1.7 points lower: proprietary API increases lock-in; the chosen option wins on project.type (well suited to fintech projects)."
+          "why_not": "Fit score 1.1 lower than the chosen option: the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 4.0 points lower: the chosen option wins on project.type (well suited to fintech projects)."
+          "why_not": "Fit score 4.8 lower than the chosen option: the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
           "choice": "Azure Functions",
@@ -81,11 +81,11 @@
       "alternatives": [
         {
           "choice": "Amazon RDS for MySQL (ap-south-1 Mumbai)",
-          "why_not": "Scored 2.4 points lower: the chosen option wins on project.type (well suited to fintech projects)."
+          "why_not": "Fit score 2.4 lower than the chosen option: the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
-          "choice": "TimescaleDB on EC2 (self-managed) (ap-south-1 Mumbai)",
-          "why_not": "Scored 5.1 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to fintech projects)."
+          "choice": "Amazon RDS for SQL Server (ap-south-1 Mumbai)",
+          "why_not": "Fit score 3.7 lower than the chosen option: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates."
         },
         {
           "choice": "Cloud Firestore",
@@ -107,11 +107,11 @@
       "alternatives": [
         {
           "choice": "AWS serverless (Lambda + API Gateway + S3/CloudFront) (ap-south-1 Mumbai)",
-          "why_not": "Scored 1.7 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
+          "why_not": "Fit score 1.1 lower than the chosen option: weaker overall fit once team skills, priorities and the other layers are combined."
         },
         {
           "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
-          "why_not": "Scored 0.8 points lower: operational burden (ops 3/5)."
+          "why_not": "Fit score 0.8 lower than the chosen option: a fair amount of infrastructure to operate."
         },
         {
           "choice": "Azure Container Apps",
@@ -221,7 +221,7 @@
       {
         "layer": "cache",
         "choice": "Amazon ElastiCache for Valkey",
-        "justification": "Caches hot reads and sessions to hold p95=300ms, and doubles as the pub/sub and job-queue broker.",
+        "justification": "Caches hot reads and sessions to hold p95=300ms.",
         "driven_by": [
           "requirements.p95_latency_ms",
           "scale.peak_concurrent_users"
@@ -297,7 +297,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android and iOS (via APNs) for EMI due-date reminders and disbursal/repayment status.",
+        "justification": "Free push delivery to Android and iOS (via APNs) for EMI due-date reminders and disbursal/repayment status. Android push always goes through FCM; payloads carry only an ID and a short text, never personal data, so residency is unaffected.",
         "driven_by": [
           "project.platforms"
         ],
@@ -464,9 +464,20 @@
       "fields": [
         "compliance"
       ]
+    },
+    {
+      "code": "RBI_DIGITAL_LENDING",
+      "severity": "info",
+      "message": "RBI Digital Lending Directions: loans must be disbursed and repaid directly between the borrower and the regulated lender's (bank/NBFC) account, with a Key Fact Statement and cooling-off period; a lending app needs an NBFC licence or a regulated lending partner.",
+      "fields": [
+        "project.type",
+        "project.description"
+      ]
     }
   ],
-  "assumptions": [],
+  "assumptions": [
+    "team.languages lists several languages; the first (java) is treated as the team's primary language."
+  ],
   "validation_errors": [],
   "derived": {
     "scale_level": 3,

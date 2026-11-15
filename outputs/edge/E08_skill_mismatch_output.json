@@ -19,11 +19,11 @@
       "alternatives": [
         {
           "choice": "Next.js (React)",
-          "why_not": "Scored 0.7 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.type (well suited to gaming projects)."
+          "why_not": "Fit score 0.7 lower than the chosen option: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.type (well suited to gaming projects)."
         },
         {
           "choice": "React Native (Expo)",
-          "why_not": "Scored 0.8 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.platforms (reuses the web codebase)."
+          "why_not": "Fit score 0.8 lower than the chosen option: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.platforms (reuses the web codebase)."
         }
       ],
       "tradeoffs": [
@@ -50,11 +50,11 @@
       "alternatives": [
         {
           "choice": "ASP.NET Core (C#)",
-          "why_not": "Scored 4.8 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes PHP)."
+          "why_not": "Fit score 6.8 lower than the chosen option: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes PHP)."
         },
         {
-          "choice": "Firebase (Firestore + Cloud Functions)",
-          "why_not": "Scored 4.1 points lower: the team would have to learn JavaScript/TypeScript; proprietary API increases lock-in; the chosen option wins on team.languages (team.languages includes PHP)."
+          "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+          "why_not": "Fit score 4.9 lower than the chosen option: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes PHP)."
         }
       ],
       "tradeoffs": [
@@ -72,11 +72,11 @@
       "alternatives": [
         {
           "choice": "Amazon DynamoDB (us-east-1 N. Virginia)",
-          "why_not": "Scored 0.2 points lower: proprietary API increases lock-in; learning curve 4/5 for a intermediate team."
+          "why_not": "Fit score 0.2 lower than the chosen option: proprietary API increases lock-in; learning curve 4/5 for a intermediate team."
         },
         {
           "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
-          "why_not": "Scored 0.7 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Fit score 0.7 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
@@ -93,11 +93,11 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Scored 2.9 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
+          "why_not": "Fit score 4.9 lower than the chosen option: weaker overall fit once team skills, priorities and the other layers are combined."
         },
         {
-          "choice": "Netlify (us-east-2)",
-          "why_not": "Scored 3.3 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
+          "choice": "DigitalOcean App Platform (NYC3 New York)",
+          "why_not": "Fit score 0.1 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
@@ -146,7 +146,7 @@
           }
         ],
         "tradeoffs": [
-          "Long-lived connections need sticky sessions or a pub/sub layer."
+          "Long-lived connections must be drained on deploys; size Redis pub/sub for peak fan-out."
         ],
         "estimated_monthly_usd": [
           50,
@@ -157,7 +157,7 @@
       {
         "layer": "cache",
         "choice": "Amazon ElastiCache for Valkey",
-        "justification": "Caches hot reads and sessions to hold p95=150ms, and doubles as the pub/sub and job-queue broker.",
+        "justification": "Caches hot reads and sessions to hold p95=150ms, and carries pub/sub for real-time fan-out.",
         "driven_by": [
           "requirements.p95_latency_ms",
           "scale.peak_concurrent_users",
@@ -352,7 +352,8 @@
     "compliance not given; defaulted to [].",
     "Priorities not given for cost, scalability, maintainability, security; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; estimated 156.2 GB (2 MB per user).",
-    "Relaxed: budget.monthly_infra_usd ($400) is below the ~$476 minimum of the compliant stack; the cheapest viable stack is shown."
+    "Relaxed: budget.monthly_infra_usd ($400) is below the ~$476 minimum of the compliant stack; the cheapest viable stack is shown.",
+    "cloud_preference=any: provider chosen by scoring (AWS)."
   ],
   "validation_errors": [],
   "derived": {

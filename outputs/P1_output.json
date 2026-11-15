@@ -20,11 +20,7 @@
       "alternatives": [
         {
           "choice": "Nuxt (Vue)",
-          "why_not": "Scored 5.1 points lower: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
-        },
-        {
-          "choice": "SvelteKit",
-          "why_not": "Scored 5.6 points lower: app framework is heavier than this content site needs; younger ecosystem and smaller hiring pool; the chosen option wins on project.type (well suited to content site projects)."
+          "why_not": "Fit score 5.1 lower than the chosen option: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": [
@@ -46,11 +42,7 @@
       "alternatives": [
         {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-          "why_not": "Scored 4.9 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
-        },
-        {
-          "choice": "Firebase (Firestore + Cloud Functions)",
-          "why_not": "Scored 8.0 points lower: a server is unnecessary for a static content site; proprietary API increases lock-in; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "why_not": "Fit score 3.2 lower than the chosen option: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         }
       ],
       "tradeoffs": []
@@ -67,11 +59,11 @@
       "alternatives": [
         {
           "choice": "SQLite (in Docker Compose on the VM)",
-          "why_not": "Scored 28.1 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "why_not": "Fit score 26.4 lower than the chosen option: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         },
         {
           "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
-          "why_not": "Scored 4.9 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "why_not": "Fit score 3.2 lower than the chosen option: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
       "tradeoffs": []
@@ -87,16 +79,14 @@
       "alternatives": [
         {
           "choice": "Cloud Storage + Cloud CDN (static site) (us-central1 Iowa)",
-          "why_not": "Scored 0.1 points lower: the chosen option wins on project.type (well suited to content site projects)."
+          "why_not": "Fit score 0.1 lower than the chosen option: the chosen option wins on project.type (well suited to content site projects)."
         },
         {
           "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
-          "why_not": "Scored 0.1 points lower: the chosen option wins on project.type (well suited to content site projects)."
+          "why_not": "Fit score 0.1 lower than the chosen option: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
-      "tradeoffs": [
-        "Workers runtime is not Node.js; some libraries need adapters."
-      ]
+      "tradeoffs": []
     },
     "supporting": [
       {
@@ -176,7 +166,9 @@
       ]
     }
   ],
-  "assumptions": [],
+  "assumptions": [
+    "cloud_preference=any: provider chosen by scoring (Cloudflare)."
+  ],
   "validation_errors": [],
   "derived": {
     "scale_level": 1,

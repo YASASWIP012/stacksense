@@ -8,7 +8,7 @@
   "stack": {
     "frontend": {
       "choice": "Angular (web) + React Native (Expo) (mobile)",
-      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5; strong security, which you rated 5/5; well suited to healthtech projects. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5.",
+      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5; TypeScript is listed first (treated as the team's primary language); strong security, which you rated 5/5. Mobile: Builds Android and iOS apps from one TypeScript/JavaScript codebase. Fit for this project: team.languages includes TypeScript; TypeScript is listed first (treated as the team's primary language); strong maintainability, which you rated 4/5.",
       "driven_by": [
         "team.languages",
         "priorities.maintainability",
@@ -18,11 +18,11 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 1.3 points lower: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "why_not": "Fit score 1.3 lower than the chosen option: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "Ionic Capacitor",
-          "why_not": "Scored 0.8 points lower: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
+          "why_not": "Fit score 0.8 lower than the chosen option: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
         }
       ],
       "tradeoffs": [
@@ -48,11 +48,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 1.9 points lower: the chosen option wins on project.type (well suited to healthtech projects)."
+          "why_not": "Fit score 1.1 lower than the chosen option: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
           "choice": "FastAPI (Python)",
-          "why_not": "Scored 2.3 points lower: the chosen option wins on project.type (well suited to healthtech projects)."
+          "why_not": "Fit score 2.3 lower than the chosen option: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
@@ -77,11 +77,11 @@
       "alternatives": [
         {
           "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
-          "why_not": "Scored 2.4 points lower: the chosen option wins on project.type (well suited to healthtech projects)."
+          "why_not": "Fit score 2.4 lower than the chosen option: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
-          "choice": "TimescaleDB on EC2 (self-managed) (us-east-1 N. Virginia)",
-          "why_not": "Scored 5.1 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to healthtech projects)."
+          "choice": "Azure SQL Database (East US)",
+          "why_not": "Fit score 3.9 lower than the chosen option: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates."
         }
       ],
       "tradeoffs": [
@@ -97,11 +97,11 @@
       "alternatives": [
         {
           "choice": "Azure Container Apps (East US)",
-          "why_not": "Scored 0.2 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Fit score 0.2 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
           "choice": "Google Cloud Run (us-central1 Iowa)",
-          "why_not": "Scored 0.2 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Fit score 0.2 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
@@ -211,7 +211,7 @@
           }
         ],
         "tradeoffs": [
-          "Long-lived connections need sticky sessions or a pub/sub layer."
+          "Long-lived connections must be drained on deploys; size Redis pub/sub for peak fan-out."
         ],
         "estimated_monthly_usd": [
           50,
@@ -222,7 +222,7 @@
       {
         "layer": "cache",
         "choice": "Amazon ElastiCache for Valkey",
-        "justification": "Caches hot reads and sessions to hold p95=300ms, and doubles as the pub/sub and job-queue broker.",
+        "justification": "Caches hot reads and sessions to hold p95=300ms, and carries pub/sub for real-time fan-out.",
         "driven_by": [
           "requirements.p95_latency_ms",
           "scale.peak_concurrent_users",
@@ -272,7 +272,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android and iOS (via APNs) for booking and job-status updates.",
+        "justification": "Free push delivery to Android and iOS (via APNs) for booking and job-status updates. Android push always goes through FCM; payloads carry only an ID and a short text, never personal data, so residency is unaffected.",
         "driven_by": [
           "project.platforms"
         ],
@@ -461,7 +461,9 @@
     "requirements.ml_features not given; defaulted to \"none\".",
     "requirements.seo_critical not given; defaulted to false.",
     "Priorities not given for cost, time_to_market, scalability, performance; defaulted to 3.",
-    "scale.data_volume_gb_12_months not given; estimated 3046.9 GB (52 MB per user)."
+    "scale.data_volume_gb_12_months not given; estimated 3046.9 GB (52 MB per user).",
+    "team.languages lists several languages; the first (typescript) is treated as the team's primary language.",
+    "cloud_preference=any: provider chosen by scoring (AWS)."
   ],
   "validation_errors": [],
   "derived": {
@@ -475,7 +477,7 @@
       "media": "upload",
       "realtime": "chat"
     },
-    "combinations_evaluated": 3168,
+    "combinations_evaluated": 3724,
     "input_hash": "9d56ee5bdcac43ce"
   }
 }

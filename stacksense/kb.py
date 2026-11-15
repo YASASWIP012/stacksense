@@ -423,7 +423,7 @@ HOSTING = [
       cost={1: (0, 20), 2: (20, 60), 3: (60, 400), 4: (400, 3000), 5: (3000, 15000)},
       tradeoffs=["Hobby (free) plan is non-commercial only; commercial use needs Pro ($20/member).",
                  "Serverless functions cannot hold WebSockets."],
-      why="zero-config Next.js hosting with preview deploys and Mumbai (bom1) functions",
+      why="zero-config Next.js hosting with preview deploys and regional functions",
       src=["https://vercel.com/docs/plans/hobby", "https://vercel.com/pricing", "https://vercel.com/docs/regions"]),
     T("render", "Render", "hosting", caps={"containers", "websockets", "managed_pg"}, provider="render",
       deploy={"managed_cloud"}, ttm=5, perf=4, scale=4, cheap=4, ops=1, learn=1,
@@ -533,7 +533,7 @@ HOSTING = [
 # ---------------------------------------------------------------- EOL / deprecated items
 # (regex, name, end_date, message, source)
 EOL = [
-    (r"sql\s*server\s*2019", "SQL Server 2019", "2025-02-28",
+    (r"sql\s*server\s*2019", "SQL Server 2019", "2030-01-08",
      "Mainstream support ended 28 Feb 2025; extended (security-only) support runs to 8 Jan 2030. Plan an "
      "upgrade or migrate to Azure SQL Database.",
      "https://learn.microsoft.com/en-us/lifecycle/products/sql-server-2019"),

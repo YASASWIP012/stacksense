@@ -8,7 +8,7 @@
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA) (web) + React Native (Expo) (mobile)",
-      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes JavaScript; strong cost, which you rated 5/5; strong time to market, which you rated 5/5. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 5/5; well suited to social projects.",
+      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes JavaScript; strong cost, which you rated 5/5; strong time to market, which you rated 5/5. Mobile: Builds Android and iOS apps from one TypeScript/JavaScript codebase. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 5/5; well suited to social projects.",
       "driven_by": [
         "team.languages",
         "priorities.cost",
@@ -18,11 +18,11 @@
       "alternatives": [
         {
           "choice": "Next.js (React)",
-          "why_not": "Scored 1.9 points lower: learning curve 3/5 for a beginner team."
+          "why_not": "Fit score 1.9 lower than the chosen option: learning curve 3/5 for a beginner team."
         },
         {
           "choice": "Ionic Capacitor",
-          "why_not": "Scored 1.6 points lower: the chosen option wins on priorities.time_to_market (strong time to market, which you rated 5/5)."
+          "why_not": "Fit score 1.6 lower than the chosen option: the chosen option wins on priorities.time_to_market (strong time to market, which you rated 5/5)."
         }
       ],
       "tradeoffs": [
@@ -51,11 +51,11 @@
       "alternatives": [
         {
           "choice": "Node.js + Fastify",
-          "why_not": "Scored 1.9 points lower: the chosen option wins on timeline.mvp_weeks (a 1-person team ships in 3 weeks without building auth/storage)."
+          "why_not": "Fit score 2.0 lower than the chosen option: the chosen option wins on timeline.mvp_weeks (a 1-person team ships in 3 weeks without building auth/storage)."
         },
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 2.6 points lower: learning curve 3/5 for a beginner team."
+          "why_not": "Fit score 2.6 lower than the chosen option: learning curve 3/5 for a beginner team."
         }
       ],
       "tradeoffs": [
@@ -76,11 +76,11 @@
       "alternatives": [
         {
           "choice": "Cloud Firestore (Firebase)",
-          "why_not": "Scored 2.2 points lower: proprietary API increases lock-in; the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
+          "why_not": "Fit score 2.2 lower than the chosen option: proprietary API increases lock-in; the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         },
         {
           "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
-          "why_not": "Scored 3.2 points lower: the chosen option wins on project.type (well suited to social projects)."
+          "why_not": "Fit score 3.2 lower than the chosen option: the chosen option wins on project.type (well suited to social projects)."
         }
       ],
       "tradeoffs": [
@@ -100,11 +100,11 @@
       "alternatives": [
         {
           "choice": "Firebase Hosting (nam5)",
-          "why_not": "Scored 2.2 points lower: static hosting only; the API must run elsewhere."
+          "why_not": "Fit score 2.2 lower than the chosen option: static hosting only; the API must run elsewhere."
         },
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Scored 3.9 points lower: costs at least $100/month but the budget is $0."
+          "why_not": "Fit score 3.9 lower than the chosen option: costs at least $100/month but the budget is $0."
         }
       ],
       "tradeoffs": [
@@ -169,7 +169,7 @@
           }
         ],
         "tradeoffs": [
-          "Long-lived connections need sticky sessions or a pub/sub layer."
+          "Channel limits depend on the Supabase/Firebase plan."
         ],
         "estimated_monthly_usd": [
           0,
@@ -369,7 +369,8 @@
     "requirements.ml_features not given; defaulted to \"none\".",
     "requirements.seo_critical not given; defaulted to false.",
     "Priorities not given for scalability, performance, maintainability, security; defaulted to 3.",
-    "Relaxed: budget.monthly_infra_usd ($0) treated as soft; cheapest viable stack shown."
+    "Relaxed: budget.monthly_infra_usd ($0) treated as soft; cheapest viable stack shown.",
+    "cloud_preference=any: provider chosen by scoring (Cloudflare)."
   ],
   "validation_errors": [],
   "derived": {

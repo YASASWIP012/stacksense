@@ -87,6 +87,9 @@ def build_ctx(spec, raw, assumptions):
     c.traffic = s["scale.traffic_pattern"]
     c.workload = s["scale.workload"]
     c.langs = sorted({_norm_lang(x) for x in s["team.languages"]})
+    c.langs_order = [l for l in (_norm_lang(x) for x in s["team.languages"]) if l not in ("sql", "html", "css")]
+    if len(c.langs_order) > 1:
+        assumptions.append("team.languages lists several languages; the first (%s) is treated as the team's primary language." % c.langs_order[0])
     c.exp = s["team.experience"]
     c.size = s["team.size"]
     c.devops = s["team.has_devops"]
@@ -171,10 +174,13 @@ def lang_fit(cand, c, contribs, layer):
             contribs.append(("team.languages", 0.5, "first-class .NET tooling for a C# team"))
         return
     if layer == "backend":
-        w *= 1.8  # switching the server language costs the most: domain code, libraries, hiring
+        w *= 2.2  # switching the server language costs the most: domain code, libraries, hiring
     hit = sorted(langs & team)
     if hit:
         contribs.append(("team.languages", w, "team.languages includes %s" % "/".join(LANG_LABEL.get(h, h) for h in hit)))
+        primary = c.langs_order[0] if c.langs_order else None
+        if primary and primary in langs and len(c.langs_order) > 1:
+            contribs.append(("team.languages", 0.8, "%s is listed first (treated as the team's primary language)" % LANG_LABEL.get(primary, primary)))
         return
     fam = {kb.LANG_FAMILY.get(x) for x in langs} - {None}
     tfam = {kb.LANG_FAMILY.get(x) for x in team} - {None}
@@ -183,7 +189,7 @@ def lang_fit(cand, c, contribs, layer):
                          "/".join(LANG_LABEL.get(x, x) for x in sorted(team) if kb.LANG_FAMILY.get(x) in fam)))
         return
     need = "/".join(LANG_LABEL.get(x, x) for x in sorted(langs))
-    if layer in ("web", "mobile") and langs <= {"javascript", "typescript"}:
+    if layer in ("web", "mobile") and langs <= {"javascript", "typescript"} and not (team & {"dart", "kotlin", "swift", "java"} and layer == "mobile"):
         w *= 0.5  # JavaScript is the lingua franca of UI work; cheaper to pick up than a niche language
     contribs.append(("team.languages", -w, "the team would have to learn %s" % need))
 
@@ -258,7 +264,7 @@ def score(cand, layer, c):
             excl = ("infrastructure.cloud_preference", "%s is not available on %s" % (cand["name"], c.cloud.upper()))
     if c.lockin == "low" and cand.get("proprietary"):
         contribs.append(("extras.vendor_lock_in_tolerance", -2.5, "proprietary service and lock-in tolerance is low"))
-    elif c.lockin == "medium" and cand.get("proprietary"):
+    elif c.lockin == "medium" and cand.get("proprietary") and not (c.cloud in ("aws", "gcp", "azure") and cand.get("provider") == c.cloud):
         contribs.append(("extras.vendor_lock_in_tolerance", -0.6, "proprietary API increases lock-in"))
     elif c.lockin == "high" and cand.get("proprietary"):
         contribs.append(("extras.vendor_lock_in_tolerance", 0.4, "lock-in is acceptable here"))
@@ -277,8 +283,8 @@ def score(cand, layer, c):
     if cand["ops"] > 1:
         mult = (0.25 if c.devops else 0.9) * (1.3 if c.size <= 2 else 1.0)
         d = -(cand["ops"] - 1) * mult
-        contribs.append(("team.has_devops", d, "operational burden (ops %d/5)%s" % (
-            cand["ops"], "" if c.devops else " with no DevOps engineer")))
+        contribs.append(("team.has_devops", d, "%s infrastructure to operate%s" % (
+            {2: "some", 3: "a fair amount of", 4: "a lot of", 5: "a large amount of"}[cand["ops"]], "" if c.devops else " with no DevOps engineer")))
     lm = {"beginner": 0.8, "mixed": 0.45, "intermediate": 0.3, "senior": 0.1}[c.exp] * (1.3 if c.mvp <= 4 else 1)
     if cand["learn"] > 2:
         contribs.append(("team.experience", -(cand["learn"] - 2) * lm, "learning curve %d/5 for a %s team" % (cand["learn"], c.exp)))
@@ -872,6 +878,8 @@ def _explain(cand, contribs, extra_pair=None, max_n=4, ctx=None):
     neg = [x for x in neg if x[2]]
     reasons = [t for _, _, t in pos[:max_n]]
     why = cand.get("why") or cand["name"]
+    if ctx is not None and cand["id"] == "rn_expo" and "web" in ctx.platforms:
+        why = "builds Android and iOS apps from one TypeScript/JavaScript codebase"
     if ctx is not None and (cand["id"], "web" in ctx.platforms) in WHY_OVERRIDE:
         why = WHY_OVERRIDE[(cand["id"], "web" in ctx.platforms)]
     if ctx is not None and cand["id"] in WHY_NO_LANG and not (set(cand["langs"]) & set(ctx.langs)):
@@ -890,6 +898,11 @@ def _explain(cand, contribs, extra_pair=None, max_n=4, ctx=None):
         if abs(d) >= 0.3 and f not in driven:
             driven.append(f)
     trade = list(cand.get("tradeoffs", []))
+    if ctx is not None:
+        if "dart" in ctx.langs:
+            trade = [t for t in trade if "Dart" not in t]
+        if ctx.is_static:
+            trade = [t for t in trade if "Workers runtime" not in t]
     for _, d, t in neg[:2]:
         if d > -0.5:
             continue
@@ -920,7 +933,7 @@ def _why_not(alt, alt_contribs, chosen_contribs, gap, excl=None):
     if not parts:
         parts.append("close runner-up; the chosen option combines better with the rest of the stack" if gap < 1.0
                      else "weaker overall fit once team skills, priorities and the other layers are combined")
-    return "Scored %.1f points lower: %s." % (max(gap, 0.1), "; ".join(parts))
+    return "Fit score %.1f lower than the chosen option: %s." % (max(gap, 0.1), "; ".join(parts))
 
 
 def _component(choice, cand, contribs, pair, alts, ctx=None):
@@ -964,6 +977,8 @@ def _alternatives(layer, best, combos, scored, excluded, c, chosen_contribs, n=2
             continue
         seen.add(cand["id"])
         total, key, combo, pair, dbs, parts = best_with[cand["id"]]
+        if best[0] - total > 5.0 and alts:
+            continue
         name = dbs["name"] if layer == "database" else (_host_name(cand, c) if layer == "hosting" else cand["name"])
         alts.append({"choice": name, "why_not": _why_not(cand, parts[layer][2], chosen_contribs, best[0] - total)})
         if len(alts) >= n:
@@ -1137,6 +1152,16 @@ def _recommend(raw):
     cost = estimate(c, combo, dbs, supporting, host_provider(host, c))
     warnings += budget_warnings(c, cost, assumptions)
     warnings += soft_relax
+    if c.residency == "none" and "gdpr" in c.compliance:
+        assumptions.append("No data_residency given but GDPR applies: services are placed in an EU region.")
+    if c.cloud == "any":
+        assumptions.append("cloud_preference=any: provider chosen by scoring (%s)." % kb.PROVIDERS.get(host_provider(host, c), {}).get("name", host["name"]))
+    if c.type == "fintech" and re.search(r"\bloans?\b|lending|\bemis?\b|disburs", (c.spec.get("project.description") or "").lower()):
+        warnings.append({"code": "RBI_DIGITAL_LENDING", "severity": "info",
+                         "message": "RBI Digital Lending Directions: loans must be disbursed and repaid directly between the borrower and "
+                                    "the regulated lender's (bank/NBFC) account, with a Key Fact Statement and cooling-off period; "
+                                    "a lending app needs an NBFC licence or a regulated lending partner.",
+                         "fields": ["project.type", "project.description"]})
     team = set(c.langs)
     if team:
         for layer in ("backend", "web", "mobile"):
