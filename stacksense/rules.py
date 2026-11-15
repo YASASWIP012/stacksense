@@ -186,6 +186,16 @@ def conflicts(c, warnings, assumptions):
                       "CERT-In Directions (28 Apr 2022): keep system logs for 180 days within India and report cyber "
                       "incidents to CERT-In within 6 hours; size log retention and the incident runbook accordingly. "
                       "Source: https://www.cert-in.org.in/Directions70B.jsp", ["infrastructure.data_residency"]))
+    if r["offline_support"]:
+        soft.append(W("OFFLINE_CONFLICT_POLICY", "info",
+                      "Offline writes need an explicit conflict policy: client-generated UUIDs, idempotent sync endpoints and a "
+                      "rule for concurrent edits (last-write-wins per field, or server-side review) so retries never duplicate or lose records.",
+                      ["requirements.offline_support"]))
+    if "geo" in c.signals and (set(c.compliance) & {"dpdp", "gdpr"} or c.eff_residency in ("india", "eu")):
+        soft.append(W("LOCATION_CONSENT", "info",
+                      "GPS location is personal data under DPDP/GDPR: ask for explicit consent before capture, state the purpose, "
+                      "store only the precision you need and honour deletion requests.",
+                      ["project.description", "compliance"]))
     if "dpdp" in c.compliance:
         soft.append(W("DPDP_NOTES", "info",
                       "DPDP Act 2023: collect consent per purpose, honour erasure requests and report breaches; the "

@@ -3,7 +3,7 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok",
-  "summary": "Service oriented Spring Boot on AWS ECS on Fargate with Amazon RDS for PostgreSQL Multi-AZ as the database in India; front end: Angular, React Native.",
+  "summary": "Service oriented Spring Boot on AWS ECS on Fargate with Amazon RDS for PostgreSQL Multi-AZ as the database in India; front end: React + Vite, React Native.",
   "architecture_style": "service_oriented",
   "architecture_rationale": {
     "text": "A Spring Boot core plus ml as separate services, because they have different runtimes/scaling needs; a 8-person team with DevOps can operate a few services. Microservices rejected: 8 engineer(s) cannot absorb their operational overhead.",
@@ -17,19 +17,20 @@
   "kb_version": "StackSense KB 2026-11-15",
   "stack": {
     "frontend": {
-      "choice": "Angular (web) + React Native (Expo) (mobile)",
-      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5; strong security, which you rated 5/5. Mobile: Builds Android and iOS apps from one TypeScript/JavaScript codebase. Fit for this project: team.languages includes TypeScript; well suited to fintech projects; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5.",
+      "choice": "React + Vite (SPA) (web) + React Native (Expo) (mobile)",
+      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes TypeScript; well suited to fintech projects; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5. Mobile: Builds Android and iOS apps from one TypeScript/JavaScript codebase. Fit for this project: team.languages includes TypeScript; well suited to fintech projects; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5.",
       "driven_by": [
         "team.languages",
+        "project.platforms",
+        "project.type",
         "priorities.maintainability",
         "priorities.scalability",
-        "priorities.security",
-        "project.type"
+        "priorities.cost"
       ],
       "alternatives": [
         {
-          "choice": "React + Vite (SPA)",
-          "why_not": "Close runner-up: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "choice": "Angular",
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         },
         {
           "choice": "Kotlin Multiplatform + Compose Multiplatform",
@@ -37,12 +38,13 @@
         }
       ],
       "tradeoffs": [
-        "Steeper learning curve and more boilerplate than React/Vue.",
+        "Client-rendered: no SEO for public pages.",
+        "Routing/data fetching are your choices.",
         "JS runtime adds memory overhead on very low-end phones.",
         "Some native modules need a development build."
       ],
       "parts": {
-        "web": "Angular",
+        "web": "React + Vite (SPA)",
         "mobile": "React Native (Expo)"
       }
     },
@@ -542,7 +544,7 @@
       {
         "candidate": "Angular",
         "score": 5.55,
-        "chosen": true,
+        "chosen": false,
         "top_factors": [
           "+2.00 team.languages includes TypeScript",
           "+1.05 strong maintainability, which you rated 4/5",
@@ -552,7 +554,7 @@
       {
         "candidate": "React + Vite (SPA)",
         "score": 4.7,
-        "chosen": false,
+        "chosen": true,
         "top_factors": [
           "+2.00 team.languages includes TypeScript",
           "+0.60 well suited to fintech projects",

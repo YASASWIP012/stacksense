@@ -28,7 +28,7 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Lower overall fit: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "why_not": "Close runner-up: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "Ionic Capacitor",

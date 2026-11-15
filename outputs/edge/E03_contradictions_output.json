@@ -18,10 +18,11 @@
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA) (web) + React Native (Expo) (mobile)",
-      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes JavaScript; strong cost, which you rated 5/5; strong time to market, which you rated 5/5. Mobile: Builds Android and iOS apps from one TypeScript/JavaScript codebase. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 5/5; well suited to social projects.",
+      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes JavaScript; strong cost, which you rated 5/5; strong time to market, which you rated 5/5; React on the web and React Native on mobile share skills, hooks and business-logic code. Mobile: Builds Android and iOS apps from one TypeScript/JavaScript codebase. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 5/5; well suited to social projects.",
       "driven_by": [
         "team.languages",
         "priorities.cost",
+        "project.platforms",
         "priorities.time_to_market",
         "project.type"
       ],

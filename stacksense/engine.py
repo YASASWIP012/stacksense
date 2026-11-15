@@ -746,6 +746,9 @@ def pair_rules(combo, c):
         return False, ("hosting", "no static hosting"), out, None
     if web and web["id"] in ("nextjs", "nuxt", "sveltekit") and caps == {"static"} and be["id"] != "none":
         out.append(("hosting", -1.0, "static export only: loses server rendering"))
+    if web and mob and mob["id"] == "rn_expo":
+        if web["id"] in ("nextjs", "react_spa"):
+            out.append(("project.platforms", 1.2, "React on the web and React Native on mobile share skills, hooks and business-logic code"))
     if web and web["id"] == "nextjs" and "next_native" in caps:
         out.append(("hosting", 1.0, "Vercel builds and serves Next.js natively"))
     if be["id"] == "next_fullstack" and "next_native" in caps:
@@ -1112,7 +1115,7 @@ def _recommend(raw, _nested=False):
     pair_by_layer = {}
     layer_of = {"hosting": "hosting", "budget.monthly_infra_usd": "hosting", "requirements.realtime": "hosting",
                 "team.size": "hosting", "web": "web", "backend": "backend", "database": "database",
-                "team.languages": "backend", "infrastructure.existing_systems": "database",
+                "team.languages": "backend", "infrastructure.existing_systems": "database", "project.platforms": "web",
                 "requirements.auth": "backend", "team.has_devops": "database", "requirements.availability": "database",
                 "requirements.offline_support": "backend"}
     for f, d, t in pair:

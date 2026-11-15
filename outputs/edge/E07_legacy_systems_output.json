@@ -22,6 +22,7 @@
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
+        "project.platforms",
         "project.type",
         "requirements.seo_critical",
         "priorities.cost",
@@ -34,7 +35,7 @@
         },
         {
           "choice": "Progressive Web App",
-          "why_not": "Close runner-up: limited camera/GPS access."
+          "why_not": "Lower overall fit: limited camera/GPS access."
         }
       ],
       "tradeoffs": [
