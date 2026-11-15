@@ -122,8 +122,8 @@
           "Account recovery and MFA flows must still be designed."
         ],
         "estimated_monthly_usd": [
-          25,
-          250
+          0,
+          0
         ]
       },
       {
@@ -265,8 +265,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 501,
-    "max": 3489,
+    "min": 476,
+    "max": 3239,
     "assumptions": [
       "Scale level L3: ~80000 users, ~4000 peak concurrent, ~800 req/s at peak, ~156.2 GB stored",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
@@ -281,8 +281,8 @@
         839
       ],
       "auth": [
-        25,
-        250
+        0,
+        0
       ],
       "realtime": [
         50,
@@ -314,7 +314,7 @@
     {
       "code": "OVER_BUDGET",
       "severity": "warning",
-      "message": "Estimated $501-3489/month exceeds the $400 budget at the low end. Use the cheapest tier of each service or raise the budget.",
+      "message": "Estimated $476-3239/month exceeds the $400 budget at the low end. Use the cheapest tier of each service or raise the budget.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -352,7 +352,7 @@
     "compliance not given; defaulted to [].",
     "Priorities not given for cost, scalability, maintainability, security; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; estimated 156.2 GB (2 MB per user).",
-    "Relaxed: budget.monthly_infra_usd ($400) is below the ~$501 minimum of the compliant stack; the cheapest viable stack is shown."
+    "Relaxed: budget.monthly_infra_usd ($400) is below the ~$476 minimum of the compliant stack; the cheapest viable stack is shown."
   ],
   "validation_errors": [],
   "derived": {

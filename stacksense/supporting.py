@@ -5,6 +5,8 @@ Each layer is added only when an input calls for it, and each choice respects
 the same hard constraints as the core layers (deployment model, cloud
 preference, data residency, compliance).
 """
+import re
+
 from . import kb
 
 # SaaS region facts for supporting vendors (conservative; see kb sources)
@@ -55,19 +57,24 @@ def _domain_items(c, combo, dbs, hp, onprem, prior=()):
                      ["project.type", "project.description"],
                      [("Devices calling the REST API directly", "HTTP per reading wastes battery and collapses under bursts.")],
                      ["Device provisioning and certificate rotation must be planned."], (10, 300)))
-    if c.type == "data_analytics" and not onprem:
+    ex_wh = next((x for x in c.existing if any(k in x.lower() for k in ("snowflake", "bigquery", "redshift", "databricks"))), None)
+    if c.type == "data_analytics" and ex_wh:
+        out.append(S("other", "%s (existing warehouse, reused)" % ex_wh, "The organisation already runs this warehouse; analytical "
+                     "queries and dashboards use it rather than adding a second one.", ["infrastructure.existing_systems", "project.type"],
+                     [("A new warehouse", "Duplicates data, cost and governance.")], [], (0, 0)))
+    elif c.type == "data_analytics" and not onprem:
         ch = {"gcp": "BigQuery (serverless warehouse) + Looker Studio", "aws": "Amazon Redshift Serverless or Athena on S3",
               "azure": "Microsoft Fabric / Azure Synapse"}.get(hp, "ClickHouse Cloud or BigQuery")
         out.append(S("other", ch, "Analytical queries over large volumes run in a columnar warehouse with no servers to manage; the "
                      "application database stays small and fast.", ["project.type", "scale.data_volume_gb_12_months"],
                      [("Self-managed ClickHouse", "Fastest per dollar but needs operations.")], ["Per-query pricing needs guardrails."], (20, 500)))
     if c.type == "api_platform":
-        ch = {"aws": "Amazon API Gateway (usage plans + API keys)", "gcp": "Apigee X / API Gateway", "azure": "Azure API Management"}.get(
+        ch = {"aws": "Amazon API Gateway (usage plans + API keys)", "gcp": "Google Cloud API Gateway (API keys + quotas; Apigee only for enterprise monetisation)", "azure": "Azure API Management"}.get(
             hp, "Kong Gateway (self-hosted)" if c.devops else "Zuplo (managed API gateway)") if not onprem else "Kong Gateway (self-hosted)"
         out.append(S("other", ch, "API products need per-customer keys, rate limits, quotas and usage metering at the edge; the "
                      "gateway also publishes the OpenAPI developer portal.", ["project.type", "project.platforms"],
                      [("Rate limiting inside the app", "Every service re-implements keys and quotas.")], [], (0, 100) if c.L <= 2 else (50, 600)))
-    if "video" in d and ("consult" in d or "telehealth" in d or "call" in d or c.type == "healthtech"):
+    if "video" in d and any(k in d for k in ("consult", "telehealth", "call", "session", "class", "tutor", "meeting", "proctor", "webcam")) or "webcam" in d:
         hip = "hipaa" in c.compliance
         ch = "LiveKit (self-hosted in your cloud)" if (hip or onprem or c.eff_residency == "india") else "Daily (managed WebRTC video)"
         out.append(S("realtime", ch, "Video consultations need WebRTC with TURN relays; %s" % (
@@ -75,11 +82,30 @@ def _domain_items(c, combo, dbs, hp, onprem, prior=()):
             ["project.description"] + (["compliance"] if hip else []),
             [("Zoom Video SDK", "Per-minute pricing; branding constraints."), ("Peer-to-peer WebRTC only", "Fails behind strict NATs without TURN.")],
             ["Media servers need bandwidth headroom."], (50, 600)))
-    if c.type == "content_site" and (c.size >= 3 or any(k in d for k in ("editor", "newsroom", "journalist", "writers", "news"))):
+    if c.type == "content_site" and any(k in d for k in ("editor", "newsroom", "journalist", "writers", "news", "cms", "authors", "marketing team")):
         ch = "WordPress (headless) + WPGraphQL" if "php" in c.langs else "Payload CMS (self-hosted) or Strapi"
         out.append(S("other", ch, "Several non-developer editors need drafts, roles, scheduling and media management; the site "
                      "pulls content from the CMS at build time and the CDN serves the pages.", ["project.type", "team.size"],
                      [("Markdown in Git", "Fine for one developer-author, not for an editorial team.")], [], (10, 60)))
+    if "newsletter" in d or "email campaign" in d or "mailing list" in d:
+        ch = "Amazon SES (newsletter sending) + double opt-in list" if hp == "aws" else "Buttondown / Resend (newsletter + transactional email)"
+        out.append(S("other", ch, "The description mentions a newsletter: a sending service handles deliverability (SPF/DKIM/DMARC), "
+                     "unsubscribes and bounces, which the site should not do itself.", ["project.description"],
+                     [("Sending from your own SMTP server", "Poor deliverability and blocklist risk.")], [], (0, 30)))
+    if re.search(r"\bpos\b|point[- ]of[- ]sale|in-store|card terminal", d):
+        ch = "Razorpay POS / Pine Labs (card-present terminals)" if _india(c) else "Stripe Terminal (card-present SDK + certified readers)"
+        out.append(S("payments", ch, "In-store card payments need certified card-present readers and an SDK that works with the terminal app; "
+                     "hosted web checkout is for online payments only. Non-card sales are queued locally while offline.",
+                     ["project.description", "requirements.payments"],
+                     [("Hosted online checkout", "Not usable for card-present sales at a counter.")], ["Reader hardware cost per terminal."], (0, 0),
+                     replaces_online=True))
+    if re.search(r"app stores?|in-app purchase|play billing|apple subscription", d) or (
+            "subscription" in c.signals and "web" not in c.platforms and ("android" in c.platforms or "ios" in c.platforms)):
+        out.append(S("payments", "App Store / Google Play Billing via RevenueCat", "Digital subscriptions sold inside mobile apps must use the "
+                     "stores' billing; RevenueCat unifies receipts, entitlements and webhooks across both stores.",
+                     ["project.platforms", "project.description"],
+                     [("Stripe in the app", "Store rules generally forbid external payment for digital content.")],
+                     ["Store commission of 15-30%."], (0, 0), replaces_online=True))
     if ("leaderboard" in d or "ranking" in d) and not any(x["layer"] == "cache" for x in prior):
         ch = {"aws": "Amazon ElastiCache for Valkey (sorted sets)", "gcp": "Memorystore for Valkey (sorted sets)",
               "azure": "Azure Managed Redis (sorted sets)"}.get(hp, "Valkey/Redis sorted sets")
@@ -113,7 +139,7 @@ def _domain_items(c, combo, dbs, hp, onprem, prior=()):
 
 def _push_use(c):
     d = (c.spec.get("project.description") or "").lower()
-    if "emi" in d or "loan" in d:
+    if re.search(r"\bemis?\b|\bloans?\b", d):
         return "EMI due-date reminders and disbursal/repayment status"
     if c.type == "fintech":
         return "transaction alerts and security notices"
@@ -155,9 +181,12 @@ def _existing_plan(c, combo, dbs, hp):
                              "change-data-capture (e.g. Debezium/Oracle GoldenGate or the cloud DMS in CDC mode); do not "
                              "migrate or retire it." % src)
             elif db_id != "none":
-                tool = ("ora2pg (or AWS SCT + DMS)" if "oracle" in low else "pgloader") if db_id == "postgres" else {"aws": "AWS DMS", "azure": "Azure DMS", "gcp": "Database Migration Service"}.get(hp, "an ETL script")
+                tool = (("ora2pg (or AWS SCT + DMS)" if hp == "aws" else "ora2pg") if "oracle" in low else "pgloader") if db_id == "postgres" else {"aws": "AWS DMS", "azure": "Azure DMS", "gcp": "Database Migration Service"}.get(hp, "an ETL script")
                 lines.append("%s: migrate to %s with %s; run both in parallel with change-data-capture until "
                              "cut-over, then retire the old server." % (src, dbs["name"].split(" (")[0], tool))
+        elif any(k in low for k in ("quickbooks", "xero", "zoho", "shopify", "hubspot", "tally", "freshdesk", "zendesk", "odk")):
+            lines.append("%s: a third-party product; keep it and integrate through its official API/webhooks behind an adapter "
+                         "module (OAuth app, retry with idempotency keys)." % item)
         elif any(k in low for k in ("node", "api", "service", "backend", "php", "java", "django", "rails")):
             lines.append("%s: keep it running behind the new API (strangler pattern) and move endpoints one at a "
                          "time; upgrade the runtime first if it is end-of-life." % item)
@@ -165,7 +194,8 @@ def _existing_plan(c, combo, dbs, hp):
             lines.append("%s: replace screen by screen in the recommended front end; link both from one "
                          "navigation until the old UI is empty." % item)
         elif any(k in low for k in ("redis", "valkey", "kafka", "rabbitmq", "active directory", "entra", "okta", "keycloak",
-                                    "microsoft 365", "office 365", "google workspace", "salesforce", "sap", "twilio", "firebase", "stripe", "razorpay", "ldap")):
+                                    "microsoft 365", "office 365", "google workspace", "salesforce", "sap", "twilio", "firebase", "stripe", "razorpay", "ldap",
+                                    "ibm mq", "activemq", "snowflake", "bigquery", "redshift", "databricks", "github pages")):
             continue  # handled by the matching layer (cache/queue/auth/integration)
         elif any(k in low for k in ("centos", "ubuntu", "windows server", "servers", "vm")):
             lines.append("%s: do not deploy new services there; move workloads to the recommended hosting and "
@@ -173,7 +203,8 @@ def _existing_plan(c, combo, dbs, hp):
         else:
             if not any(k in low for k in ("redis", "valkey", "kafka", "rabbitmq", "active directory", "entra", "okta", "keycloak",
                                           "microsoft 365", "office 365", "google workspace", "salesforce", "sap", "twilio",
-                                          "firebase", "stripe", "razorpay", "oracle", "mysql", "postgres", "sql server", "mongo")):
+                                          "firebase", "stripe", "razorpay", "oracle", "mysql", "postgres", "sql server", "mongo",
+                                          "ibm mq", "activemq", "snowflake", "bigquery", "redshift", "databricks", "github pages")):
                 lines.append("%s: not modelled by the knowledge base; keep it and integrate through its documented API or file "
                              "exports behind an adapter module, with an integration test in CI." % item)
     if lines:
@@ -185,6 +216,7 @@ def _existing_plan(c, combo, dbs, hp):
 
 
 def choose_supporting(c, combo, dbs, hp):
+    hp = {"azure_swa": "azure", "firebase": "gcp"}.get(hp, hp)
     out, warns = [], []
     be = combo["backend"]["id"]
     db = combo["database"]["id"]
@@ -205,6 +237,12 @@ def choose_supporting(c, combo, dbs, hp):
                          "only links to it: no backend, PCI scope stays with the gateway.", ["requirements.payments"],
                          [("Custom checkout with a backend", "Needs a server and webhooks for no benefit at this scale.")],
                          ["Gateway transaction fees apply."], (0, 0)))
+        d0 = (c.spec.get("project.description") or "").lower()
+        if "newsletter" in d0 or "mailing list" in d0:
+            out.append(S("other", "Buttondown (hosted newsletter: signup form + sending)", "The description mentions a newsletter; a hosted "
+                         "service provides the embeddable signup form, double opt-in, unsubscribes and deliverability, so the static "
+                         "site still needs no backend.", ["project.description"],
+                         [("Running your own mail server", "Deliverability and spam-list risk.")], [], (0, 9)))
         out.append(S("ci_cd", "GitHub Actions (build and deploy on push)",
                      "Builds the static site on every push to main and deploys it; free for public repos.",
                      ["project.type", "budget.monthly_infra_usd"],
@@ -342,7 +380,8 @@ def choose_supporting(c, combo, dbs, hp):
         out.append(S("auth", ch, why, sorted(set(drv)), alts,
                      ["Sign-in depends on the corporate IdP's availability; keep a break-glass admin account."] if r["auth"] == "enterprise_sso"
                      else ["Account recovery and MFA flows must still be designed."],
-                     (0, 25) if L <= 2 else (25, 250)))
+                     (0, 0) if not any(k in ch for k in ("Auth0", "WorkOS", "Cognito", "Identity Platform", "Entra External", "Supabase", "Firebase", "Okta"))
+                     else ((0, 25) if L <= 2 else (25, 250))))
 
     # ---------------------------------------------------------------- payments
     if r["payments"]:
@@ -359,7 +398,7 @@ def choose_supporting(c, combo, dbs, hp):
                 warns.append({"code": "RBI_PPI_LICENCE", "severity": "warning",
                               "message": "Wallets that hold customer money in India need an RBI Prepaid Payment Instrument licence or a licensed partner.",
                               "fields": ["project.type", "project.description"]})
-            elif "disburs" in desc_l or "emi" in desc_l or "loan" in desc_l:
+            elif c.type == "fintech" and re.search(r"disburs|\bemis?\b|\bloans?\b|lending", desc_l):
                 ch = "Razorpay (UPI/cards + UPI Autopay/eNACH for EMIs) + RazorpayX Payouts"
                 why = ("Indian, RBI-authorised payment aggregator and PCI DSS Level 1: collects EMIs through UPI "
                        "Autopay/eNACH mandates and disburses loans to bank accounts/UPI via RazorpayX payouts. "
@@ -438,7 +477,7 @@ def choose_supporting(c, combo, dbs, hp):
                 ch = "Amazon S3 (ap-south-1 Mumbai) with pre-signed uploads"
             else:
                 ch = "Cloudflare R2 (S3-compatible, no egress fees)"
-            alts = [("Amazon S3", "Egress fees for media-heavy apps.")]
+            alts = [("Amazon S3", "Egress fees for media-heavy apps.")] if "S3" not in ch else [("Cloudflare R2", "No egress fees but no India jurisdiction option.")]
         why = ("Clients upload directly with %s, so large files never pass through the API; objects "
                "are encrypted at rest and private by default." % ("short-lived SAS tokens" if "Azure Blob" in ch else "pre-signed URLs"))
         if "kyc" in (c.spec.get("project.description") or "").lower():
@@ -461,7 +500,7 @@ def choose_supporting(c, combo, dbs, hp):
         what = "public pages and media" if r["seo_critical"] else ("uploaded media and static assets" if r["file_media_storage"] else "static assets")
         out.append(S("cdn", ch, "Caches %s close to users and absorbs traffic spikes.%s" % (what, note), cdrv,
                      [("No CDN", "Slower first loads for public pages and media.")], [],
-                     ((35, 60) if hp == "azure" else (0, 20)) if L <= 2 else (40, 250)))
+                     (0, 0) if ch.startswith("Cloudflare") else (((35, 60) if hp == "azure" else (0, 20)) if L <= 2 else (40, 250))))
 
     # ---------------------------------------------------------------- realtime
     sep_rt = False
@@ -563,8 +602,9 @@ def choose_supporting(c, combo, dbs, hp):
     need_q = (r["payments"] or r["ml_features"] in ("inference_api", "training") or L >= 3
               or (r["file_media_storage"] and L >= 2) or "workflow" in c.signals or "notifications" in c.signals)
     if need_q and be not in ("none",):
-        if any(v == "kafka" for k, v in c.hints if k == "queue"):
-            ch = "Apache Kafka (existing cluster)"
+        ex_q = next((x for x in c.existing if any(k in x.lower() for k in ("kafka", "ibm mq", "rabbitmq", "activemq", "amazon mq"))), None)
+        if ex_q:
+            ch = "%s (existing, reused)" % ex_q
         elif be == "supabase":
             ch = "Supabase Queues (pgmq) + Edge Functions"
         elif be == "firebase":
@@ -589,8 +629,8 @@ def choose_supporting(c, combo, dbs, hp):
         out.append(S("queue", ch, why,
                      [x for x, on in (("requirements.payments", r["payments"]), ("requirements.ml_features", r["ml_features"] != "none"),
                                       ("requirements.file_media_storage", r["file_media_storage"]), ("scale.users_12_months", L >= 3)) if on] or ["project.description"],
-                     [("Kafka", "Event-streaming platform: heavy to run for job queues at this scale.") if "Kafka" not in ch else
-                      ("SQS/RabbitMQ", "Kafka already exists; reuse it.")],
+                     [("Kafka", "Event-streaming platform: heavy to run for job queues at this scale.") if "existing" not in ch else
+                      ("A new queue service", "The organisation already runs one; reuse it.")],
                      ["Jobs must be idempotent; monitor the dead-letter queue."],
                      (0, 10) if L <= 2 else (10, 150)))
         if ("Redis" in ch or "Valkey" in ch) and not any(s["layer"] == "cache" for s in out) and not onprem:
@@ -607,7 +647,17 @@ def choose_supporting(c, combo, dbs, hp):
     # ---------------------------------------------------------------- search
     if r["full_text_search"]:
         drv = ["requirements.full_text_search"]
-        if db == "mongodb":
+        indic = any(k in (c.spec.get("project.description") or "").lower() for k in ("hindi", "telugu", "tamil", "kannada", "marathi", "bengali", "indic", "multilingual", "regional language"))
+        if indic:
+            ch = ("Amazon OpenSearch Service (ap-south-1) with ICU + Indic analysers" if hp == "aws" or (c.eff_residency == "india" and not onprem and c.cloud in ("any", "aws"))
+                  else "OpenSearch (self-hosted) with ICU + Indic analysers")
+            why = ("Hindi/Telugu and other Indic scripts need Unicode-aware tokenisation and transliteration-friendly matching; "
+                   "PostgreSQL has no Indic dictionaries, so a Lucene-based engine with ICU analysis is used.")
+            alts = [("PostgreSQL full-text search", "No stemming/dictionaries for Indic languages."),
+                    ("Meilisearch", "Simpler, but weaker control over Indic analysis.")]
+            cost = (50, 400)
+            drv.append("project.description")
+        elif db == "mongodb":
             ch, why = "MongoDB Atlas Search", "Lucene-based search inside Atlas; no extra service."
             alts = [("Meilisearch", "Extra service to sync.")]
             cost = (0, 0)
@@ -654,7 +704,21 @@ def choose_supporting(c, combo, dbs, hp):
             dsc = (c.spec.get("project.description") or "").lower()
             textgen = any(k in dsc for k in ("summar", "chatbot", "assistant", "generate", "draft", "translat", "llm", "gpt"))
             credit = any(k in dsc for k in ("credit", "loan", "lending", "fraud", "risk scor"))
-            if textgen:
+            speech = any(k in dsc for k in ("speech", "pronunciation", "voice", "audio scor"))
+            vision = any(k in dsc for k in ("webcam", "camera", "image", "vision", "proctor", "face", "photo classif"))
+            if speech and not textgen:
+                ch = {"azure": "Azure AI Speech (pronunciation assessment)", "aws": "Amazon Transcribe + custom scoring",
+                      "gcp": "Google Cloud Speech-to-Text + custom scoring"}.get(hp, "Azure AI Speech pronunciation assessment or self-hosted Whisper")
+                sep, cost = False, (20, 300)
+                why = "Speech scoring is an audio-model task: a managed speech API returns transcripts and pronunciation scores per phoneme."
+                alts = [("Training your own acoustic model", "Needs large labelled audio datasets.")]
+            elif vision and not textgen:
+                ch = "On-device detection (MediaPipe/ML Kit) + server-side review queue"
+                sep, cost = False, (0, 100)
+                why = ("Camera/vision checks run on the client (face presence, multiple faces, gaze) so raw video is not uploaded; "
+                       "flagged events go to a review queue with short clips for human decision.")
+                alts = [("Streaming all video to the server for analysis", "Bandwidth, privacy and GPU cost.")]
+            elif textgen:
                 llm = {"aws": "Amazon Bedrock (in-region)", "azure": "Azure OpenAI (in-region deployment)",
                        "gcp": "Vertex AI (Gemini, in-region)"}.get(hp, "a hosted LLM API (e.g. Claude or GPT) with zero-retention terms")
                 ch = "Hosted LLM via %s, called from the backend" % llm
@@ -703,6 +767,11 @@ def choose_supporting(c, combo, dbs, hp):
 
     # ---------------------------------------------------------------- other: offline sync, notifications, integrations
     mobile = combo.get("mobile")
+    if r["offline_support"] and not mobile and combo.get("desktop"):
+        out.append(S("other", "Offline-first desktop: local SQLite + outbox sync", "Each sale/record is written to a local SQLite file first "
+                     "and synced in the background with idempotent IDs when the network returns, so the counter keeps working offline.",
+                     ["requirements.offline_support", "project.platforms"],
+                     [("Online-only client", "Stops trading whenever the connection drops.")], [], (0, 0)))
     if r["offline_support"] and mobile:
         lib = {"rn_expo": "expo-sqlite (or WatermelonDB)", "kotlin_android": "Room + WorkManager",
                "flutter": "drift (SQLite)", "kmp": "SQLDelight", "swift_ios": "SwiftData",
@@ -732,6 +801,8 @@ def choose_supporting(c, combo, dbs, hp):
                          "service account and least-privilege scopes rather than duplicating its data.",
                          ["infrastructure.existing_systems"], [("Manual CSV exports", "Error-prone and stale.")], [], (0, 0)))
     dom = _domain_items(c, combo, dbs, hp, onprem, out)
+    if any(x.get("replaces_online") for x in dom):
+        out = [y for y in out if y["layer"] != "payments"]
     for x in dom:
         if x["layer"] == "cache" and "sorted sets" in x["choice"]:
             for y in out:

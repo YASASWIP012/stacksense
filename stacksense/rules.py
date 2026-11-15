@@ -172,8 +172,10 @@ def conflicts(c, warnings, assumptions):
     if "rbi_localisation" in c.compliance:
         soft.append(W("RBI_LOCALISATION", "info",
                       "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, "
-                      "must stay in India. Use an Indian DR region (e.g. AWS ap-south-2 Hyderabad / Azure South "
-                      "India) and keep observability data in-country.", ["compliance", "infrastructure.data_residency"]))
+                      "must stay in India. Keep the DR copy in a second Indian region (%s) and keep observability data in-country."
+                      % {"aws": "AWS ap-south-2 Hyderabad", "azure": "Azure South India (Chennai)", "gcp": "GCP asia-south2 Delhi",
+                         "none": "a second data centre in India"}.get(c.cloud if c.deploy == "managed_cloud" else "none",
+                                                                       "e.g. AWS ap-south-2 Hyderabad, Azure South India or GCP asia-south2 Delhi"), ["compliance", "infrastructure.data_residency"]))
     if "pci_dss" in c.compliance and r["payments"]:
         soft.append(W("PCI_DSS_SCOPE", "info",
                       "PCI DSS: keep card data out of your systems with the gateway's tokenised checkout; your own "
@@ -192,9 +194,9 @@ def conflicts(c, warnings, assumptions):
         soft.append(W("ML_TRAINING_BUDGET", "warning",
                       "Model training needs GPU time; $%g/month leaves little room." % c.budget,
                       ["requirements.ml_features", "budget.monthly_infra_usd"]))
-    if c.data_gb and c.budget and c.data_gb * 0.05 > c.budget:
+    if c.data_gb and c.budget and c.data_gb * 0.023 > c.budget:
         soft.append(W("STORAGE_VS_BUDGET", "warning",
-                      "%.0f GB of data costs more to store than the $%g budget allows." % (c.data_gb, c.budget),
+                      "%.0f GB stored costs about $%.0f/month at object-storage list prices (~$0.023/GB), above the $%g budget." % (c.data_gb, c.data_gb * 0.023, c.budget),
                       ["scale.data_volume_gb_12_months", "budget.monthly_infra_usd"]))
     if not c.langs:
         assumptions.append("team.languages is empty: language fit was not used; popular, easy-to-hire options "

@@ -28,7 +28,7 @@
     {
       "code": "RBI_LOCALISATION",
       "severity": "info",
-      "message": "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, must stay in India. Use an Indian DR region (e.g. AWS ap-south-2 Hyderabad / Azure South India) and keep observability data in-country.",
+      "message": "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, must stay in India. Keep the DR copy in a second Indian region (e.g. AWS ap-south-2 Hyderabad, Azure South India or GCP asia-south2 Delhi) and keep observability data in-country.",
       "fields": [
         "compliance",
         "infrastructure.data_residency"

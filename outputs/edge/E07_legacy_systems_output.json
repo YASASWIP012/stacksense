@@ -100,7 +100,6 @@
       "justification": "Zero-config Next.js hosting with preview deploys and Mumbai (bom1) functions. Fit for this project: strong time to market, which you rated 5/5; Vercel builds and serves Next.js natively.",
       "driven_by": [
         "priorities.time_to_market",
-        "hosting",
         "team.size"
       ],
       "alternatives": [

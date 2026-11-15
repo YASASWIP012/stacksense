@@ -80,7 +80,7 @@
     },
     "hosting": {
       "choice": "DigitalOcean App Platform (NYC3 New York)",
-      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 5/5.",
+      "justification": "Simple PaaS with managed Postgres and regions in India, Europe and the US. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 5/5.",
       "driven_by": [
         "budget.monthly_infra_usd",
         "priorities.time_to_market",
@@ -120,7 +120,7 @@
         ],
         "estimated_monthly_usd": [
           0,
-          25
+          0
         ]
       },
       {
@@ -166,7 +166,7 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 12,
-    "max": 96,
+    "max": 71,
     "assumptions": [
       "Scale level L1: ~60 users, ~10 peak concurrent, ~2 req/s at peak, ~0.1 GB stored",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
@@ -182,7 +182,7 @@
       ],
       "auth": [
         0,
-        25
+        0
       ],
       "ci_cd": [
         0,
@@ -198,7 +198,7 @@
     {
       "code": "OVER_BUDGET",
       "severity": "warning",
-      "message": "Estimated $12-96/month exceeds the $10 budget at the low end. Use the cheapest tier of each service or raise the budget.",
+      "message": "Estimated $12-71/month exceeds the $10 budget at the low end. Use the cheapest tier of each service or raise the budget.",
       "fields": [
         "budget.monthly_infra_usd"
       ]

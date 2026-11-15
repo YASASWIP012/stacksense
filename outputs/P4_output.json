@@ -144,8 +144,8 @@
           "Account recovery and MFA flows must still be designed."
         ],
         "estimated_monthly_usd": [
-          25,
-          250
+          0,
+          0
         ]
       },
       {
@@ -380,8 +380,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 880,
-    "max": 5505,
+    "min": 855,
+    "max": 5255,
     "assumptions": [
       "Scale level L3: ~300000 users, ~10000 peak concurrent, ~2000 req/s at peak, ~500 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
@@ -397,8 +397,8 @@
         1725
       ],
       "auth": [
-        25,
-        250
+        0,
+        0
       ],
       "payments": [
         0,
@@ -442,7 +442,7 @@
     {
       "code": "RBI_LOCALISATION",
       "severity": "info",
-      "message": "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, must stay in India. Use an Indian DR region (e.g. AWS ap-south-2 Hyderabad / Azure South India) and keep observability data in-country.",
+      "message": "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, must stay in India. Keep the DR copy in a second Indian region (AWS ap-south-2 Hyderabad) and keep observability data in-country.",
       "fields": [
         "compliance",
         "infrastructure.data_residency"

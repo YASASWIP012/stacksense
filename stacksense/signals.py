@@ -23,7 +23,7 @@ SIGNALS = {
     "geo": ([r"\bgps\b", r"geo[- ]?tag", r"\blocations?\b", r"(?<![-\w])maps?\b(?!-)", r"nearby", r"geofenc", r"live tracking"], "location data"),
     "ledger": ([r"ledger", r"double[- ]entry", r"accounting", r"\bwallet", r"reconcil"],
                "money ledger (strong consistency)"),
-    "payments": ([r"\bpaid\b", r"get paid", r"payment", r"\bupi\b", r"\bemi\b", r"disburs", r"checkout",
+    "payments": ([r"\bpaid\b", r"get paid", r"payment", r"\bupi\b", r"\bemi\b", r"disburs", r"checkout page", r"\bcart\b",
                   r"pay per seat|per[- ]seat"], "payments"),
     "subscription": ([r"per[- ]seat", r"subscription", r"recurring", r"\bplans?\b", r"\bemi\b"],
                      "recurring billing"),

@@ -142,7 +142,7 @@
         ],
         "estimated_monthly_usd": [
           0,
-          25
+          0
         ]
       },
       {
@@ -210,7 +210,7 @@
         "tradeoffs": [],
         "estimated_monthly_usd": [
           0,
-          20
+          0
         ]
       },
       {
@@ -372,7 +372,7 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 26,
-    "max": 199,
+    "max": 154,
     "assumptions": [
       "Scale level L2: ~30000 users, ~800 peak concurrent, ~160 req/s at peak, ~50 GB stored",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
@@ -388,7 +388,7 @@
       ],
       "auth": [
         0,
-        25
+        0
       ],
       "payments": [
         0,
@@ -400,7 +400,7 @@
       ],
       "cdn": [
         0,
-        20
+        0
       ],
       "realtime": [
         0,
@@ -436,7 +436,7 @@
     {
       "code": "BUDGET_HEADROOM",
       "severity": "info",
-      "message": "Upper estimate ($199) exceeds the $150 budget; watch usage as you grow.",
+      "message": "Upper estimate ($154) exceeds the $150 budget; watch usage as you grow.",
       "fields": [
         "budget.monthly_infra_usd"
       ]

@@ -104,6 +104,12 @@ def build_ctx(spec, raw, assumptions):
     c.hints = existing_hints(c.existing)
     c.commercial = c.type in COMMERCIAL_TYPES or bool(c.req["payments"])
     c.needs_backend = backend_needs(c)
+    r = c.req
+    c.needs_backend_strict = not (r["auth"] == "none" and not r["payments"] and not r["realtime"] and not r["multi_tenant"]
+                                  and r["ml_features"] == "none" and not r["full_text_search"] and c.workload == "read_heavy"
+                                  and c.type in ("other", "content_site", "web_app") and "api_only" not in c.platforms)
+    if not c.needs_backend_strict:
+        c.needs_backend = []
     c.strong = (c.req["payments"] or c.type in ("fintech", "ecommerce", "marketplace", "healthtech")
                 or "ledger" in c.signals or c.extras.get("consistency") == "strong")
     if c.extras.get("consistency") == "eventual" and not c.req["payments"]:
@@ -113,7 +119,8 @@ def build_ctx(spec, raw, assumptions):
         c.eff_residency = "india"
         assumptions.append("rbi_localisation requires payment data to be stored only in India; data "
                            "residency treated as 'india'.")
-    c.is_static = (c.type == "content_site" and not c.needs_backend)
+    c.static_packs = (not c.needs_backend_strict) if hasattr(c, "needs_backend_strict") else False
+    c.is_static = (c.type == "content_site" and not c.needs_backend) or c.static_packs
     c.lockin = c.extras.get("vendor_lock_in_tolerance") or "medium"
     return c
 
@@ -497,7 +504,8 @@ def _database(cand, c, contribs):
         if "fts" in caps:
             contribs.append(("requirements.full_text_search", 0.8, "built-in full-text search"))
         elif "fts_basic" in caps:
-            contribs.append(("requirements.full_text_search", 0.5, "built-in full-text search is enough at this size"))
+            contribs.append(("requirements.full_text_search", 0.5, "built-in full-text search is enough at this size" if c.L <= 3
+                             else "built-in full-text search (a dedicated search engine is added at this scale)"))
     if r["ml_features"] == "llm_rag" and "vector" in caps:
         contribs.append(("requirements.ml_features", 1.0, "vector search (pgvector/Atlas Vector) for RAG"))
     ts_need = c.type == "iot" or "timeseries" in c.signals or c.extras.get("data_shape") == "time_series"
@@ -579,6 +587,8 @@ def _hosting(cand, c, contribs):
         contribs.append(("project.type", -2.5, "paying for servers to serve static files"))
     if c.needs_backend and not (caps & {"containers", "functions", "serverless", "baas", "vm", "onprem", "k8s"}):
         contribs.append(("project.type", -1.0, "static hosting only; the API must run elsewhere"))
+    if any(v == cid for k, v in c.hints if k == "host"):
+        contribs.append(("infrastructure.existing_systems", 2.0, "already in use by the organisation"))
     if c.is_static and "static" in caps:
         contribs.append(("project.type", 1.0, "serves pre-built static files from a CDN"))
     return None
@@ -700,7 +710,7 @@ def pair_rules(combo, c):
         return False, ("database", "a database needs a backend"), out, None
     if db["id"] == "none" and be["id"] != "none":
         return False, ("database", "the backend needs somewhere to store data"), out, None
-    if be["id"] == "none" and not web:
+    if be["id"] == "none" and not web and not (mob or desk):
         return False, ("backend", "nothing to serve"), out, None
     caps = host["caps"]
     if host["id"] == "baas_hosted":
@@ -875,6 +885,8 @@ def _explain(cand, contribs, extra_pair=None, max_n=4, ctx=None):
     for f, d, _ in sorted(contribs + (extra_pair or []), key=lambda x: (-abs(x[1]), x[0])):
         if f.startswith("priorities.") and ctx is not None and ctx.pri.get(f.split(".")[1]) == 3:
             continue
+        if f.split(".")[0] not in schema.KNOWN_SECTIONS:
+            continue
         if abs(d) >= 0.3 and f not in driven:
             driven.append(f)
     trade = list(cand.get("tradeoffs", []))
@@ -1011,6 +1023,8 @@ def _recommend(raw):
             field, val = sigmod.IMPLIES[name]
             key = field.split(".", 1)[1]
             if name == "realtime" and c.type == "ai_ml_product":
+                continue
+            if name == "offline" and c.deploy == "air_gapped":
                 continue
             if c.req.get(key) != val and not any(field in a for a in assumptions if a.startswith("Relaxed")):
                 warnings.append({"code": "DESCRIPTION_MISMATCH", "severity": "info",

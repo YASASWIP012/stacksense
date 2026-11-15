@@ -131,8 +131,8 @@
           "Account recovery and MFA flows must still be designed."
         ],
         "estimated_monthly_usd": [
-          25,
-          250
+          0,
+          0
         ]
       },
       {
@@ -322,8 +322,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 499,
-    "max": 3565,
+    "min": 474,
+    "max": 3315,
     "assumptions": [
       "Scale level L3: ~50000 users, ~5000 peak concurrent, ~1000 req/s at peak, ~200 GB stored",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
@@ -338,8 +338,8 @@
         850
       ],
       "auth": [
-        25,
-        250
+        0,
+        0
       ],
       "payments": [
         0,
@@ -379,7 +379,7 @@
     {
       "code": "BUDGET_RISK",
       "severity": "warning",
-      "message": "The low estimate ($499) fits the $1500 budget, but growth to the high estimate ($3565) would be more than double it; set billing alerts and revisit sizing.",
+      "message": "The low estimate ($474) fits the $1500 budget, but growth to the high estimate ($3315) would be more than double it; set billing alerts and revisit sizing.",
       "fields": [
         "budget.monthly_infra_usd"
       ]

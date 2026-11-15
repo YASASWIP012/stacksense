@@ -2,7 +2,7 @@
   "scenario_id": "E05",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok_with_warnings",
+  "status": "ok",
   "summary": "Modular monolith Django on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL as the database in US; front end: Angular, React Native.",
   "architecture_style": "modular_monolith",
   "stack": {
@@ -126,8 +126,8 @@
           "Account recovery and MFA flows must still be designed."
         ],
         "estimated_monthly_usd": [
-          25,
-          250
+          0,
+          0
         ]
       },
       {
@@ -374,8 +374,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 1136,
-    "max": 6069,
+    "min": 1111,
+    "max": 5819,
     "assumptions": [
       "Scale level L3: ~60000 users, ~1500 peak concurrent, ~300 req/s at peak, ~3046.9 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
@@ -391,8 +391,8 @@
         2362
       ],
       "auth": [
-        25,
-        250
+        0,
+        0
       ],
       "payments": [
         0,
@@ -434,9 +434,9 @@
   },
   "warnings": [
     {
-      "code": "BUDGET_RISK",
-      "severity": "warning",
-      "message": "The low estimate ($1136) fits the $3000 budget, but growth to the high estimate ($6069) would be more than double it; set billing alerts and revisit sizing.",
+      "code": "BUDGET_HEADROOM",
+      "severity": "info",
+      "message": "Upper estimate ($5819) exceeds the $3000 budget; watch usage as you grow.",
       "fields": [
         "budget.monthly_infra_usd"
       ]

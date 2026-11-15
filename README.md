@@ -45,7 +45,7 @@ The input must follow the standard schema in Section 3.2 of the problem statemen
 python3 -m unittest discover -s tests -v
 ```
 
-There are 24 tests. They cover the output contract on all public scenarios, determinism, key-order independence, hard constraints (residency, cloud, on-premise), sensitivity to small input changes, and every edge-case category (missing and invalid fields, garbage input, contradictions, over-engineering traps, air-gapped deployment, end-of-life systems, infeasible hard conflicts).
+There are 31 tests (24 core + 7 regressions from independent review). They cover the output contract on all public scenarios, determinism, key-order independence, hard constraints (residency, cloud, on-premise), sensitivity to small input changes, and every edge-case category (missing and invalid fields, garbage input, contradictions, over-engineering traps, air-gapped deployment, end-of-life systems, infeasible hard conflicts).
 
 ```bash
 python3 tests/fuzz.py 3000   # 3,000 random valid scenarios; fails on any exception
@@ -75,7 +75,7 @@ python3 tests/fuzz.py 3000   # 3,000 random valid scenarios; fails on any except
 | Module | What it does |
 |---|---|
 | `stacksense/schema.py` | Input schema (mandatory plus 7 optional extras), defaults and field-level validation. Never raises. |
-| `stacksense/kb.py` | Knowledge base: 63 technologies across 6 layers (plus explicit "None" options), 15 providers with region and compliance facts, 25 dated end-of-life rules, existing-system patterns. Every entry cites sources. |
+| `stacksense/kb.py` | Knowledge base: 64 technologies across 6 layers (plus explicit "None" options), 15 providers with region and compliance facts, 29 dated end-of-life rules, existing-system patterns. Every entry cites sources. |
 | `stacksense/signals.py` | Deterministic keyword signals from `project.description` (GPS, ledger, low-end devices, offline, KYC…). |
 | `stacksense/rules.py` | Hard-vs-hard conflicts (→ `infeasible`), requirement relaxations (air-gapped payments…), soft contradictions, EOL warnings. |
 | `stacksense/engine.py` | Scoring, the combination search with compatibility rules, service realisation, explanations and alternatives. |
@@ -103,7 +103,7 @@ source/
 ├── web/                   index.html, app.js, style.css
 ├── scenarios/
 │   ├── public/            P1–P6 (one file each) + all_public.json
-│   └── edge/              12 edge-case scenarios used in the report and tests
+│   └── edge/              13 edge-case scenarios used in the report and tests
 ├── tests/test_engine.py   24 unit tests
 └── outputs/               engine output for P1–P6 (and edge cases)
 ```

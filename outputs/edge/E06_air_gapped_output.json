@@ -127,7 +127,7 @@
         ],
         "estimated_monthly_usd": [
           0,
-          25
+          0
         ]
       },
       {
@@ -220,7 +220,7 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 0,
-    "max": 85,
+    "max": 60,
     "assumptions": [
       "Scale level L1: ~1200 users, ~200 peak concurrent, ~40 req/s at peak, ~2.3 GB stored",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees",
@@ -237,7 +237,7 @@
       ],
       "auth": [
         0,
-        25
+        0
       ],
       "queue": [
         0,
@@ -282,15 +282,6 @@
       "message": "The web choice (React + Vite (SPA)) needs JavaScript/TypeScript, which the team does not list; budget ramp-up time or a hire. It still scored best once constraints and other priorities were weighed.",
       "fields": [
         "team.languages"
-      ]
-    },
-    {
-      "code": "DESCRIPTION_MISMATCH",
-      "severity": "info",
-      "message": "The description mentions 'no internet' but requirements.offline_support is false. StackSense follows the structured field; check it.",
-      "fields": [
-        "project.description",
-        "requirements.offline_support"
       ]
     }
   ],
