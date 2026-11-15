@@ -12,12 +12,15 @@ On the six public scenarios it returns, for example, a free static Astro site fo
 
 You need **Python 3.9 or newer** and nothing else. There are no third-party packages, so there is no `pip install`.
 
+If you have the submission's `source.zip`, unzip it first. It contains this `source/` folder.
+
 ```bash
 cd source
-python3 -m stacksense serve            # opens on http://127.0.0.1:8000
+python3 -m stacksense serve            # opens on http://127.0.0.1:8000  (Ctrl+C to stop)
+python3 -m stacksense serve --port 8080   # if port 8000 is busy
 ```
 
-Open <http://127.0.0.1:8000>, pick **P1–P6** or an edge case from the dropdown, or click **Import JSON** to load any scenario file. Press **Export output JSON** to save the result.
+Open <http://127.0.0.1:8000>, pick **P1–P6** or an edge case from the dropdown, or click **Import JSON** to load any scenario file. **Export output JSON** saves the result to your browser's download folder. For files written to a known path, use the CLI below.
 
 On Windows use `py -m stacksense serve` (or `python`), depending on how Python was installed.
 
@@ -44,6 +47,10 @@ python3 -m unittest discover -s tests -v
 
 There are 24 tests. They cover the output contract on all public scenarios, determinism, key-order independence, hard constraints (residency, cloud, on-premise), sensitivity to small input changes, and every edge-case category (missing and invalid fields, garbage input, contradictions, over-engineering traps, air-gapped deployment, end-of-life systems, infeasible hard conflicts).
 
+```bash
+python3 tests/fuzz.py 3000   # 3,000 random valid scenarios; fails on any exception
+```
+
 ## 4. LLM switch
 
 **StackSense uses no LLM at all.** Description parsing is done by deterministic keyword rules (`stacksense/signals.py`), and every explanation is generated from the scoring trace. There is nothing to switch off: the LLM-off test passes by construction, and every output carries `"llm_used": false`.
@@ -68,7 +75,7 @@ There are 24 tests. They cover the output contract on all public scenarios, dete
 | Module | What it does |
 |---|---|
 | `stacksense/schema.py` | Input schema (mandatory plus 7 optional extras), defaults and field-level validation. Never raises. |
-| `stacksense/kb.py` | Knowledge base: 64 core technologies across 6 layers, 15 providers with region and compliance facts, 22 end-of-life rules, existing-system patterns. Every entry cites sources. |
+| `stacksense/kb.py` | Knowledge base: 63 technologies across 6 layers (plus explicit "None" options), 15 providers with region and compliance facts, 25 dated end-of-life rules, existing-system patterns. Every entry cites sources. |
 | `stacksense/signals.py` | Deterministic keyword signals from `project.description` (GPS, ledger, low-end devices, offline, KYC…). |
 | `stacksense/rules.py` | Hard-vs-hard conflicts (→ `infeasible`), requirement relaxations (air-gapped payments…), soft contradictions, EOL warnings. |
 | `stacksense/engine.py` | Scoring, the combination search with compatibility rules, service realisation, explanations and alternatives. |

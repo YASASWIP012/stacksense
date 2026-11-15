@@ -98,15 +98,23 @@ def _get(d, path):
 
 
 def _is_int(v):
+    import math
     if isinstance(v, bool):
         return False
     if isinstance(v, int):
         return True
-    return isinstance(v, float) and v.is_integer()
+    return isinstance(v, float) and math.isfinite(v) and v.is_integer()
 
 
 def _is_num(v):
-    return not isinstance(v, bool) and isinstance(v, (int, float))
+    import math
+    return not isinstance(v, bool) and isinstance(v, (int, float)) and math.isfinite(v)
+
+
+SANITY_MAX = {"scale.users_at_launch": 10_000_000_000, "scale.users_12_months": 10_000_000_000,
+              "scale.peak_concurrent_users": 10_000_000_000, "team.size": 100_000,
+              "timeline.mvp_weeks": 520, "budget.monthly_infra_usd": 1e9,
+              "scale.data_volume_gb_12_months": 1e9, "extras.peak_requests_per_sec": 1e9}
 
 
 def validate(raw):
@@ -230,9 +238,10 @@ def _check(path, ftype, val, allowed, notes):
         if not isinstance(val, list):
             return "Must be a list of: %s." % ", ".join(allowed), None
         out = []
+        bad = [item for item in val if not isinstance(item, str) or item.strip().lower() not in allowed]
+        if bad:
+            return "Unknown value(s) %s. Allowed: %s." % (", ".join(repr(b) for b in bad), ", ".join(allowed)), None
         for item in val:
-            if not isinstance(item, str) or item.strip().lower() not in allowed:
-                return "Unknown value %r. Allowed: %s." % (item, ", ".join(allowed)), None
             v = item.strip().lower()
             if v not in out:
                 out.append(v)
@@ -252,6 +261,8 @@ def _check(path, ftype, val, allowed, notes):
         if not isinstance(val, bool):
             return "Must be true or false (JSON boolean).", None
         return None, val
+    if ftype in ("int", "int_or_null", "num") and _is_num(val) and val > SANITY_MAX.get(path, float("inf")):
+        return "Unrealistically large value %s (max %g)." % (val, SANITY_MAX[path]), None
     if ftype in ("int", "int_or_null"):
         if val is None and ftype == "int_or_null":
             return None, None

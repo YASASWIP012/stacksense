@@ -99,7 +99,7 @@ def conflicts(c, warnings, assumptions):
                       ["requirements.availability", "team.size", "team.experience", "team.has_devops"]))
     elif avail == "99.95" and not c.devops and c.size <= 2:
         soft.append(W("AVAILABILITY_VS_TEAM", "warning",
-                      "99.95% with a %d-person team and no DevOps relies entirely on managed multi-zone services."
+                      "99.95%% with a %d-person team and no DevOps relies entirely on managed multi-zone services."
                       % c.size, ["requirements.availability", "team.has_devops"]))
     if avail == "99.99" and c.budget < 500:
         soft.append(W("AVAILABILITY_VS_BUDGET", "warning",

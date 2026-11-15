@@ -2,21 +2,18 @@
   "scenario_id": "E08",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
+  "status": "ok_with_warnings",
   "summary": "Service oriented Laravel on DigitalOcean App Platform with DigitalOcean Managed PostgreSQL as the database; front end: React + Vite, Progressive Web App.",
   "architecture_style": "service_oriented",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA) (web) + Progressive Web App (mobile)",
-      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: strong cost for React + Vite (priority 3); strong performance for React + Vite (priority 5); well suited to gaming projects; strong time to market for React + Vite (priority 4). Mobile: Reuses the web app, installable without an app store. Fit for this project: strong time to market for Progressive Web App (priority 4); reuses the web codebase; strong cost for Progressive Web App (priority 3); strong maintainability for Progressive Web App (priority 3).",
+      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: strong performance, which you rated 5/5; well suited to gaming projects; strong time to market, which you rated 4/5. Mobile: Reuses the web app, installable without an app store. Fit for this project: strong time to market, which you rated 4/5; reuses the web codebase.",
       "driven_by": [
         "team.languages",
-        "priorities.cost",
         "priorities.performance",
         "project.type",
         "priorities.time_to_market",
-        "priorities.maintainability",
-        "priorities.scalability",
         "project.platforms"
       ],
       "alternatives": [
@@ -43,15 +40,12 @@
     },
     "backend": {
       "choice": "Laravel (PHP)",
-      "justification": "Batteries-included PHP framework with queues and auth. Fit for this project: team.languages includes PHP; strong time to market for Laravel (priority 4); built-in authentication; strong maintainability for Laravel (priority 3).",
+      "justification": "Batteries-included PHP framework with queues and auth. Fit for this project: team.languages includes PHP; strong time to market, which you rated 4/5; built-in authentication; real-time needs an add-on (Channels).",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
         "requirements.p95_latency_ms",
-        "requirements.auth",
-        "priorities.maintainability",
-        "priorities.scalability",
-        "priorities.security"
+        "requirements.auth"
       ],
       "alternatives": [
         {
@@ -70,23 +64,19 @@
     },
     "database": {
       "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong maintainability for PostgreSQL (priority 3); strong performance for PostgreSQL (priority 5); strong security for PostgreSQL (priority 3); strong time to market for PostgreSQL (priority 4).",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong performance, which you rated 5/5; strong time to market, which you rated 4/5.",
       "driven_by": [
-        "priorities.maintainability",
         "priorities.performance",
-        "priorities.security",
-        "priorities.time_to_market",
-        "priorities.cost",
-        "priorities.scalability"
+        "priorities.time_to_market"
       ],
       "alternatives": [
         {
-          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
-          "why_not": "Scored 0.7 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 3))."
+          "choice": "Amazon DynamoDB (us-east-1 N. Virginia)",
+          "why_not": "Scored 14.5 points lower: proprietary API increases lock-in; learning curve 4/5 for a intermediate team."
         },
         {
-          "choice": "DigitalOcean Managed MongoDB (NYC3 New York)",
-          "why_not": "Scored 1.0 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 3))."
+          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
+          "why_not": "Scored 0.7 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
@@ -95,16 +85,14 @@
     },
     "hosting": {
       "choice": "DigitalOcean App Platform (NYC3 New York)",
-      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market for DigitalOcean App Platform (priority 4); strong performance for DigitalOcean App Platform (priority 5); strong cost for DigitalOcean App Platform (priority 3); strong scalability for DigitalOcean App Platform (priority 3).",
+      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market, which you rated 4/5; strong performance, which you rated 5/5.",
       "driven_by": [
         "priorities.time_to_market",
-        "priorities.performance",
-        "priorities.cost",
-        "priorities.scalability"
+        "priorities.performance"
       ],
       "alternatives": [
         {
-          "choice": "Azure Static Web Apps (East US)",
+          "choice": "Azure Static Web Apps (East US 2)",
           "why_not": "Scored 2.9 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
@@ -140,8 +128,8 @@
       },
       {
         "layer": "realtime",
-        "choice": "Yjs (CRDT) + Hocuspocus sync server, Redis pub/sub between nodes",
-        "justification": "Concurrent edits to one board must merge without conflicts: Yjs CRDTs do that, Hocuspocus (TypeScript) syncs documents and awareness (live cursors) over WebSockets, and Redis fans updates out across instances for 4000 concurrent users. Board snapshots persist to the database.",
+        "choice": "Nakama (open-source game server: matchmaking, realtime, leaderboards)",
+        "justification": "Matches need an authoritative server that owns game state, matchmaking and per-room broadcast at low latency for 4000 concurrent players; leaderboards live in the database/Redis sorted sets.",
         "driven_by": [
           "requirements.realtime",
           "project.type",
@@ -149,12 +137,12 @@
         ],
         "alternatives": [
           {
-            "choice": "Liveblocks",
-            "why_not": "Managed and fast to start, but per-MAU pricing and US data storage."
+            "choice": "Plain WebSockets in the API",
+            "why_not": "You would rebuild rooms, matchmaking and reconnection logic."
           },
           {
-            "choice": "Custom operational-transform server in Go",
-            "why_not": "Months of work to get conflict handling right."
+            "choice": "Photon / PlayFab",
+            "why_not": "Managed and proven, but per-CCU pricing and vendor lock-in."
           }
         ],
         "tradeoffs": [
@@ -196,7 +184,7 @@
       {
         "layer": "queue",
         "choice": "Laravel Queues (Redis)",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (background jobs) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "scale.users_12_months"
         ],
@@ -217,7 +205,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android for job updates and reminders.",
+        "justification": "Free push delivery to Android for messages that arrive while the app is closed.",
         "driven_by": [
           "project.platforms"
         ],
@@ -325,9 +313,9 @@
   },
   "warnings": [
     {
-      "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "Upper estimate ($2315) exceeds the $400 budget; watch usage as you grow.",
+      "code": "BUDGET_RISK",
+      "severity": "warning",
+      "message": "The low estimate ($341) fits the $400 budget, but growth to the high estimate ($2315) would be more than double it; set billing alerts and revisit sizing.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -360,7 +348,7 @@
     "description_signals": {
       "realtime": "live"
     },
-    "combinations_evaluated": 780,
+    "combinations_evaluated": 2820,
     "input_hash": "f1d94a435512114d"
   }
 }

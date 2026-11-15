@@ -8,14 +8,13 @@
   "stack": {
     "frontend": {
       "choice": "Astro",
-      "justification": "Pre-renders pages to static HTML with zero JS by default. Fit for this project: team.languages includes JavaScript; well suited to content site projects; strong cost for Astro (priority 5); seo_critical=true and it serves pre-rendered HTML.",
+      "justification": "Pre-renders pages to static HTML with zero JS by default. Fit for this project: team.languages includes JavaScript; well suited to content site projects; strong cost, which you rated 5/5; seo_critical=true and it serves pre-rendered HTML.",
       "driven_by": [
         "team.languages",
         "project.type",
         "priorities.cost",
         "requirements.seo_critical",
         "priorities.time_to_market",
-        "priorities.performance",
         "project.description"
       ],
       "alternatives": [
@@ -37,12 +36,11 @@
     },
     "backend": {
       "choice": "None",
-      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost for None (priority 5); strong time to market for None (priority 4); strong maintainability for None (priority 3).",
+      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost, which you rated 5/5; strong time to market, which you rated 4/5; strong security, which you rated 2/5.",
       "driven_by": [
         "project.type",
         "priorities.cost",
         "priorities.time_to_market",
-        "priorities.maintainability",
         "priorities.security"
       ],
       "alternatives": [
@@ -59,34 +57,32 @@
     },
     "database": {
       "choice": "None",
-      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost for None (priority 5); strong time to market for None (priority 4); strong maintainability for None (priority 3).",
+      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost, which you rated 5/5; strong time to market, which you rated 4/5; strong security, which you rated 2/5.",
       "driven_by": [
         "project.type",
         "priorities.cost",
         "priorities.time_to_market",
-        "priorities.maintainability",
         "priorities.security"
       ],
       "alternatives": [
         {
-          "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
-          "why_not": "Scored 4.9 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "choice": "SQLite (in Docker Compose on the VM)",
+          "why_not": "Scored 25.6 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         },
         {
-          "choice": "Azure Database for MySQL – Flexible Server (East US)",
-          "why_not": "Scored 18.9 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
+          "why_not": "Scored 4.9 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
       "tradeoffs": []
     },
     "hosting": {
       "choice": "Cloudflare Pages",
-      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost for Cloudflare Pages (priority 5); well suited to content site projects; strong time to market for Cloudflare Pages (priority 4); serves pre-built static files from a CDN.",
+      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost, which you rated 5/5; well suited to content site projects; strong time to market, which you rated 4/5; serves pre-built static files from a CDN.",
       "driven_by": [
         "priorities.cost",
         "project.type",
-        "priorities.time_to_market",
-        "priorities.performance"
+        "priorities.time_to_market"
       ],
       "alternatives": [
         {
@@ -191,7 +187,7 @@
     "description_signals": {
       "markdown": "markdown"
     },
-    "combinations_evaluated": 117,
+    "combinations_evaluated": 477,
     "input_hash": "481bb0d49db0c843"
   }
 }

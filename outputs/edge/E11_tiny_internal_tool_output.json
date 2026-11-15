@@ -8,15 +8,12 @@
   "stack": {
     "frontend": {
       "choice": "Django templates + HTMX",
-      "justification": "Server-rendered pages from the same Django codebase, no separate SPA. Fit for this project: team.languages includes Python; strong cost for Django templates + HTMX (priority 5); strong time to market for Django templates + HTMX (priority 5); well suited to internal tool projects.",
+      "justification": "Server-rendered pages from the same Django codebase, no separate SPA. Fit for this project: team.languages includes Python; strong cost, which you rated 5/5; strong time to market, which you rated 5/5; well suited to internal tool projects.",
       "driven_by": [
         "team.languages",
         "priorities.cost",
         "priorities.time_to_market",
-        "project.type",
-        "priorities.security",
-        "priorities.maintainability",
-        "priorities.performance"
+        "project.type"
       ],
       "alternatives": [
         {
@@ -37,14 +34,12 @@
     },
     "backend": {
       "choice": "Django (Python)",
-      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong time to market for Django (priority 5); well suited to internal tool projects; built-in admin/back-office screens.",
+      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong time to market, which you rated 5/5; well suited to internal tool projects; built-in admin/back-office screens.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
         "project.type",
-        "priorities.security",
-        "requirements.auth",
-        "priorities.maintainability"
+        "requirements.auth"
       ],
       "alternatives": [
         {
@@ -52,8 +47,8 @@
           "why_not": "Scored 11.2 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
         },
         {
-          "choice": "Azure Functions",
-          "why_not": "Scored 14.1 points lower: operational burden (ops 2/5) with no DevOps engineer; learning curve 3/5 for a beginner team; the chosen option wins on project.type (well suited to internal tool projects)."
+          "choice": "AWS Lambda + API Gateway",
+          "why_not": "Scored 17.3 points lower: operational burden (ops 2/5) with no DevOps engineer; learning curve 3/5 for a beginner team; the chosen option wins on project.type (well suited to internal tool projects)."
         }
       ],
       "tradeoffs": [
@@ -63,23 +58,20 @@
     },
     "database": {
       "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong cost for PostgreSQL (priority 5); strong maintainability for PostgreSQL (priority 3); strong security for PostgreSQL (priority 3); strong time to market for PostgreSQL (priority 5).",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 5/5; well suited to internal tool projects.",
       "driven_by": [
         "priorities.cost",
-        "priorities.maintainability",
-        "priorities.security",
         "priorities.time_to_market",
-        "project.type",
-        "priorities.performance"
+        "project.type"
       ],
       "alternatives": [
         {
-          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
-          "why_not": "Scored 1.3 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
+          "choice": "SQLite (in Docker Compose on the VM)",
+          "why_not": "Scored 2.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
-          "choice": "MongoDB Atlas (AWS N. Virginia)",
-          "why_not": "Scored 1.2 points lower: the chosen option wins on priorities.cost (strong cost for PostgreSQL (priority 5))."
+          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
+          "why_not": "Scored 1.3 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
         }
       ],
       "tradeoffs": [
@@ -88,17 +80,16 @@
     },
     "hosting": {
       "choice": "DigitalOcean App Platform (NYC3 New York)",
-      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market for DigitalOcean App Platform (priority 5); strong cost for DigitalOcean App Platform (priority 5); strong performance for DigitalOcean App Platform (priority 3).",
+      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 5/5.",
       "driven_by": [
         "budget.monthly_infra_usd",
         "priorities.time_to_market",
-        "priorities.cost",
-        "priorities.performance"
+        "priorities.cost"
       ],
       "alternatives": [
         {
-          "choice": "Azure Static Web Apps (East US)",
-          "why_not": "Scored 14.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "choice": "Azure Static Web Apps (East US 2)",
+          "why_not": "Scored 14.5 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
           "choice": "Cloudflare Pages",
@@ -244,7 +235,7 @@
     "description_signals": {
       "booking": "book"
     },
-    "combinations_evaluated": 142,
+    "combinations_evaluated": 515,
     "input_hash": "a9d6ebd1bb90a551"
   }
 }

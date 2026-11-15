@@ -82,7 +82,11 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def serve(host="127.0.0.1", port=8000):
-    httpd = ThreadingHTTPServer((host, port), Handler)
+    try:
+        httpd = ThreadingHTTPServer((host, port), Handler)
+    except OSError as e:
+        print("Could not start on %s:%d (%s). Try another port: python3 -m stacksense serve --port 8080" % (host, port, e))
+        return
     print("StackSense %s running at http://%s:%d  (Ctrl+C to stop)" % (ENGINE_VERSION, host, port))
     try:
         httpd.serve_forever()

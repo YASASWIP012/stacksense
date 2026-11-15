@@ -206,5 +206,57 @@ class EdgeCases(unittest.TestCase):
             self.assertIn(out["status"], ("ok", "ok_with_warnings", "infeasible", "invalid_input"), path)
 
 
+class JudgeRegressions(unittest.TestCase):
+    """Bugs found by the blind-judge panel; each must stay fixed."""
+
+    def test_availability_9995_small_team_no_crash(self):
+        sc = copy.deepcopy(PUBLIC["P6"])
+        sc["requirements"]["availability"] = "99.95"
+        out = recommend(sc)
+        self.assertIn(out["status"], ("ok", "ok_with_warnings"))
+        self.assertTrue(any(w["code"] == "AVAILABILITY_VS_TEAM" for w in out["warnings"]))
+
+    def test_non_finite_numbers_rejected(self):
+        for val in (float("nan"), float("inf")):
+            sc = copy.deepcopy(PUBLIC["P2"])
+            sc["scale"]["data_volume_gb_12_months"] = val
+            sc["budget"]["monthly_infra_usd"] = val
+            out = recommend(sc)
+            self.assertEqual(out["status"], "invalid_input")
+
+    def test_air_gapped_ad_uses_on_prem_idp(self):
+        sc = load("scenarios/edge/E06_air_gapped.json")
+        sc["requirements"]["auth"] = "enterprise_sso"
+        sc["infrastructure"]["existing_systems"] = ["Active Directory (on-prem)"]
+        auth = [s for s in recommend(sc)["stack"]["supporting"] if s["layer"] == "auth"][0]["choice"]
+        self.assertIn("Keycloak", auth)
+        self.assertNotIn("Entra", auth)
+
+    def test_hipaa_applies_to_app_hosting(self):
+        sc = copy.deepcopy(PUBLIC["P2"])
+        sc["compliance"] = ["hipaa"]
+        out = recommend(sc)
+        self.assertNotIn("DigitalOcean", out["stack"]["hosting"]["choice"])
+
+    def test_deprecated_existing_systems(self):
+        out = recommend(load("scenarios/edge/E13_deprecated_tech.json"))
+        codes = [w for w in out["warnings"] if w["code"] == "END_OF_LIFE"]
+        self.assertGreaterEqual(len(codes), 4)
+        self.assertIn("Migration", json.dumps(out["stack"]["supporting"]))
+
+    def test_keycloak_realm_is_not_mongodb_realm(self):
+        sc = copy.deepcopy(PUBLIC["P5"])
+        sc["infrastructure"]["existing_systems"] = ["Keycloak realm corp"]
+        self.assertFalse(any("Realm" in w["message"] for w in recommend(sc)["warnings"]))
+
+    def test_us_marketplace_uses_connect(self):
+        sc = copy.deepcopy(PUBLIC["P2"])
+        sc["infrastructure"]["data_residency"] = "us"
+        sc["compliance"] = []
+        sc["requirements"]["auth"] = "email_password"
+        sc["project"]["description"] = "Customers book electricians and plumbers; providers get paid."
+        self.assertIn("Connect", json.dumps(recommend(sc)["stack"]["supporting"]))
+
+
 if __name__ == "__main__":
     unittest.main()

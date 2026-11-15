@@ -8,15 +8,10 @@
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA)",
-      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: well suited to internal tool projects; strong cost for React + Vite (priority 3); strong maintainability for React + Vite (priority 3); strong performance for React + Vite (priority 3).",
+      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: well suited to internal tool projects.",
       "driven_by": [
         "team.languages",
-        "project.type",
-        "priorities.cost",
-        "priorities.maintainability",
-        "priorities.performance",
-        "priorities.scalability",
-        "priorities.time_to_market"
+        "project.type"
       ],
       "alternatives": [
         {
@@ -39,15 +34,12 @@
     },
     "backend": {
       "choice": "Spring Boot (Java/Kotlin)",
-      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java; strong security for Spring Boot (priority 5); mature transaction management for money/ledger flows; strong maintainability for Spring Boot (priority 3).",
+      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java; strong security, which you rated 5/5; mature transaction management for money/ledger flows.",
       "driven_by": [
         "team.languages",
         "priorities.security",
         "project.type",
-        "priorities.maintainability",
-        "priorities.scalability",
-        "team.experience",
-        "priorities.performance"
+        "team.experience"
       ],
       "alternatives": [
         {
@@ -71,20 +63,17 @@
     },
     "database": {
       "choice": "PostgreSQL (self-hosted)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; strong security for PostgreSQL (priority 5); strong maintainability for PostgreSQL (priority 3); well suited to internal tool projects.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep related records consistent; strong security, which you rated 5/5; well suited to internal tool projects; the team already writes SQL.",
       "driven_by": [
         "project.type",
         "priorities.security",
-        "priorities.maintainability",
         "team.languages",
-        "requirements.full_text_search",
-        "priorities.cost",
-        "priorities.performance"
+        "requirements.full_text_search"
       ],
       "alternatives": [
         {
           "choice": "MySQL (self-hosted)",
-          "why_not": "Scored 1.7 points lower: the chosen option wins on priorities.security (strong security for PostgreSQL (priority 5))."
+          "why_not": "Scored 1.7 points lower: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "SQL Server (licensed) (self-hosted)",
@@ -101,12 +90,10 @@
     },
     "hosting": {
       "choice": "On-premise servers (Docker Compose; k3s for HA)",
-      "justification": "Runs entirely on servers you control. Fit for this project: strong cost for On-premise servers (priority 3); strong performance for On-premise servers (priority 3).",
+      "justification": "Runs entirely on servers you control.",
       "driven_by": [
         "infrastructure.deployment_model",
         "team.has_devops",
-        "priorities.cost",
-        "priorities.performance",
         "team.experience"
       ],
       "alternatives": [
@@ -146,7 +133,7 @@
       {
         "layer": "queue",
         "choice": "RabbitMQ (self-hosted)",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (approval e-mails) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "project.description"
         ],
@@ -324,7 +311,7 @@
       "offline": "no internet",
       "workflow": "approval"
     },
-    "combinations_evaluated": 174,
+    "combinations_evaluated": 232,
     "input_hash": "846ad59ae903c3ad"
   }
 }

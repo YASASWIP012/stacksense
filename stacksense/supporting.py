@@ -40,6 +40,110 @@ def _india(c):
             or "india" in text or "upi" in text)
 
 
+def _domain_items(c, combo, dbs, hp, onprem):
+    out = []
+    d = (c.spec.get("project.description") or "").lower()
+    if c.type == "iot" or "timeseries" in c.signals:
+        if onprem:
+            ch = "EMQX or Eclipse Mosquitto (self-hosted MQTT broker) -> stream into the database"
+        else:
+            ch = {"aws": "AWS IoT Core (MQTT) -> Amazon Kinesis Data Streams", "gcp": "EMQX Cloud/Mosquitto on GKE (MQTT) -> Pub/Sub",
+                  "azure": "Azure IoT Hub (MQTT) -> Event Hubs"}.get(hp, "EMQX (managed MQTT broker) -> stream consumer")
+        out.append(S("other", ch, "Devices publish telemetry over MQTT (lightweight, works on flaky links); the broker authenticates "
+                     "each device and buffers bursts before a consumer writes batches to the time-series store.",
+                     ["project.type", "project.description"],
+                     [("Devices calling the REST API directly", "HTTP per reading wastes battery and collapses under bursts.")],
+                     ["Device provisioning and certificate rotation must be planned."], (10, 300)))
+    if c.type == "data_analytics" and not onprem:
+        ch = {"gcp": "BigQuery (serverless warehouse) + Looker Studio", "aws": "Amazon Redshift Serverless or Athena on S3",
+              "azure": "Microsoft Fabric / Azure Synapse"}.get(hp, "ClickHouse Cloud or BigQuery")
+        out.append(S("other", ch, "Analytical queries over large volumes run in a columnar warehouse with no servers to manage; the "
+                     "application database stays small and fast.", ["project.type", "scale.data_volume_gb_12_months"],
+                     [("Self-managed ClickHouse", "Fastest per dollar but needs operations.")], ["Per-query pricing needs guardrails."], (20, 500)))
+    if c.type == "api_platform":
+        ch = {"aws": "Amazon API Gateway (usage plans + API keys)", "gcp": "Apigee X / API Gateway", "azure": "Azure API Management"}.get(
+            hp, "Kong Gateway (self-hosted) or Zuplo") if not onprem else "Kong Gateway (self-hosted)"
+        out.append(S("other", ch, "API products need per-customer keys, rate limits, quotas and usage metering at the edge; the "
+                     "gateway also publishes the OpenAPI developer portal.", ["project.type", "project.platforms"],
+                     [("Rate limiting inside the app", "Every service re-implements keys and quotas.")], [], (0, 100) if c.L <= 2 else (50, 600)))
+    if "video" in d and ("consult" in d or "telehealth" in d or "call" in d or c.type == "healthtech"):
+        hip = "hipaa" in c.compliance
+        ch = "LiveKit (self-hosted in your cloud)" if (hip or onprem or c.eff_residency == "india") else "Daily (managed WebRTC video)"
+        out.append(S("realtime", ch, "Video consultations need WebRTC with TURN relays; %s" % (
+            "self-hosting keeps media inside your HIPAA/residency boundary." if ch.startswith("LiveKit") else "a managed API avoids running media servers."),
+            ["project.description"] + (["compliance"] if hip else []),
+            [("Zoom Video SDK", "Per-minute pricing; branding constraints."), ("Peer-to-peer WebRTC only", "Fails behind strict NATs without TURN.")],
+            ["Media servers need bandwidth headroom."], (50, 600)))
+    if c.type == "content_site" and (c.size >= 3 or any(k in d for k in ("editor", "newsroom", "journalist", "writers", "news"))):
+        ch = "WordPress (headless) + WPGraphQL" if "php" in c.langs else "Payload CMS (self-hosted) or Strapi"
+        out.append(S("other", ch, "Several non-developer editors need drafts, roles, scheduling and media management; the site "
+                     "pulls content from the CMS at build time and the CDN serves the pages.", ["project.type", "team.size"],
+                     [("Markdown in Git", "Fine for one developer-author, not for an editorial team.")], [], (10, 60)))
+    if "hipaa" in c.compliance and not onprem:
+        out.append(S("other", "HIPAA programme: BAAs with every vendor that touches PHI", "Sign a Business Associate Agreement with "
+                     "the cloud provider and each PHI-handling vendor before launch, keep PHI out of logs, push payloads and analytics, "
+                     "and enable audit logging on every PHI store.", ["compliance"],
+                     [("Relying on vendor marketing", "HIPAA eligibility only applies to services listed under a signed BAA.")], [], (0, 0)))
+    return out
+
+
+def _push_use(c):
+    d = (c.spec.get("project.description") or "").lower()
+    if c.type == "fintech" or "emi" in d or "loan" in d:
+        return "EMI due-date reminders and disbursal/repayment status"
+    if c.req["offline_support"]:
+        return "sync-status nudges and new survey assignments"
+    if "booking" in c.signals or c.type == "marketplace":
+        return "booking and job-status updates"
+    if c.req["realtime"]:
+        return "messages that arrive while the app is closed"
+    if c.type == "healthtech":
+        return "appointment reminders (no health data in the payload)"
+    return "account and activity notifications"
+
+
+MIGRATE = {"mysql": "MySQL", "postgres": "PostgreSQL", "sqlserver": "SQL Server", "mongodb": "MongoDB",
+           "dynamodb": "DynamoDB", "firestore": "Firestore"}
+
+
+def _existing_plan(c, combo, dbs, hp):
+    """Say how each existing system is reused, integrated or migrated."""
+    items = []
+    if not c.existing:
+        return items
+    db_id = combo["database"]["id"]
+    lines = []
+    for item in c.existing:
+        low = item.lower()
+        if any(k in low for k in ("mysql", "mariadb", "postgres", "sql server", "mssql", "mongo", "oracle", "dynamo")):
+            src = item
+            if db_id != "none" and (("mysql" in low and db_id == "mysql") or ("postgres" in low and db_id == "postgres")
+                                    or (("sql server" in low or "mssql" in low) and db_id == "sqlserver")
+                                    or ("mongo" in low and db_id == "mongodb")):
+                tool = {"aws": "AWS DMS", "azure": "Azure Database Migration Service", "gcp": "Database Migration Service"}.get(hp, "native dump/restore with a short read-only window")
+                lines.append("%s: same engine as the recommended database, so lift the schema and data with %s and "
+                             "upgrade the version in the same step." % (src, tool))
+            elif db_id != "none":
+                tool = "pgloader" if db_id == "postgres" else {"aws": "AWS DMS", "azure": "Azure DMS", "gcp": "Database Migration Service"}.get(hp, "an ETL script")
+                lines.append("%s: migrate to %s with %s; run both in parallel with change-data-capture until "
+                             "cut-over, then retire the old server." % (src, dbs["name"].split(" (")[0], tool))
+        elif any(k in low for k in ("node", "api", "service", "backend", "php", "java", "django", "rails")):
+            lines.append("%s: keep it running behind the new API (strangler pattern) and move endpoints one at a "
+                         "time; upgrade the runtime first if it is end-of-life." % item)
+        elif any(k in low for k in ("angular", "react", "vue", "admin", "frontend", "jquery")):
+            lines.append("%s: replace screen by screen in the recommended front end; link both from one "
+                         "navigation until the old UI is empty." % item)
+        elif any(k in low for k in ("centos", "ubuntu", "windows server", "servers", "vm")):
+            lines.append("%s: do not deploy new services there; move workloads to the recommended hosting and "
+                         "decommission once empty." % item)
+    if lines:
+        items.append(S("other", "Migration and integration plan for existing systems",
+                       " ".join(lines), ["infrastructure.existing_systems"],
+                       [("Big-bang rewrite", "Higher risk: everything switches at once with no fallback.")],
+                       ["Running old and new systems in parallel costs extra for a few weeks."], (0, 0)))
+    return items
+
+
 def choose_supporting(c, combo, dbs, hp):
     out, warns = [], []
     be = combo["backend"]["id"]
@@ -73,19 +177,53 @@ def choose_supporting(c, combo, dbs, hp):
             alts = [("Auth0", "Extra vendor for no gain here.")]
         elif r["auth"] == "enterprise_sso":
             drv.append("infrastructure.existing_systems")
-            if "entra" in idp or c.cloud == "azure":
+            has_entra = "entra" in idp
+            if onprem:
+                if "ad_onprem" in idp or has_entra:
+                    ch = "Keycloak (self-hosted) federated to Active Directory over LDAP/Kerberos"
+                    why = ("The deployment is %s, so no cloud identity service is allowed. Keycloak runs inside the "
+                           "network, federates users from the existing Active Directory and gives the app OIDC/SAML "
+                           "single sign-on." % c.deploy.replace("_", "-"))
+                    alts = [("Microsoft Entra ID", "Cloud service: not reachable from a %s network." % c.deploy.replace("_", "-")),
+                            ("AD FS", "Also on-prem, but Windows-only and SAML/WS-Fed oriented; Keycloak covers OIDC for modern apps.")]
+                else:
+                    ch = "Keycloak (self-hosted)"
+                    why = "Open-source IdP with SAML/OIDC that runs inside your network; no external identity service."
+                    alts = [("Auth0 / Okta", "SaaS: not allowed for a %s deployment." % c.deploy.replace("_", "-"))]
+                drv.append("infrastructure.deployment_model")
+            elif has_entra or "ad_onprem" in idp:
                 ch = "Microsoft Entra ID (OIDC/SAML single sign-on)"
-                why = ("Employees already sign in with Entra ID; the app trusts it via OpenID Connect, so there are "
-                       "no new passwords and joiners/leavers are handled centrally.")
+                why = ("The organisation's directory is Microsoft (listed in existing_systems), so the app trusts Entra ID "
+                       "via OpenID Connect: no new passwords, and joiners/leavers are handled centrally.")
+                if "ad_onprem" in idp:
+                    why += " On-prem Active Directory syncs into Entra ID with Entra Connect."
                 if host["id"] == "azure_app_service":
                     why += " App Service 'Easy Auth' can enforce sign-in with no auth code."
                 alts = [("Keycloak", "Would duplicate the identity provider the company already runs.")]
             elif "okta" in idp:
-                ch, why = "Okta (existing IdP via OIDC)", "Reuses the company's Okta tenant."
+                ch, why = "Okta (existing IdP via OIDC)", "Reuses the company's Okta tenant listed in existing_systems."
                 alts = [("Keycloak", "Duplicates the existing IdP.")]
-            elif onprem or c.devops:
-                ch, why = "Keycloak (self-hosted)", "Open-source IdP with SAML/OIDC brokering to any corporate directory; runs on your servers."
-                alts = [("Auth0 / Okta", "SaaS: not available %s." % ("air-gapped" if airgap else "self-hosted"))]
+            elif "google" in idp:
+                ch = "Google Workspace SSO (OIDC)" + (" + Identity-Aware Proxy" if hp == "gcp" and c.type == "internal_tool" else "")
+                why = ("Staff already have Google Workspace accounts (existing_systems), so sign-in uses them directly"
+                       "%s." % ("; IAP puts the whole internal app behind Google login with no auth code" if hp == "gcp" and c.type == "internal_tool" else ""))
+                alts = [("Auth0", "Per-MAU fees to re-implement a login the company already has.")]
+            elif c.type in ("saas_b2b",) or r["multi_tenant"]:
+                if c.devops:
+                    ch, why = "Keycloak (self-hosted, Organizations per customer)", "Each customer connects its own SAML/OIDC IdP; no per-MAU fees."
+                    alts = [("WorkOS / Auth0 Organizations", "Faster to start but priced per connection/MAU.")]
+                else:
+                    ch, why = "WorkOS (enterprise SSO per customer)", "Customers plug in their own Okta/Entra/Google IdP without you running an IdP."
+                    alts = [("Keycloak", "Needs someone to operate it.")]
+                    if c.eff_residency == "india":
+                        ch, why = "Keycloak (self-hosted, Organizations per customer)", "Customer IdPs federate into a Keycloak you host in India."
+                        alts = [("WorkOS / Auth0", "No India data region.")]
+            elif c.cloud == "azure" or hp == "azure":
+                ch, why = "Microsoft Entra ID (workforce SSO)", "Managed SSO native to the chosen Azure platform; federates with other corporate IdPs."
+                alts = [("Keycloak", "Needs someone to operate it.")]
+            elif c.devops:
+                ch, why = "Keycloak (self-hosted)", "Open-source IdP with SAML/OIDC brokering to any corporate directory."
+                alts = [("Auth0 / Okta", "Per-user pricing for a capability you can run.")]
             elif c.cloud == "aws" or hp == "aws":
                 ch, why = "Amazon Cognito (SAML/OIDC federation)", "Managed user pools in the same AWS region federating to the customer IdP."
                 alts = [("Keycloak", "Needs someone to operate it.")]
@@ -151,7 +289,7 @@ def choose_supporting(c, combo, dbs, hp):
                 alts = [("Cashfree Payments (Payouts + Subscriptions)", "Equally capable; Razorpay has wider "
                          "mandate and payout docs. A sensible second gateway for redundancy."),
                         ("Stripe", "Stripe is invite-only for new Indian businesses and does not cover UPI payouts.")]
-            elif c.type == "marketplace":
+            elif c.type == "marketplace" or "get paid" in (c.spec.get("project.description") or "").lower():
                 ch = "Razorpay + Razorpay Route (split settlements)"
                 why = ("UPI, cards and netbanking; Route splits each payment between the platform commission and "
                        "the provider's linked account, which is what a services marketplace needs.")
@@ -164,7 +302,20 @@ def choose_supporting(c, combo, dbs, hp):
                         ("Stripe", "Invite-only for new Indian businesses.")]
             drv.append("compliance")
         else:
-            if sub or c.type in ("saas_b2b", "realtime_collab"):
+            desc = (c.spec.get("project.description") or "").lower()
+            if c.type == "marketplace" or "payout" in desc or "providers get paid" in desc:
+                ch = "Stripe Connect (marketplace payments and payouts)"
+                why = "Collects from buyers, splits the platform fee and pays out to sellers' connected accounts, with KYC for sellers handled by Stripe."
+                alts = [("Adyen for Platforms", "Enterprise onboarding and minimums."), ("PayPal Commerce Platform", "Weaker payout control.")]
+            elif "card" in desc and ("issu" in desc or "expense" in desc or "corporate" in desc):
+                ch = "Stripe Issuing (virtual/physical cards) + Stripe Treasury where available"
+                why = "Issues spend cards with real-time authorisation webhooks and spending controls; card data stays with the issuer (PCI scope minimal)."
+                alts = [("Marqeta", "Strong issuing platform, but enterprise contracts."), ("Adyen Issuing", "Enterprise minimums.")]
+            elif c.type == "api_platform" or "usage" in desc or "metered" in desc or "per call" in desc:
+                ch = "Stripe Billing (usage-based / metered pricing)"
+                why = "Meters API calls per customer and invoices on usage tiers; usage events are sent from the API gateway logs."
+                alts = [("Orb / Metronome", "Specialist usage billing; extra vendor."), ("Flat plans", "Leaves money on the table for heavy API users.")]
+            elif sub or c.type in ("saas_b2b", "realtime_collab"):
                 ch = "Stripe Billing (per-seat subscriptions) + Stripe Tax"
                 why = "Per-seat plans, proration and invoices out of the box; Stripe Tax handles EU VAT."
                 alts = [("Paddle", "Merchant of record removes VAT work, but higher fees and less control."),
@@ -222,26 +373,63 @@ def choose_supporting(c, combo, dbs, hp):
                      (round(gb * 0.02), round(gb * 0.05 + 5))))
 
     # ---------------------------------------------------------------- cdn
-    if "web" in c.platforms and not onprem and not (host["caps"] & {"cdn"}) and (
+    if "web" in c.platforms and not onprem and not (host["caps"] & {"cdn"}) and c.type != "internal_tool" and (
             r["seo_critical"] or r["file_media_storage"] or c.extras.get("geo_spread") in ("multi_region", "global")):
-        ch = {"aws": "Amazon CloudFront", "gcp": "Cloud CDN", "azure": "Azure Front Door"}.get(hp, "Cloudflare (free plan)")
-        out.append(S("cdn", ch, "Caches static assets and public media close to users and absorbs traffic spikes.",
-                     ["requirements.seo_critical", "requirements.file_media_storage"],
-                     [("No CDN", "Slower first loads for public pages and media.")], [], (0, 20) if L <= 2 else (20, 200)))
+        ch = {"aws": "Amazon CloudFront", "gcp": "Cloud CDN", "azure": "Azure Front Door (Standard)"}.get(hp, "Cloudflare (free plan)")
+        cdrv = [f for f, on in (("requirements.seo_critical", r["seo_critical"]), ("requirements.file_media_storage", r["file_media_storage"]),
+                                ("extras.geo_spread", c.extras.get("geo_spread") in ("multi_region", "global"))) if on]
+        what = "public pages and media" if r["seo_critical"] else ("uploaded media and static assets" if r["file_media_storage"] else "static assets")
+        out.append(S("cdn", ch, "Caches %s close to users and absorbs traffic spikes." % what, cdrv,
+                     [("No CDN", "Slower first loads for public pages and media.")], [],
+                     ((35, 60) if hp == "azure" else (0, 20)) if L <= 2 else (40, 250)))
 
     # ---------------------------------------------------------------- realtime
     sep_rt = False
     if r["realtime"]:
         drv = ["requirements.realtime"]
         collab = c.type == "realtime_collab" or any(k in (c.spec.get("project.description") or "").lower()
-                                                     for k in ("whiteboard", "cursor", "multiplayer", "co-edit"))
-        if be == "supabase":
-            ch, why = "Supabase Realtime (Broadcast + Postgres changes)", "Included; pushes chat messages and job-status changes to subscribed clients."
+                                                     for k in ("whiteboard", "cursor", "co-edit", "collaborative edit"))
+        if collab:
+            sep_rt = True
+            ts_team = bool(set(c.langs) & {"javascript", "typescript"}) or not c.langs
+            server = "Hocuspocus sync server (TypeScript)" if ts_team else ("pycrdt-websocket (Python) sync server" if "python" in c.langs else "Hocuspocus sync server (TypeScript)")
+            ch = "Yjs (CRDT) + %s, Redis pub/sub between nodes" % server
+            why = ("Concurrent edits to the same document/board must merge without conflicts: Yjs CRDTs do that, the %s "
+                   "syncs updates and awareness (live cursors, presence) over WebSockets, and Redis fans updates out across "
+                   "instances for %d concurrent users. Snapshots persist to %s." % (server.split(" (")[0], c.peak, dbs["name"].split(" (")[0]))
+            alts = [("Liveblocks", "Managed and fast to start, but per-MAU pricing and US data storage."),
+                    ("Last-write-wins over plain WebSockets", "Loses concurrent edits.")]
+            drv += ["project.type", "scale.peak_concurrent_users"]
+        elif be == "supabase":
+            what = []
+            desc = (c.spec.get("project.description") or "").lower()
+            if "chat" in desc:
+                what.append("chat messages")
+            if "booking" in c.signals or c.type == "marketplace":
+                what.append("booking/job-status changes")
+            if "presence" in desc or "online" in desc:
+                what.append("presence")
+            what = what or ["row changes and broadcast events"]
+            ch = "Supabase Realtime (Broadcast + Postgres changes)"
+            why = "Included in the Supabase project; pushes %s to subscribed clients over WebSockets." % " and ".join(what)
             alts = [("Socket.IO server", "An extra service to run.")]
         elif be == "firebase":
             ch, why = "Firestore real-time listeners", "Included in Firebase."
             alts = [("Pusher", "Extra vendor.")]
-        elif collab:
+        elif c.type == "gaming" or "multiplayer game" in (c.spec.get("project.description") or "").lower() or "battle" in (c.spec.get("project.description") or "").lower():
+            sep_rt = True
+            if "csharp" in c.langs:
+                ch = "Dedicated game server with Nakama (self-hosted) or Unity Netcode + Unity Relay"
+            elif set(c.langs) & {"javascript", "typescript"}:
+                ch = "Colyseus (authoritative Node.js game server, rooms + state sync) + Redis presence"
+            else:
+                ch = "Nakama (open-source game server: matchmaking, realtime, leaderboards)"
+            why = ("Matches need an authoritative server that owns game state, matchmaking and per-room broadcast at low "
+                   "latency for %d concurrent players; leaderboards live in the database/Redis sorted sets." % c.peak)
+            alts = [("Plain WebSockets in the API", "You would rebuild rooms, matchmaking and reconnection logic."),
+                    ("Photon / PlayFab", "Managed and proven, but per-CCU pricing and vendor lock-in.")]
+            drv += ["project.type", "scale.peak_concurrent_users"]
+        elif False:
             sep_rt = True
             ch = "Yjs (CRDT) + Hocuspocus sync server, Redis pub/sub between nodes"
             why = ("Concurrent edits to one board must merge without conflicts: Yjs CRDTs do that, Hocuspocus "
@@ -281,8 +469,8 @@ def choose_supporting(c, combo, dbs, hp):
         why = ("Caches hot reads and sessions to hold p95=%sms, and doubles as the pub/sub and job-queue broker."
                % (r["p95_latency_ms"] or "low"))
         out.append(S("cache", ch, why,
-                     [x for x in ("requirements.p95_latency_ms", "scale.peak_concurrent_users", "requirements.realtime")
-                      if (x != "requirements.p95_latency_ms" or r["p95_latency_ms"])],
+                     [x for x, on in (("requirements.p95_latency_ms", bool(r["p95_latency_ms"])), ("scale.peak_concurrent_users", L >= 3),
+                                      ("requirements.realtime", r["realtime"])) if on] or ["scale.users_12_months"],
                      [("Memcached", "No pub/sub or persistence, so it cannot double as a broker."),
                       ("No cache", "Every read hits the database at peak.")],
                      ["Another stateful component to size and monitor."],
@@ -311,7 +499,10 @@ def choose_supporting(c, combo, dbs, hp):
                   "phoenix": "Oban (Postgres-backed jobs)", "spring_boot": "RabbitMQ", "go_chi": "NATS JetStream",
                   "next_fullstack": "Inngest / QStash (serverless jobs)", "aspnet": "Hangfire (database-backed)",
                   "azure_functions": "Azure Queue Storage"}.get(be, "RabbitMQ")
-        why = "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely."
+        jobs = [x for x, on in (("payment webhooks", r["payments"]), ("model scoring", r["ml_features"] in ("inference_api", "training")),
+                                ("image/file processing", r["file_media_storage"]), ("approval e-mails", "workflow" in c.signals),
+                                ("notifications", "notifications" in c.signals or "booking" in c.signals)) if on] or ["background jobs"]
+        why = "Moves slow or retry-prone work (%s) off the request path so p95 stays low and failures retry safely." % ", ".join(jobs)
         out.append(S("queue", ch, why,
                      [x for x, on in (("requirements.payments", r["payments"]), ("requirements.ml_features", r["ml_features"] != "none"),
                                       ("requirements.file_media_storage", r["file_media_storage"]), ("scale.users_12_months", L >= 3)) if on] or ["project.description"],
@@ -337,7 +528,7 @@ def choose_supporting(c, combo, dbs, hp):
             ch, why = "MongoDB Atlas Search", "Lucene-based search inside Atlas; no extra service."
             alts = [("Meilisearch", "Extra service to sync.")]
             cost = (0, 0)
-        elif db in ("postgres", "timescale") and L <= 3 and (c.data_gb or 0) <= 500:
+        elif db in ("postgres", "timescale") and (L <= 3 or not c.devops) and (c.data_gb or 0) <= 2000:
             ch = "PostgreSQL full-text search (tsvector + GIN, pg_trgm for typos)"
             why = ("At %d users and ~%s GB the database's own search is fast enough, transactional and needs no sync "
                    "pipeline." % (c.users, "%g" % c.data_gb))
@@ -350,10 +541,14 @@ def choose_supporting(c, combo, dbs, hp):
             ch, why = "Amazon OpenSearch Service", "Managed search in the same region at large scale."
             alts = [("Meilisearch", "Simpler, but self-managed at this size.")]
             cost = (100, 800)
-        else:
+        elif c.devops or onprem:
             ch, why = "Meilisearch (self-hosted)", "Typo-tolerant search engine, easy to run beside the app."
             alts = [("OpenSearch", "Heavier JVM cluster.")]
             cost = (0, 50)
+        else:
+            ch, why = "Typesense Cloud / Meilisearch Cloud (managed)", "Managed typo-tolerant search, since no one on the team operates infrastructure."
+            alts = [("Self-hosted Meilisearch", "Needs someone to run and back it up.")]
+            cost = (30, 150)
         out.append(S("search", ch, why, drv, alts, [], cost))
 
     # ---------------------------------------------------------------- ML
@@ -423,14 +618,16 @@ def choose_supporting(c, combo, dbs, hp):
                      ["Conflict rules must be explicit (field agents rarely edit the same record)."], (0, 0)))
     if mobile and not airgap:
         out.append(S("other", "Firebase Cloud Messaging (push notifications)",
-                     "Free push delivery to Android%s for job updates and reminders." % (" and iOS (via APNs)" if "ios" in c.platforms else ""),
+                     "Free push delivery to Android%s for %s." % (" and iOS (via APNs)" if "ios" in c.platforms else "", _push_use(c)),
                      ["project.platforms"], [("SMS for every notification", "Costs per message and DLT templates.")],
-                     ["Notification payloads must not contain sensitive data."], (0, 0)))
+                     ["Notification payloads must not contain sensitive data%s." % (" (no PHI: FCM is not covered by a HIPAA BAA)" if "hipaa" in c.compliance else "")], (0, 0)))
     for kind, val in c.hints:
         if kind == "integration":
             out.append(S("other", val, "Listed in existing_systems; integrate through its official API with a "
                          "service account and least-privilege scopes rather than duplicating its data.",
                          ["infrastructure.existing_systems"], [("Manual CSV exports", "Error-prone and stale.")], [], (0, 0)))
+    out += _domain_items(c, combo, dbs, hp, onprem)
+    out += _existing_plan(c, combo, dbs, hp)
     regulated = set(c.compliance) & {"pci_dss", "hipaa", "iso27001", "soc2", "rbi_localisation"}
     if regulated and not onprem:
         ch = {"aws": "AWS KMS + Secrets Manager + CloudTrail + AWS WAF", "gcp": "Cloud KMS + Secret Manager + Cloud Audit Logs + Cloud Armor",

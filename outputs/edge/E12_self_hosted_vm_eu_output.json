@@ -8,16 +8,14 @@
   "stack": {
     "frontend": {
       "choice": "Next.js (React) (web) + React Native (Expo) (mobile)",
-      "justification": "Web: One React codebase gives SSR/SSG pages for SEO and app-style screens. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market for Next.js (priority 5); well suited to marketplace projects; seo_critical=true and it serves pre-rendered HTML. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market for React Native (priority 5); well suited to marketplace projects; strong maintainability for React Native (priority 3).",
+      "justification": "Web: One React codebase gives SSR/SSG pages for SEO and app-style screens. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects; seo_critical=true and it serves pre-rendered HTML. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
         "project.type",
         "requirements.seo_critical",
         "priorities.cost",
-        "priorities.maintainability",
-        "priorities.performance",
-        "priorities.scalability"
+        "team.experience"
       ],
       "alternatives": [
         {
@@ -42,15 +40,12 @@
     },
     "backend": {
       "choice": "Django (Python)",
-      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong time to market for Django (priority 5); well suited to marketplace projects; built-in admin/back-office screens.",
+      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong time to market, which you rated 5/5; well suited to marketplace projects; built-in admin/back-office screens.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
         "project.type",
-        "priorities.security",
-        "requirements.auth",
-        "priorities.maintainability",
-        "priorities.scalability"
+        "requirements.auth"
       ],
       "alternatives": [
         {
@@ -73,12 +68,10 @@
     },
     "database": {
       "choice": "PostgreSQL (in Docker Compose on the VM)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; well suited to marketplace projects; strong maintainability for PostgreSQL (priority 3); strong security for PostgreSQL (priority 3). Data stays in FRA1 Frankfurt to satisfy data_residency=eu.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep bookings and payouts consistent; well suited to marketplace projects; strong time to market, which you rated 5/5; strong cost, which you rated 4/5. Data stays in FRA1 Frankfurt to satisfy data_residency=eu.",
       "driven_by": [
         "requirements.payments",
         "project.type",
-        "priorities.maintainability",
-        "priorities.security",
         "priorities.time_to_market",
         "priorities.cost",
         "requirements.full_text_search",
@@ -104,13 +97,12 @@
     },
     "hosting": {
       "choice": "DigitalOcean Droplet + Docker Compose (FRA1 Frankfurt)",
-      "justification": "Cheapest predictable compute; everything in one Compose file. Fit for this project: matches deployment_model=self_hosted_cloud_vm; strong cost for Cloud VM + Docker Compose (priority 4); strong time to market for Cloud VM + Docker Compose (priority 5); strong performance for Cloud VM + Docker Compose (priority 3).",
+      "justification": "Cheapest predictable compute; everything in one Compose file. Fit for this project: matches deployment_model=self_hosted_cloud_vm; strong cost, which you rated 4/5; strong time to market, which you rated 5/5.",
       "driven_by": [
         "team.has_devops",
         "infrastructure.deployment_model",
         "priorities.cost",
-        "priorities.time_to_market",
-        "priorities.performance"
+        "priorities.time_to_market"
       ],
       "alternatives": [
         {
@@ -155,19 +147,19 @@
       },
       {
         "layer": "payments",
-        "choice": "Stripe (Checkout / Payment Element)",
-        "justification": "Hosted checkout keeps you in PCI DSS SAQ A scope; broad global payment methods.",
+        "choice": "Stripe Connect (marketplace payments and payouts)",
+        "justification": "Collects from buyers, splits the platform fee and pays out to sellers' connected accounts, with KYC for sellers handled by Stripe.",
         "driven_by": [
           "requirements.payments"
         ],
         "alternatives": [
           {
-            "choice": "Adyen",
-            "why_not": "Enterprise minimums."
+            "choice": "Adyen for Platforms",
+            "why_not": "Enterprise onboarding and minimums."
           },
           {
-            "choice": "PayPal Braintree",
-            "why_not": "Fewer local methods."
+            "choice": "PayPal Commerce Platform",
+            "why_not": "Weaker payout control."
           }
         ],
         "tradeoffs": [
@@ -204,7 +196,7 @@
       {
         "layer": "cdn",
         "choice": "Cloudflare (free plan)",
-        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
+        "justification": "Caches public pages and media close to users and absorbs traffic spikes.",
         "driven_by": [
           "requirements.seo_critical",
           "requirements.file_media_storage"
@@ -249,7 +241,6 @@
         "justification": "Caches hot reads and sessions to hold p95=500ms, and doubles as the pub/sub and job-queue broker.",
         "driven_by": [
           "requirements.p95_latency_ms",
-          "scale.peak_concurrent_users",
           "requirements.realtime"
         ],
         "alternatives": [
@@ -273,7 +264,7 @@
       {
         "layer": "queue",
         "choice": "Celery (Valkey/Redis broker)",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (payment webhooks, image/file processing, notifications) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "requirements.payments",
           "requirements.file_media_storage"
@@ -319,7 +310,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android for job updates and reminders.",
+        "justification": "Free push delivery to Android for booking and job-status updates.",
         "driven_by": [
           "project.platforms"
         ],
@@ -472,7 +463,7 @@
       "payments": "paid",
       "realtime": "chat"
     },
-    "combinations_evaluated": 1144,
+    "combinations_evaluated": 1560,
     "input_hash": "193d62f61693692f"
   }
 }

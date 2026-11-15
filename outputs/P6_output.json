@@ -8,13 +8,12 @@
   "stack": {
     "frontend": {
       "choice": "React Native (Expo)",
-      "justification": "Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript; strong time to market for React Native (priority 4); on-device SQLite storage with a sync queue; strong maintainability for React Native (priority 4).",
+      "justification": "Builds Android and iOS apps from one JavaScript/TypeScript codebase. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 4/5; on-device SQLite storage with a sync queue; strong maintainability, which you rated 4/5.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
         "requirements.offline_support",
-        "priorities.maintainability",
-        "priorities.performance"
+        "priorities.maintainability"
       ],
       "alternatives": [
         {
@@ -36,15 +35,14 @@
     },
     "backend": {
       "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript; strong time to market for Supabase (priority 4); a 2-person team ships in 10 weeks without building auth/storage; strong cost for Supabase (priority 5).",
+      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 4/5; a 2-person team ships in 10 weeks without building auth/storage; strong cost, which you rated 5/5.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
         "timeline.mvp_weeks",
         "requirements.auth",
         "priorities.cost",
-        "priorities.performance",
-        "priorities.security"
+        "requirements.offline_support"
       ],
       "alternatives": [
         {
@@ -57,7 +55,7 @@
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
-          "why_not": "Excluded: Firebase (Google) has no India region for personal data (infrastructure.data_residency)."
+          "why_not": "Excluded: Firebase (Google) stores Firebase Authentication data in the US (Firestore itself can run in Mumbai) (infrastructure.data_residency)."
         }
       ],
       "tradeoffs": [
@@ -67,25 +65,23 @@
     },
     "database": {
       "choice": "PostgreSQL (Supabase, South Asia (Mumbai, ap-south-1))",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong maintainability for PostgreSQL (priority 4); geo queries (description mentions 'gps'); strong cost for PostgreSQL (priority 5); strong security for PostgreSQL (priority 3). Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Enable PostGIS for the GPS/location data.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong maintainability, which you rated 4/5; geo queries (description mentions 'gps'); strong cost, which you rated 5/5; well suited to other projects. Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Enable PostGIS for the GPS/location data.",
       "driven_by": [
         "priorities.maintainability",
         "project.description",
         "priorities.cost",
-        "priorities.security",
         "project.type",
         "priorities.time_to_market",
-        "priorities.performance",
         "infrastructure.data_residency"
       ],
       "alternatives": [
         {
-          "choice": "DigitalOcean Managed MySQL (BLR1 Bengaluru)",
-          "why_not": "Scored 4.9 points lower: the chosen option wins on project.description (geo queries (description mentions 'gps'))."
+          "choice": "SQLite (in Docker Compose on the VM)",
+          "why_not": "Scored 9.0 points lower: the chosen option wins on project.description (geo queries (description mentions 'gps'))."
         },
         {
-          "choice": "DigitalOcean Managed MongoDB (BLR1 Bengaluru)",
-          "why_not": "Scored 5.0 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 4))."
+          "choice": "DigitalOcean Managed MySQL (BLR1 Bengaluru)",
+          "why_not": "Scored 4.9 points lower: the chosen option wins on project.description (geo queries (description mentions 'gps'))."
         }
       ],
       "tradeoffs": [
@@ -94,16 +90,19 @@
     },
     "hosting": {
       "choice": "None (the mobile app calls the managed backend directly)",
-      "justification": "A mobile-only app on a backend-as-a-service needs no web hosting. Fit for this project: strong cost for Hosted by the backend platform (priority 5); strong time to market for Hosted by the backend platform (priority 4); strong performance for Hosted by the backend platform (priority 3).",
+      "justification": "A mobile-only app on a backend-as-a-service needs no web hosting. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
       "driven_by": [
         "priorities.cost",
-        "priorities.time_to_market",
-        "priorities.performance"
+        "priorities.time_to_market"
       ],
       "alternatives": [
         {
+          "choice": "Azure Static Web Apps (East US 2)",
+          "why_not": "Scored 3.5 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+        },
+        {
           "choice": "DigitalOcean App Platform (BLR1 Bengaluru)",
-          "why_not": "Scored 2.7 points lower: the chosen option wins on priorities.cost (strong cost for Hosted by the backend platform (priority 5))."
+          "why_not": "Scored 2.7 points lower: the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         }
       ],
       "tradeoffs": [
@@ -187,7 +186,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android for job updates and reminders.",
+        "justification": "Free push delivery to Android for sync-status nudges and new survey assignments.",
         "driven_by": [
           "project.platforms"
         ],
@@ -310,7 +309,7 @@
       "media": "photo",
       "offline": "intermittent"
     },
-    "combinations_evaluated": 52,
+    "combinations_evaluated": 332,
     "input_hash": "934b8b7ba1ee6571"
   }
 }

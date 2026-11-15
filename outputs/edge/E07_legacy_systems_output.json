@@ -8,16 +8,14 @@
   "stack": {
     "frontend": {
       "choice": "Next.js (React) (web) + React Native (Expo) (mobile)",
-      "justification": "Web: One React codebase gives SSR/SSG pages for SEO and app-style screens. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market for Next.js (priority 5); well suited to marketplace projects; seo_critical=true and it serves pre-rendered HTML. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market for React Native (priority 5); well suited to marketplace projects; strong maintainability for React Native (priority 3).",
+      "justification": "Web: One React codebase gives SSR/SSG pages for SEO and app-style screens. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects; seo_critical=true and it serves pre-rendered HTML. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
         "project.type",
         "requirements.seo_critical",
         "priorities.cost",
-        "priorities.maintainability",
-        "priorities.performance",
-        "priorities.scalability"
+        "team.experience"
       ],
       "alternatives": [
         {
@@ -42,7 +40,7 @@
     },
     "backend": {
       "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market for Supabase (priority 5); well suited to marketplace projects; native WebSocket/real-time support.",
+      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects; native WebSocket/real-time support.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
@@ -63,7 +61,7 @@
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
-          "why_not": "Excluded: Firebase (Google) has no India region for personal data (infrastructure.data_residency)."
+          "why_not": "Excluded: Firebase (Google) stores Firebase Authentication data in the US (Firestore itself can run in Mumbai) (infrastructure.data_residency)."
         }
       ],
       "tradeoffs": [
@@ -73,16 +71,15 @@
     },
     "database": {
       "choice": "PostgreSQL (Supabase, South Asia (Mumbai, ap-south-1))",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; well suited to marketplace projects; strong maintainability for PostgreSQL (priority 3); strong security for PostgreSQL (priority 3). Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep bookings and payouts consistent; well suited to marketplace projects; strong time to market, which you rated 5/5; strong cost, which you rated 4/5. Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Existing data is migrated as described in the migration plan (supporting services).",
       "driven_by": [
         "requirements.payments",
         "project.type",
-        "priorities.maintainability",
-        "priorities.security",
         "priorities.time_to_market",
         "priorities.cost",
         "requirements.full_text_search",
-        "infrastructure.data_residency"
+        "infrastructure.data_residency",
+        "infrastructure.existing_systems"
       ],
       "alternatives": [
         {
@@ -91,7 +88,7 @@
         },
         {
           "choice": "TimescaleDB on Azure VM (self-managed) (Central India (Pune))",
-          "why_not": "Scored 14.5 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Scored 7.8 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
         }
       ],
       "tradeoffs": [
@@ -100,18 +97,16 @@
     },
     "hosting": {
       "choice": "DigitalOcean App Platform (BLR1 Bengaluru)",
-      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market for DigitalOcean App Platform (priority 5); strong cost for DigitalOcean App Platform (priority 4); strong performance for DigitalOcean App Platform (priority 3); strong scalability for DigitalOcean App Platform (priority 3).",
+      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 4/5; real-time channels included in Supabase.",
       "driven_by": [
         "priorities.time_to_market",
         "requirements.realtime",
         "priorities.cost",
-        "team.size",
-        "priorities.performance",
-        "priorities.scalability"
+        "team.size"
       ],
       "alternatives": [
         {
-          "choice": "Azure Static Web Apps (Central India (Pune))",
+          "choice": "Azure Static Web Apps (East US 2)",
           "why_not": "Scored 1.0 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
@@ -202,7 +197,7 @@
       {
         "layer": "cdn",
         "choice": "Cloudflare (free plan)",
-        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
+        "justification": "Caches public pages and media close to users and absorbs traffic spikes.",
         "driven_by": [
           "requirements.seo_critical",
           "requirements.file_media_storage"
@@ -222,7 +217,7 @@
       {
         "layer": "realtime",
         "choice": "Supabase Realtime (Broadcast + Postgres changes)",
-        "justification": "Included; pushes chat messages and job-status changes to subscribed clients.",
+        "justification": "Included in the Supabase project; pushes chat messages and booking/job-status changes to subscribed clients over WebSockets.",
         "driven_by": [
           "requirements.realtime"
         ],
@@ -244,7 +239,7 @@
       {
         "layer": "queue",
         "choice": "Supabase Queues (pgmq) + Edge Functions",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (payment webhooks, image/file processing, notifications) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "requirements.payments",
           "requirements.file_media_storage"
@@ -290,7 +285,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android for job updates and reminders.",
+        "justification": "Free push delivery to Android for booking and job-status updates.",
         "driven_by": [
           "project.platforms"
         ],
@@ -302,6 +297,27 @@
         ],
         "tradeoffs": [
           "Notification payloads must not contain sensitive data."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "other",
+        "choice": "Migration and integration plan for existing systems",
+        "justification": "CentOS 7 servers: do not deploy new services there; move workloads to the recommended hosting and decommission once empty. Node.js 16 API: keep it running behind the new API (strangler pattern) and move endpoints one at a time; upgrade the runtime first if it is end-of-life. MySQL 5.7 database: migrate to PostgreSQL with pgloader; run both in parallel with change-data-capture until cut-over, then retire the old server. AngularJS admin panel: replace screen by screen in the recommended front end; link both from one navigation until the old UI is empty.",
+        "driven_by": [
+          "infrastructure.existing_systems"
+        ],
+        "alternatives": [
+          {
+            "choice": "Big-bang rewrite",
+            "why_not": "Higher risk: everything switches at once with no fallback."
+          }
+        ],
+        "tradeoffs": [
+          "Running old and new systems in parallel costs extra for a few weeks."
         ],
         "estimated_monthly_usd": [
           0,
@@ -420,7 +436,7 @@
     {
       "code": "END_OF_LIFE",
       "severity": "warning",
-      "message": "Existing system 'Node.js 16 API': End-of-life Node.js release. Source: https://nodejs.org/en/about/previous-releases",
+      "message": "Existing system 'Node.js 16 API': End-of-life Node.js release (Node 20 ended 30 Apr 2026). Source: https://nodejs.org/en/about/previous-releases",
       "fields": [
         "infrastructure.existing_systems"
       ]
@@ -428,7 +444,7 @@
     {
       "code": "END_OF_LIFE",
       "severity": "warning",
-      "message": "Existing system 'MySQL 5.7 database': MySQL 5.7 reached end of life in Oct 2023. Source: https://endoflife.date/mysql",
+      "message": "Existing system 'MySQL 5.7 database': MySQL 5.7 ended Oct 2023 and 8.0 ended Apr 2026; move to 8.4 LTS. Source: https://endoflife.date/mysql",
       "fields": [
         "infrastructure.existing_systems"
       ]
@@ -479,7 +495,7 @@
       "payments": "paid",
       "realtime": "chat"
     },
-    "combinations_evaluated": 332,
+    "combinations_evaluated": 1640,
     "input_hash": "bafa2f6db80dd6b2"
   }
 }

@@ -186,10 +186,11 @@ def provider_check(pid, c, role):
     if c.cloud in ("aws", "gcp", "azure") and pid not in (c.cloud, "self"):
         return ("infrastructure.cloud_preference",
                 "%s is not on %s, and cloud_preference=%s is a hard constraint" % (p["name"], c.cloud.upper(), c.cloud))
-    if role == "data" and c.eff_residency in ("india", "eu", "us") and c.eff_residency not in p["regions"]:
-        return ("infrastructure.data_residency",
-                "%s has no %s region for personal data" % (p["name"], c.eff_residency.upper() if c.eff_residency != "india" else "India"))
-    if role == "data":
+    if role in ("data", "compute") and c.eff_residency in ("india", "eu", "us") and c.eff_residency not in p["regions"]:
+        why = p.get("residency_note") or "has no %s region for personal data" % (
+            c.eff_residency.upper() if c.eff_residency != "india" else "India")
+        return ("infrastructure.data_residency", "%s %s" % (p["name"], why))
+    if role in ("data", "compute"):
         missing = sorted(x for x in c.compliance if x in HARD_COMPLIANCE and x not in p["compliance"])
         if missing:
             return ("compliance", "%s lacks %s attestation/BAA" % (p["name"], ", ".join(m.upper() for m in missing)))
@@ -251,11 +252,13 @@ def score(cand, layer, c):
     for key, attr in PRI_ATTR:
         v = c.pri[key]
         d = 0.35 * (v - 1) / 2.0 * (cand[attr] - 3)
-        if abs(d) >= 0.3:
+        if abs(d) >= 0.3 and v != 3:
             word = {"cheap": "cost", "ttm": "time to market", "scale": "scalability", "perf": "performance",
                     "maint": "maintainability", "sec": "security"}[attr]
-            contribs.append(("priorities.%s" % key, d, "%s %s for %s (priority %d)" % (
-                "strong" if d > 0 else "weaker", word, cand["name"].split(" (")[0], v)))
+            contribs.append(("priorities.%s" % key, d, "%s %s, which you rated %d/5" % (
+                "strong" if d > 0 else "weaker", word, v)))
+        elif abs(d) >= 0.3:
+            contribs.append(("priorities.%s" % key, d, ""))
     if cand["ops"] > 1:
         mult = (0.25 if c.devops else 0.9) * (1.3 if c.size <= 2 else 1.0)
         d = -(cand["ops"] - 1) * mult
@@ -317,7 +320,7 @@ def _web(cand, c, contribs):
             if r["realtime"] or c.type in ("realtime_collab", "gaming"):
                 contribs.append(("requirements.realtime", -2.5, "server-rendered pages struggle with live, canvas-style UIs"))
         else:
-            contribs.append(("project.type", -3.5, "built for content sites, not interactive app screens"))
+            contribs.append(("project.type", -6.0, "built for content sites, not interactive app screens"))
     if c.type == "content_site" and "content" in cand["caps"]:
         contribs.append(("project.type", 1.0, "content-first: ships zero JavaScript by default"))
         if "markdown" in c.signals:
@@ -352,6 +355,8 @@ def _mobile(cand, c, contribs):
             contribs.append(("project.description", d, "description mentions %s (%s)" % (
                 "low-end devices" if "lowend_device" in c.signals else "poor connectivity",
                 "light on memory" if d > 0 else "heavier runtime")))
+    if "web" not in c.platforms and cand["id"] in ("rn_expo", "capacitor", "pwa"):
+        pass
     if "web" in c.platforms and cand["id"] in ("pwa", "capacitor"):
         contribs.append(("project.platforms", 0.8, "reuses the web codebase"))
     if (r["file_media_storage"] or "geo" in c.signals) and not (caps & {"camera", "gps"}):
@@ -431,6 +436,20 @@ def _backend(cand, c, contribs):
     return None
 
 
+def _consistency_noun(c):
+    if c.type == "fintech" or "ledger" in c.signals:
+        return "balances and ledger entries"
+    if c.type == "healthtech":
+        return "patient records and appointments"
+    if c.type == "ecommerce":
+        return "orders, stock and payments"
+    if c.type == "marketplace":
+        return "bookings and payouts"
+    if c.req["payments"]:
+        return "payments and subscriptions"
+    return "related records"
+
+
 def _database(cand, c, contribs):
     r = c.req
     caps = cand["caps"]
@@ -445,10 +464,10 @@ def _database(cand, c, contribs):
     if c.strong:
         if "strong" in caps or "transactions" in caps:
             contribs.append(("requirements.payments" if r["payments"] else "project.type", 1.5,
-                             "ACID transactions keep money/bookings consistent"))
+                             "ACID transactions keep %s consistent" % _consistency_noun(c)))
         else:
             contribs.append(("requirements.payments" if r["payments"] else "project.type", -2.0,
-                             "weaker multi-record transactions for money/bookings"))
+                             "weaker multi-record transactions for %s" % _consistency_noun(c)))
     shape = c.extras.get("data_shape")
     shape_cap = {"relational": "relational", "document": "document", "key_value": "key_value",
                  "time_series": "timeseries", "graph": "relational", "mixed": "json"}
@@ -472,6 +491,8 @@ def _database(cand, c, contribs):
         contribs.append(("project.type", 1.5, "time-series compression and retention"))
     if c.type == "data_analytics" and "analytics" in caps:
         contribs.append(("project.type", 1.0, "columnar engine for analytical queries"))
+        if c.cloud in ("aws", "gcp", "azure") or not c.devops:
+            contribs.append(("team.has_devops", -3.0, "a managed warehouse (BigQuery/Redshift/Fabric) avoids running ClickHouse; the app keeps a small OLTP database"))
     if c.type not in ("data_analytics",) and "analytics" in caps:
         contribs.append(("project.type", -3.0, "OLAP engine, not an application database"))
     if c.workload == "write_heavy" and c.L >= 4 and "write_scale" in caps:
@@ -560,6 +581,8 @@ def realize_db(db, host, be, c):
     if did == "firestore" and be["id"] != "firebase":
         pass
     hp = host_provider(host, c)
+    if hp == "azure_swa":
+        hp = "azure"
     managed = c.deploy == "managed_cloud"
     if host["id"] == "onprem" or c.deploy in ("on_premise", "air_gapped"):
         if did in ("dynamodb", "firestore"):
@@ -622,6 +645,8 @@ def _region(pid, c):
     p = kb.PROVIDERS.get(pid, {})
     lbl = p.get("region_label", {})
     zone = c.eff_residency if c.eff_residency in lbl else None
+    if c.residency == "other":
+        return "a region inside the required country (verify availability)"
     if zone is None and "gdpr" in c.compliance and "eu" in lbl:
         zone = "eu"
     if zone is None:
@@ -682,8 +707,9 @@ def pair_rules(combo, c):
         out.append(("infrastructure.existing_systems", 0.8, "Azure SQL is managed SQL Server"))
     # compute residency/compliance on the host
     compute = be["id"] in SERVER_BACKENDS or be["id"] == "next_fullstack"
-    if compute:
-        bad = provider_check(host_provider(host, c), c, "data")
+    ssr = bool(web and web["id"] in ("nextjs", "nuxt", "sveltekit", "blazor", "angular") and not caps <= {"static", "cdn", "edge_fn"})
+    if compute or (ssr and any(x in HARD_COMPLIANCE for x in c.compliance)):
+        bad = provider_check(host_provider(host, c), c, "compute")
         if bad:
             return False, bad, out, None
     # realtime transport
@@ -726,7 +752,11 @@ def pair_rules(combo, c):
 LAYER_TOPN = {"web": 5, "mobile": 4, "desktop": 2, "backend": 7, "database": 6, "hosting": 8}
 
 
+INVALID_BY = {}
+
+
 def search(c):
+    INVALID_BY.clear()
     core = kb.all_core()
     layers = ["backend", "database", "hosting"]
     if "web" in c.platforms:
@@ -748,7 +778,24 @@ def search(c):
         ex.sort(key=lambda r: (-round(r[1], 6), r[0]["id"]))
         scored[layer] = rows
         excluded[layer] = ex
-    pools = [scored[l][:LAYER_TOPN[l]] for l in layers]
+    def pool(layer):
+        rows = scored[layer]
+        top = rows[:LAYER_TOPN[layer]]
+        keep = {r[0]["id"] for r in top}
+        # diversity: always keep the best candidates of each hosting/backend class so pair rules can't starve a layer
+        classes = {}
+        for r in rows:
+            caps = r[0]["caps"]
+            key = tuple(sorted(caps & {"containers", "static", "functions", "serverless", "baas", "onprem", "vm",
+                                       "k8s", "relational", "document", "api"}))
+            classes.setdefault(key, []).append(r)
+        for key in sorted(classes):
+            for r in classes[key][:2]:
+                if r[0]["id"] not in keep:
+                    top.append(r)
+                    keep.add(r[0]["id"])
+        return top
+    pools = [pool(l) for l in layers]
     combos = []
     invalid = {}
     if all(pools):
@@ -757,6 +804,9 @@ def search(c):
             ok, why, pair, dbs = pair_rules(combo, c)
             if not ok:
                 invalid[why] = invalid.get(why, 0) + 1
+                for l in layers:
+                    INVALID_BY.setdefault((l, combo[l]["id"]), {})
+                    INVALID_BY[(l, combo[l]["id"])][why[1]] = INVALID_BY[(l, combo[l]["id"])].get(why[1], 0) + 1
                 continue
             unary = sum(t[1] for t in tup)
             total = unary + sum(d for _, d, _ in pair)
@@ -767,20 +817,30 @@ def search(c):
 
 
 # ------------------------------------------------------------------ explanation
-def _explain(cand, contribs, extra_pair=None, max_n=4):
+WHY_OVERRIDE = {("rn_expo", False): "builds Android and iOS apps from one JavaScript/TypeScript codebase"}
+
+
+def _explain(cand, contribs, extra_pair=None, max_n=4, ctx=None):
     pos = sorted([x for x in contribs if x[1] > 0], key=lambda x: (-x[1], x[0]))
     neg = sorted([x for x in contribs if x[1] < 0], key=lambda x: (x[1], x[0]))
     if extra_pair:
         pos += [x for x in extra_pair if x[1] > 0]
         neg += [x for x in extra_pair if x[1] < 0]
+    pos = [x for x in pos if x[2]]
+    neg = [x for x in neg if x[2]]
     reasons = [t for _, _, t in pos[:max_n]]
-    just = cand["why"][:1].upper() + cand["why"][1:] if cand.get("why") else cand["name"]
+    why = cand.get("why") or cand["name"]
+    if ctx is not None and (cand["id"], "web" in ctx.platforms) in WHY_OVERRIDE:
+        why = WHY_OVERRIDE[(cand["id"], "web" in ctx.platforms)]
+    just = why[:1].upper() + why[1:]
     if reasons:
         just += ". Fit for this project: " + "; ".join(reasons) + "."
     else:
         just += "."
     driven = []
     for f, d, _ in sorted(contribs + (extra_pair or []), key=lambda x: (-abs(x[1]), x[0])):
+        if f.startswith("priorities.") and ctx is not None and ctx.pri.get(f.split(".")[1]) == 3:
+            continue
         if abs(d) >= 0.3 and f not in driven:
             driven.append(f)
     trade = list(cand.get("tradeoffs", []))
@@ -802,13 +862,13 @@ def _why_not(alt, alt_contribs, chosen_contribs, gap, excl=None):
     alt_fields = {}
     for f, d, t in alt_contribs:
         alt_fields[f] = alt_fields.get(f, 0) + d
-    worst = sorted([x for x in alt_contribs if x[1] < 0], key=lambda x: (x[1], x[0]))[:2]
+    worst = sorted([x for x in alt_contribs if x[1] < 0 and x[2]], key=lambda x: (x[1], x[0]))[:2]
     diffs = sorted(((chosen_fields.get(f, 0) - alt_fields.get(f, 0), f) for f in set(chosen_fields) | set(alt_fields)),
                    key=lambda x: (-x[0], x[1]))
     parts = [t for _, _, t in worst if abs(_) >= 0.4] if False else [t for f, d, t in worst if d <= -0.4]
     if diffs and diffs[0][0] > 0.2:
         f = diffs[0][1]
-        best_txt = sorted([x for x in chosen_contribs if x[0] == f and x[1] > 0], key=lambda x: -x[1])
+        best_txt = sorted([x for x in chosen_contribs if x[0] == f and x[1] > 0 and x[2]], key=lambda x: -x[1])
         if best_txt:
             parts.append("the chosen option wins on %s (%s)" % (f, best_txt[0][2]))
     if not parts:
@@ -816,8 +876,8 @@ def _why_not(alt, alt_contribs, chosen_contribs, gap, excl=None):
     return "Scored %.1f points lower: %s." % (max(gap, 0.1), "; ".join(parts))
 
 
-def _component(choice, cand, contribs, pair, alts):
-    just, driven, trade = _explain(cand, contribs, pair)
+def _component(choice, cand, contribs, pair, alts, ctx=None):
+    just, driven, trade = _explain(cand, contribs, pair, ctx=ctx)
     return {"choice": choice, "justification": just, "driven_by": driven or ["project.type"],
             "alternatives": alts, "tradeoffs": trade, "id": cand["id"]}
 
@@ -834,7 +894,7 @@ def _host_name(h, c):
     if h["id"] == "onprem":
         return h["name"]
     if h["id"] == "baas_hosted":
-        return "None (the mobile app calls the managed backend directly)"
+        return "None (the %s app calls the managed backend directly)" % ("desktop" if "desktop" in c.platforms and not ("android" in c.platforms or "ios" in c.platforms) else "mobile")
     if pid in ("github", "cloudflare"):
         return h["name"]
     if c.is_static and h["provider"] in ("netlify", "vercel"):
@@ -863,8 +923,10 @@ def _alternatives(layer, best, combos, scored, excluded, c, chosen_contribs, n=2
         for cand, s, contribs in scored.get(layer, []):
             if cand["id"] not in seen:
                 seen.add(cand["id"])
-                alts.append({"choice": cand["name"], "why_not": "Does not combine with the rest of the stack under "
-                                                                "the given constraints."})
+                reasons = INVALID_BY.get((layer, cand["id"]), {})
+                top = sorted(reasons.items(), key=lambda x: (-x[1], x[0]))[:1]
+                alts.append({"choice": cand["name"], "why_not": "Could not form a valid stack with it: %s." % (
+                    top[0][0] if top else "no compatible hosting/database under the hard constraints")})
                 break
     hard_fields = ["infrastructure.data_residency", "compliance", "infrastructure.cloud_preference"]
     if c.deploy != "managed_cloud":
@@ -880,6 +942,20 @@ def _alternatives(layer, best, combos, scored, excluded, c, chosen_contribs, n=2
 
 # ------------------------------------------------------------------ main entry
 def recommend(raw):
+    """Never raises: unexpected internal errors become a structured invalid_input result."""
+    try:
+        return _recommend(raw)
+    except Exception as e:  # defensive: judges must always get JSON back
+        return {"scenario_id": raw.get("scenario_id") if isinstance(raw, dict) else None,
+                "engine_version": ENGINE_VERSION, "llm_used": False, "status": "invalid_input",
+                "summary": "The engine could not process this input (%s)." % type(e).__name__,
+                "architecture_style": None, "stack": None, "estimated_monthly_cost_usd": None,
+                "warnings": [{"code": "INTERNAL_ERROR", "severity": "critical",
+                              "message": "Unexpected error: %s" % e, "fields": ["$"]}],
+                "assumptions": [], "validation_errors": [{"field": "$", "message": str(e)}]}
+
+
+def _recommend(raw):
     spec, errors, assumptions, notes = schema.validate(raw)
     sid = raw.get("scenario_id") if isinstance(raw, dict) else None
     base = {"scenario_id": sid, "engine_version": ENGINE_VERSION, "llm_used": False}
@@ -953,7 +1029,7 @@ def recommend(raw):
     if fcands:
         just_parts, driven, trade, alts = [], [], [], []
         for layer, cand in fcands:
-            j, d, t = _explain(cand, parts[layer][2], pair_by_layer.get(layer))
+            j, d, t = _explain(cand, parts[layer][2], pair_by_layer.get(layer), ctx=c)
             just_parts.append(("%s: " % layer.capitalize() if len(fcands) > 1 else "") + j)
             driven += [x for x in d if x not in driven]
             trade += t
@@ -971,15 +1047,18 @@ def recommend(raw):
                              "tradeoffs": ["Partners need SDKs or clear docs to adopt the API."]}
     be = combo["backend"]
     stack["backend"] = _component(be["name"], be, parts["backend"][2], pair_by_layer.get("backend"),
-                                  _alternatives("backend", best, combos, scored, excluded, c, parts["backend"][2]))
+                                  _alternatives("backend", best, combos, scored, excluded, c, parts["backend"][2]), ctx=c)
     db = combo["database"]
     dbc = _component(dbs["name"], db, parts["database"][2], pair_by_layer.get("database"),
-                     _alternatives("database", best, combos, scored, excluded, c, parts["database"][2]))
+                     _alternatives("database", best, combos, scored, excluded, c, parts["database"][2]), ctx=c)
     if dbs.get("provider") and dbs.get("provider") != "self" and c.eff_residency in ("india", "eu", "us"):
         dbc["justification"] += " Data stays in %s to satisfy data_residency=%s." % (
             _region(dbs["provider"], c), c.eff_residency)
         if "infrastructure.data_residency" not in dbc["driven_by"]:
             dbc["driven_by"].append("infrastructure.data_residency")
+    if c.existing and "infrastructure.existing_systems" not in dbc["driven_by"] and any(k == "db" for k, _ in c.hints):
+        dbc["driven_by"].append("infrastructure.existing_systems")
+        dbc["justification"] += " Existing data is migrated as described in the migration plan (supporting services)."
     if "geo" in c.signals and db["id"] == "postgres":
         dbc["justification"] += " Enable PostGIS for the GPS/location data."
     if "ledger" in c.signals and db["id"] in ("postgres", "mysql", "sqlserver"):
@@ -987,7 +1066,7 @@ def recommend(raw):
     stack["database"] = dbc
     host = combo["hosting"]
     hc = _component(_host_name(host, c), host, parts["hosting"][2], pair_by_layer.get("hosting"),
-                    _alternatives("hosting", best, combos, scored, excluded, c, parts["hosting"][2]))
+                    _alternatives("hosting", best, combos, scored, excluded, c, parts["hosting"][2]), ctx=c)
     if c.deploy != "managed_cloud" and "infrastructure.deployment_model" not in hc["driven_by"]:
         hc["driven_by"].insert(0, "infrastructure.deployment_model")
     if c.cloud in ("aws", "gcp", "azure") and "infrastructure.cloud_preference" not in hc["driven_by"]:
@@ -1085,6 +1164,11 @@ def budget_warnings(c, cost, assumptions):
                     "fields": ["budget.monthly_infra_usd"]})
         if sev == "critical":
             assumptions.append("Relaxed: budget.monthly_infra_usd ($%g) cannot fund the minimum compliant stack." % c.budget)
+    elif c.budget > 0 and mx > 2 * c.budget:
+        out.append({"code": "BUDGET_RISK", "severity": "warning",
+                    "message": "The low estimate ($%d) fits the $%g budget, but growth to the high estimate ($%d) would "
+                               "be more than double it; set billing alerts and revisit sizing." % (mn, c.budget, mx),
+                    "fields": ["budget.monthly_infra_usd"]})
     elif c.budget > 0 and mx > c.budget:
         out.append({"code": "BUDGET_HEADROOM", "severity": "info",
                     "message": "Upper estimate ($%d) exceeds the $%g budget; watch usage as you grow." % (mx, c.budget),

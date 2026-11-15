@@ -8,14 +8,11 @@
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA) (web) + React Native (Expo) (mobile)",
-      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes JavaScript; strong cost for React + Vite (priority 5); strong time to market for React + Vite (priority 5); strong maintainability for React + Vite (priority 3). Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript; strong time to market for React Native (priority 5); well suited to social projects; strong maintainability for React Native (priority 3).",
+      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes JavaScript; strong cost, which you rated 5/5; strong time to market, which you rated 5/5. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 5/5; well suited to social projects.",
       "driven_by": [
         "team.languages",
         "priorities.cost",
         "priorities.time_to_market",
-        "priorities.maintainability",
-        "priorities.performance",
-        "priorities.scalability",
         "project.type"
       ],
       "alternatives": [
@@ -25,7 +22,7 @@
         },
         {
           "choice": "Ionic Capacitor",
-          "why_not": "Scored 1.6 points lower: the chosen option wins on priorities.time_to_market (strong time to market for React Native (priority 5))."
+          "why_not": "Scored 1.6 points lower: the chosen option wins on priorities.time_to_market (strong time to market, which you rated 5/5)."
         }
       ],
       "tradeoffs": [
@@ -41,7 +38,7 @@
     },
     "backend": {
       "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript; strong time to market for Supabase (priority 5); native WebSocket/real-time support; a 1-person team ships in 3 weeks without building auth/storage.",
+      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 5/5; native WebSocket/real-time support; a 1-person team ships in 3 weeks without building auth/storage.",
       "driven_by": [
         "team.languages",
         "budget.monthly_infra_usd",
@@ -70,20 +67,16 @@
     },
     "database": {
       "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong cost for PostgreSQL (priority 5); strong maintainability for PostgreSQL (priority 3); strong security for PostgreSQL (priority 3); strong time to market for PostgreSQL (priority 5).",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 5/5; well suited to social projects.",
       "driven_by": [
         "priorities.cost",
-        "priorities.maintainability",
-        "priorities.security",
         "priorities.time_to_market",
-        "project.type",
-        "priorities.performance",
-        "priorities.scalability"
+        "project.type"
       ],
       "alternatives": [
         {
           "choice": "Cloud Firestore (Firebase)",
-          "why_not": "Scored 2.2 points lower: proprietary API increases lock-in; the chosen option wins on priorities.cost (strong cost for PostgreSQL (priority 5))."
+          "why_not": "Scored 2.2 points lower: proprietary API increases lock-in; the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         },
         {
           "choice": "Azure Database for MySQL – Flexible Server (East US)",
@@ -96,24 +89,23 @@
     },
     "hosting": {
       "choice": "Cloudflare Pages",
-      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost for Cloudflare Pages (priority 5); strong time to market for Cloudflare Pages (priority 5); strong performance for Cloudflare Pages (priority 3); strong scalability for Cloudflare Pages (priority 3).",
+      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 5/5; real-time channels included in Supabase.",
       "driven_by": [
         "budget.monthly_infra_usd",
         "priorities.cost",
         "priorities.time_to_market",
         "project.type",
         "requirements.realtime",
-        "priorities.performance",
-        "priorities.scalability"
+        "team.size"
       ],
       "alternatives": [
         {
           "choice": "Firebase Hosting (nam5)",
-          "why_not": "Scored 2.2 points lower: static hosting only; the API must run elsewhere; the chosen option wins on priorities.performance (strong performance for Cloudflare Pages (priority 3))."
+          "why_not": "Scored 2.2 points lower: static hosting only; the API must run elsewhere."
         },
         {
-          "choice": "Azure Static Web Apps (East US)",
-          "why_not": "Scored 2.9 points lower: costs at least $100/month but the budget is $0."
+          "choice": "Azure Static Web Apps (East US 2)",
+          "why_not": "Scored 3.9 points lower: costs at least $100/month but the budget is $0."
         }
       ],
       "tradeoffs": [
@@ -167,7 +159,7 @@
       {
         "layer": "realtime",
         "choice": "Supabase Realtime (Broadcast + Postgres changes)",
-        "justification": "Included; pushes chat messages and job-status changes to subscribed clients.",
+        "justification": "Included in the Supabase project; pushes chat messages to subscribed clients over WebSockets.",
         "driven_by": [
           "requirements.realtime"
         ],
@@ -189,7 +181,7 @@
       {
         "layer": "queue",
         "choice": "Supabase Queues (pgmq) + Edge Functions",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (image/file processing) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "requirements.file_media_storage",
           "scale.users_12_months"
@@ -211,7 +203,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android and iOS (via APNs) for job updates and reminders.",
+        "justification": "Free push delivery to Android and iOS (via APNs) for messages that arrive while the app is closed.",
         "driven_by": [
           "project.platforms"
         ],
@@ -391,7 +383,7 @@
       "media": "video",
       "realtime": "chat"
     },
-    "combinations_evaluated": 620,
+    "combinations_evaluated": 1812,
     "input_hash": "051f631b6939c1e3"
   }
 }

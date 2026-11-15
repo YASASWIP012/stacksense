@@ -8,24 +8,23 @@
   "stack": {
     "frontend": {
       "choice": "Astro",
-      "justification": "Pre-renders pages to static HTML with zero JS by default. Fit for this project: team.languages includes JavaScript; well suited to content site projects; strong cost for Astro (priority 5); seo_critical=true and it serves pre-rendered HTML.",
+      "justification": "Pre-renders pages to static HTML with zero JS by default. Fit for this project: team.languages includes JavaScript; well suited to content site projects; strong cost, which you rated 5/5; seo_critical=true and it serves pre-rendered HTML.",
       "driven_by": [
         "team.languages",
         "project.type",
         "priorities.cost",
         "requirements.seo_critical",
         "priorities.time_to_market",
-        "priorities.performance",
-        "priorities.scalability"
+        "project.description"
       ],
       "alternatives": [
         {
-          "choice": "Next.js (React)",
-          "why_not": "Scored 6.3 points lower: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
+          "choice": "Django templates + HTMX",
+          "why_not": "Scored 23.5 points lower: the chosen option wins on project.type (well suited to content site projects)."
         },
         {
-          "choice": "Nuxt (Vue)",
-          "why_not": "Scored 5.8 points lower: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
+          "choice": "Next.js (React)",
+          "why_not": "Scored 6.3 points lower: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": [
@@ -37,35 +36,31 @@
     },
     "backend": {
       "choice": "None",
-      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost for None (priority 5); strong time to market for None (priority 4); strong maintainability for None (priority 3).",
+      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
       "driven_by": [
         "project.type",
         "priorities.cost",
-        "priorities.time_to_market",
-        "priorities.maintainability",
-        "priorities.security"
+        "priorities.time_to_market"
       ],
       "alternatives": [
         {
-          "choice": "Next.js Route Handlers + Server Actions",
-          "why_not": "Scored 23.1 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "choice": "Django (Python)",
+          "why_not": "Scored 20.4 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         },
         {
-          "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-          "why_not": "Scored 17.5 points lower: starts around $100/month against a $20 budget; a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "choice": "FastAPI (Python)",
+          "why_not": "Scored 21.6 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         }
       ],
       "tradeoffs": []
     },
     "database": {
       "choice": "None",
-      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost for None (priority 5); strong time to market for None (priority 4); strong maintainability for None (priority 3).",
+      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
       "driven_by": [
         "project.type",
         "priorities.cost",
-        "priorities.time_to_market",
-        "priorities.maintainability",
-        "priorities.security"
+        "priorities.time_to_market"
       ],
       "alternatives": [
         {
@@ -73,26 +68,24 @@
           "why_not": "Scored 17.5 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         },
         {
-          "choice": "Azure Database for MySQL – Flexible Server (East US)",
-          "why_not": "Scored 24.2 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
+          "why_not": "Scored 20.5 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
       "tradeoffs": []
     },
     "hosting": {
       "choice": "Cloudflare Pages",
-      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost for Cloudflare Pages (priority 5); well suited to content site projects; strong time to market for Cloudflare Pages (priority 4); serves pre-built static files from a CDN.",
+      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost, which you rated 5/5; well suited to content site projects; strong time to market, which you rated 4/5; serves pre-built static files from a CDN.",
       "driven_by": [
         "priorities.cost",
         "project.type",
-        "priorities.time_to_market",
-        "priorities.performance",
-        "priorities.scalability"
+        "priorities.time_to_market"
       ],
       "alternatives": [
         {
           "choice": "GitHub Pages",
-          "why_not": "Scored 0.7 points lower: the chosen option wins on priorities.performance (strong performance for Cloudflare Pages (priority 3))."
+          "why_not": "Scored 0.7 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
           "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
@@ -212,7 +205,7 @@
       "markdown": "markdown",
       "media": "photo"
     },
-    "combinations_evaluated": 54,
+    "combinations_evaluated": 532,
     "input_hash": "3d24c8595473b048"
   }
 }

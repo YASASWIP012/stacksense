@@ -8,24 +8,22 @@
   "stack": {
     "frontend": {
       "choice": "Angular (web) + React Native (Expo) (mobile)",
-      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability for Angular (priority 4); strong scalability for Angular (priority 4); strong security for Angular (priority 5). Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes TypeScript; strong time to market for React Native (priority 3); well suited to fintech projects; strong maintainability for React Native (priority 4).",
+      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5; strong security, which you rated 5/5. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes TypeScript; well suited to fintech projects; strong maintainability, which you rated 4/5; strong scalability, which you rated 4/5.",
       "driven_by": [
         "team.languages",
         "priorities.maintainability",
         "priorities.scalability",
         "priorities.security",
-        "project.type",
-        "priorities.performance",
-        "priorities.time_to_market"
+        "project.type"
       ],
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 0.8 points lower: the chosen option wins on priorities.security (strong security for Angular (priority 5))."
+          "why_not": "Scored 0.8 points lower: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "Kotlin Multiplatform + Compose Multiplatform",
-          "why_not": "Scored 1.1 points lower: younger ecosystem and smaller hiring pool; the chosen option wins on priorities.time_to_market (strong time to market for React Native (priority 3))."
+          "why_not": "Scored 1.1 points lower: younger ecosystem and smaller hiring pool."
         }
       ],
       "tradeoffs": [
@@ -40,7 +38,7 @@
     },
     "backend": {
       "choice": "Spring Boot (Java/Kotlin)",
-      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java/Kotlin; well suited to fintech projects; strong security for Spring Boot (priority 5); strong maintainability for Spring Boot (priority 4).",
+      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java/Kotlin; well suited to fintech projects; strong security, which you rated 5/5; strong maintainability, which you rated 4/5.",
       "driven_by": [
         "team.languages",
         "project.type",
@@ -71,15 +69,13 @@
     },
     "database": {
       "choice": "Amazon RDS for PostgreSQL (ap-south-1 Mumbai)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; strong security for PostgreSQL (priority 5); well suited to fintech projects; strong maintainability for PostgreSQL (priority 4). Data stays in ap-south-1 Mumbai to satisfy data_residency=india. Model the ledger as append-only double-entry journal tables with SERIALIZABLE transactions.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep balances and ledger entries consistent; strong security, which you rated 5/5; well suited to fintech projects; strong maintainability, which you rated 4/5. Data stays in ap-south-1 Mumbai to satisfy data_residency=india. Model the ledger as append-only double-entry journal tables with SERIALIZABLE transactions.",
       "driven_by": [
         "requirements.payments",
         "priorities.security",
         "project.type",
         "priorities.maintainability",
         "priorities.scalability",
-        "priorities.performance",
-        "priorities.time_to_market",
         "infrastructure.data_residency"
       ],
       "alternatives": [
@@ -102,13 +98,12 @@
     },
     "hosting": {
       "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
-      "justification": "Managed containers inside your own AWS VPC, multi-AZ. Fit for this project: strong scalability for AWS ECS on Fargate (priority 4); multi-zone deployments for 99.95%; strong performance for AWS ECS on Fargate (priority 3).",
+      "justification": "Managed containers inside your own AWS VPC, multi-AZ. Fit for this project: strong scalability, which you rated 4/5; multi-zone deployments for 99.95%.",
       "driven_by": [
         "infrastructure.cloud_preference",
         "priorities.scalability",
         "requirements.availability",
-        "team.has_devops",
-        "priorities.performance"
+        "team.has_devops"
       ],
       "alternatives": [
         {
@@ -117,10 +112,10 @@
         },
         {
           "choice": "Amazon EC2 + Docker Compose (ap-south-1 Mumbai)",
-          "why_not": "Scored 2.1 points lower: you manage the OS although managed_cloud was requested; fixed capacity under spiky traffic; the chosen option wins on priorities.scalability (strong scalability for AWS ECS on Fargate (priority 4))."
+          "why_not": "Scored 2.1 points lower: you manage the OS although managed_cloud was requested; fixed capacity under spiky traffic; the chosen option wins on priorities.scalability (strong scalability, which you rated 4/5)."
         },
         {
-          "choice": "Azure Static Web Apps",
+          "choice": "Azure Container Apps",
           "why_not": "Excluded: Microsoft Azure is not on AWS, and cloud_preference=aws is a hard constraint (infrastructure.cloud_preference)."
         }
       ],
@@ -209,9 +204,8 @@
       {
         "layer": "cdn",
         "choice": "Amazon CloudFront",
-        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
+        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes.",
         "driven_by": [
-          "requirements.seo_critical",
           "requirements.file_media_storage"
         ],
         "alternatives": [
@@ -222,8 +216,8 @@
         ],
         "tradeoffs": [],
         "estimated_monthly_usd": [
-          20,
-          200
+          40,
+          250
         ]
       },
       {
@@ -232,8 +226,7 @@
         "justification": "Caches hot reads and sessions to hold p95=300ms, and doubles as the pub/sub and job-queue broker.",
         "driven_by": [
           "requirements.p95_latency_ms",
-          "scale.peak_concurrent_users",
-          "requirements.realtime"
+          "scale.peak_concurrent_users"
         ],
         "alternatives": [
           {
@@ -256,7 +249,7 @@
       {
         "layer": "queue",
         "choice": "Amazon SQS (+ dead-letter queue)",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (payment webhooks, model scoring, image/file processing) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "requirements.payments",
           "requirements.ml_features",
@@ -306,7 +299,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android and iOS (via APNs) for job updates and reminders.",
+        "justification": "Free push delivery to Android and iOS (via APNs) for EMI due-date reminders and disbursal/repayment status.",
         "driven_by": [
           "project.platforms"
         ],
@@ -388,8 +381,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 1010,
-    "max": 6355,
+    "min": 1030,
+    "max": 6405,
     "assumptions": [
       "Scale level L3: ~300000 users, ~10000 peak concurrent, ~2000 req/s at peak, ~500 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
@@ -417,8 +410,8 @@
         30
       ],
       "cdn": [
-        20,
-        200
+        40,
+        250
       ],
       "cache": [
         50,
@@ -450,7 +443,7 @@
     {
       "code": "BUDGET_HEADROOM",
       "severity": "info",
-      "message": "Upper estimate ($6355) exceeds the $6000 budget; watch usage as you grow.",
+      "message": "Upper estimate ($6405) exceeds the $6000 budget; watch usage as you grow.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -497,7 +490,7 @@
       "payments": "upi",
       "subscription": "emi"
     },
-    "combinations_evaluated": 1660,
+    "combinations_evaluated": 1992,
     "input_hash": "95a4a7261e2bb928"
   }
 }

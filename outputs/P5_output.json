@@ -8,19 +8,18 @@
   "stack": {
     "frontend": {
       "choice": "Blazor (ASP.NET Core)",
-      "justification": "Lets a C# team build the UI without switching to JavaScript. Fit for this project: team.languages includes C#; well suited to internal tool projects; strong maintainability for Blazor (priority 5); strong time to market for Blazor (priority 5).",
+      "justification": "Lets a C# team build the UI without switching to JavaScript. Fit for this project: team.languages includes C#; well suited to internal tool projects; strong maintainability, which you rated 5/5; strong time to market, which you rated 5/5.",
       "driven_by": [
         "team.languages",
         "project.type",
         "priorities.maintainability",
         "priorities.time_to_market",
-        "priorities.security",
-        "priorities.cost"
+        "priorities.security"
       ],
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 0.2 points lower: the chosen option wins on priorities.security (strong security for Blazor (priority 4))."
+          "why_not": "Scored 0.2 points lower: the chosen option wins on priorities.security (strong security, which you rated 4/5)."
         },
         {
           "choice": "Next.js (React)",
@@ -37,7 +36,7 @@
     },
     "backend": {
       "choice": "ASP.NET Core (C#)",
-      "justification": "High-performance C# with first-class Entra ID and SignalR support. Fit for this project: team.languages includes C#; first-class Microsoft Entra ID integration; strong maintainability for ASP.NET Core (priority 5); well suited to internal tool projects.",
+      "justification": "High-performance C# with first-class Entra ID and SignalR support. Fit for this project: team.languages includes C#; first-class Microsoft Entra ID integration; strong maintainability, which you rated 5/5; well suited to internal tool projects.",
       "driven_by": [
         "team.languages",
         "infrastructure.existing_systems",
@@ -67,7 +66,7 @@
     },
     "database": {
       "choice": "Azure SQL Database (Central India (Pune))",
-      "justification": "Reuses existing SQL Server skills, schemas and tooling. Fit for this project: reuses the existing SQL Server / Azure SQL Database data and skills; strong security for SQL Server / Azure SQL Database (priority 4); strong maintainability for SQL Server / Azure SQL Database (priority 5); strong time to market for SQL Server / Azure SQL Database (priority 5). Data stays in Central India (Pune) to satisfy data_residency=india.",
+      "justification": "Reuses existing SQL Server skills, schemas and tooling. Fit for this project: reuses the existing SQL Server / Azure SQL Database data and skills; strong security, which you rated 4/5; strong maintainability, which you rated 5/5; strong time to market, which you rated 5/5. Data stays in Central India (Pune) to satisfy data_residency=india.",
       "driven_by": [
         "infrastructure.existing_systems",
         "priorities.security",
@@ -75,7 +74,6 @@
         "priorities.time_to_market",
         "project.type",
         "team.languages",
-        "priorities.cost",
         "infrastructure.data_residency"
       ],
       "alternatives": [
@@ -98,7 +96,7 @@
     },
     "hosting": {
       "choice": "Azure App Service (Central India (Pune))",
-      "justification": "Managed web hosting with built-in Entra ID sign-in, slots and VNet integration. Fit for this project: strong time to market for Azure App Service (priority 5); well suited to internal tool projects; built-in Entra ID sign-in (Easy Auth).",
+      "justification": "Managed web hosting with built-in Entra ID sign-in, slots and VNet integration. Fit for this project: strong time to market, which you rated 5/5; well suited to internal tool projects; built-in Entra ID sign-in (Easy Auth).",
       "driven_by": [
         "infrastructure.cloud_preference",
         "priorities.time_to_market",
@@ -107,16 +105,16 @@
       ],
       "alternatives": [
         {
-          "choice": "Azure Static Web Apps (Central India (Pune))",
-          "why_not": "Scored 8.6 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
-        },
-        {
           "choice": "Azure Container Apps (Central India (Pune))",
           "why_not": "Scored 3.7 points lower: operational burden (ops 2/5) with no DevOps engineer; the chosen option wins on project.type (well suited to internal tool projects)."
         },
         {
-          "choice": "DigitalOcean App Platform",
-          "why_not": "Excluded: DigitalOcean is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
+          "choice": "Azure VM + Docker Compose (Central India (Pune))",
+          "why_not": "Scored 5.5 points lower: operational burden (ops 3/5) with no DevOps engineer; you manage the OS although managed_cloud was requested."
+        },
+        {
+          "choice": "Azure Static Web Apps",
+          "why_not": "Excluded: Azure Static Web Apps is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
         }
       ],
       "tradeoffs": [
@@ -127,7 +125,7 @@
       {
         "layer": "auth",
         "choice": "Microsoft Entra ID (OIDC/SAML single sign-on)",
-        "justification": "Employees already sign in with Entra ID; the app trusts it via OpenID Connect, so there are no new passwords and joiners/leavers are handled centrally. App Service 'Easy Auth' can enforce sign-in with no auth code.",
+        "justification": "The organisation's directory is Microsoft (listed in existing_systems), so the app trusts Entra ID via OpenID Connect: no new passwords, and joiners/leavers are handled centrally. App Service 'Easy Auth' can enforce sign-in with no auth code.",
         "driven_by": [
           "infrastructure.existing_systems",
           "requirements.auth"
@@ -169,29 +167,9 @@
         ]
       },
       {
-        "layer": "cdn",
-        "choice": "Azure Front Door",
-        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
-        "driven_by": [
-          "requirements.seo_critical",
-          "requirements.file_media_storage"
-        ],
-        "alternatives": [
-          {
-            "choice": "No CDN",
-            "why_not": "Slower first loads for public pages and media."
-          }
-        ],
-        "tradeoffs": [],
-        "estimated_monthly_usd": [
-          0,
-          20
-        ]
-      },
-      {
         "layer": "queue",
         "choice": "Azure Service Bus",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (image/file processing, approval e-mails) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "requirements.file_media_storage"
         ],
@@ -223,6 +201,27 @@
           }
         ],
         "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "other",
+        "choice": "Migration and integration plan for existing systems",
+        "justification": "On-prem SQL Server 2019: same engine as the recommended database, so lift the schema and data with Azure Database Migration Service and upgrade the version in the same step.",
+        "driven_by": [
+          "infrastructure.existing_systems"
+        ],
+        "alternatives": [
+          {
+            "choice": "Big-bang rewrite",
+            "why_not": "Higher risk: everything switches at once with no fallback."
+          }
+        ],
+        "tradeoffs": [
+          "Running old and new systems in parallel costs extra for a few weeks."
+        ],
         "estimated_monthly_usd": [
           0,
           0
@@ -293,7 +292,7 @@
   },
   "estimated_monthly_cost_usd": {
     "min": 102,
-    "max": 616,
+    "max": 596,
     "assumptions": [
       "Scale level L2: ~1500 users, ~300 peak concurrent, ~60 req/s at peak, ~20 GB stored",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
@@ -314,10 +313,6 @@
       "storage": [
         0,
         6
-      ],
-      "cdn": [
-        0,
-        20
       ],
       "queue": [
         0,
@@ -357,7 +352,7 @@
     {
       "code": "BUDGET_HEADROOM",
       "severity": "info",
-      "message": "Upper estimate ($616) exceeds the $300 budget; watch usage as you grow.",
+      "message": "Upper estimate ($596) exceeds the $300 budget; watch usage as you grow.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -383,7 +378,7 @@
       "internal": "employee",
       "workflow": "approval"
     },
-    "combinations_evaluated": 532,
+    "combinations_evaluated": 560,
     "input_hash": "0fba875cbb3220d3"
   }
 }

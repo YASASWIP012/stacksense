@@ -8,25 +8,21 @@
   "stack": {
     "frontend": {
       "choice": "Angular (web) + React Native (Expo) (mobile)",
-      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability for Angular (priority 4); strong scalability for Angular (priority 3); strong security for Angular (priority 5). Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes TypeScript; strong time to market for React Native (priority 3); strong maintainability for React Native (priority 4); strong performance for React Native (priority 3).",
+      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5; strong security, which you rated 5/5; well suited to healthtech projects. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes TypeScript; strong maintainability, which you rated 4/5.",
       "driven_by": [
         "team.languages",
         "priorities.maintainability",
-        "priorities.scalability",
         "priorities.security",
-        "project.type",
-        "priorities.cost",
-        "priorities.performance",
-        "priorities.time_to_market"
+        "project.type"
       ],
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 1.3 points lower: the chosen option wins on priorities.security (strong security for Angular (priority 5))."
+          "why_not": "Scored 1.3 points lower: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "Ionic Capacitor",
-          "why_not": "Scored 0.8 points lower: the chosen option wins on priorities.maintainability (strong maintainability for React Native (priority 4))."
+          "why_not": "Scored 0.8 points lower: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
         }
       ],
       "tradeoffs": [
@@ -41,15 +37,13 @@
     },
     "backend": {
       "choice": "Django (Python)",
-      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong security for Django (priority 5); well suited to healthtech projects; built-in admin/back-office screens.",
+      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong security, which you rated 5/5; well suited to healthtech projects; built-in admin/back-office screens.",
       "driven_by": [
         "team.languages",
         "priorities.security",
         "project.type",
-        "priorities.time_to_market",
         "priorities.maintainability",
-        "requirements.auth",
-        "priorities.scalability"
+        "requirements.auth"
       ],
       "alternatives": [
         {
@@ -72,15 +66,12 @@
     },
     "database": {
       "choice": "Azure Database for PostgreSQL – Flexible Server (East US)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; strong security for PostgreSQL (priority 5); well suited to healthtech projects; strong maintainability for PostgreSQL (priority 4). Data stays in East US to satisfy data_residency=us.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep patient records and appointments consistent; strong security, which you rated 5/5; well suited to healthtech projects; strong maintainability, which you rated 4/5. Data stays in East US to satisfy data_residency=us.",
       "driven_by": [
         "requirements.payments",
         "priorities.security",
         "project.type",
         "priorities.maintainability",
-        "priorities.cost",
-        "priorities.performance",
-        "priorities.scalability",
         "infrastructure.data_residency"
       ],
       "alternatives": [
@@ -99,22 +90,18 @@
     },
     "hosting": {
       "choice": "Azure Container Apps (East US)",
-      "justification": "Serverless containers on Azure. Fit for this project: multi-zone deployments for 99.95%; strong scalability for Azure Container Apps (priority 3); strong cost for Azure Container Apps (priority 3); strong performance for Azure Container Apps (priority 3).",
+      "justification": "Serverless containers on Azure. Fit for this project: multi-zone deployments for 99.95%.",
       "driven_by": [
-        "requirements.availability",
-        "priorities.scalability",
-        "priorities.cost",
-        "priorities.performance",
-        "priorities.time_to_market"
+        "requirements.availability"
       ],
       "alternatives": [
         {
-          "choice": "Azure Static Web Apps (East US)",
-          "why_not": "Scored 2.6 points lower: the chosen option wins on priorities.scalability (strong scalability for Azure Container Apps (priority 3))."
-        },
-        {
           "choice": "Google Cloud Run (us-central1 Iowa)",
           "why_not": "Scored 0.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+        },
+        {
+          "choice": "Cloud Storage + Cloud CDN (static site) (us-central1 Iowa)",
+          "why_not": "Scored 3.3 points lower: static hosting only; the API must run elsewhere."
         }
       ],
       "tradeoffs": [
@@ -193,10 +180,9 @@
       },
       {
         "layer": "cdn",
-        "choice": "Azure Front Door",
-        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
+        "choice": "Azure Front Door (Standard)",
+        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes.",
         "driven_by": [
-          "requirements.seo_critical",
           "requirements.file_media_storage"
         ],
         "alternatives": [
@@ -207,8 +193,8 @@
         ],
         "tradeoffs": [],
         "estimated_monthly_usd": [
-          20,
-          200
+          40,
+          250
         ]
       },
       {
@@ -263,7 +249,7 @@
       {
         "layer": "queue",
         "choice": "Celery (Valkey/Redis broker)",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (payment webhooks, image/file processing, notifications) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "requirements.payments",
           "requirements.file_media_storage",
@@ -286,7 +272,7 @@
       {
         "layer": "other",
         "choice": "Firebase Cloud Messaging (push notifications)",
-        "justification": "Free push delivery to Android and iOS (via APNs) for job updates and reminders.",
+        "justification": "Free push delivery to Android and iOS (via APNs) for booking and job-status updates.",
         "driven_by": [
           "project.platforms"
         ],
@@ -297,8 +283,27 @@
           }
         ],
         "tradeoffs": [
-          "Notification payloads must not contain sensitive data."
+          "Notification payloads must not contain sensitive data (no PHI: FCM is not covered by a HIPAA BAA)."
         ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "other",
+        "choice": "HIPAA programme: BAAs with every vendor that touches PHI",
+        "justification": "Sign a Business Associate Agreement with the cloud provider and each PHI-handling vendor before launch, keep PHI out of logs, push payloads and analytics, and enable audit logging on every PHI store.",
+        "driven_by": [
+          "compliance"
+        ],
+        "alternatives": [
+          {
+            "choice": "Relying on vendor marketing",
+            "why_not": "HIPAA eligibility only applies to services listed under a signed BAA."
+          }
+        ],
+        "tradeoffs": [],
         "estimated_monthly_usd": [
           0,
           0
@@ -368,8 +373,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 1041,
-    "max": 5719,
+    "min": 1061,
+    "max": 5769,
     "assumptions": [
       "Scale level L3: ~60000 users, ~1500 peak concurrent, ~300 req/s at peak, ~3046.9 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
@@ -397,8 +402,8 @@
         157
       ],
       "cdn": [
-        20,
-        200
+        40,
+        250
       ],
       "realtime": [
         50,
@@ -430,7 +435,7 @@
     {
       "code": "BUDGET_HEADROOM",
       "severity": "info",
-      "message": "Upper estimate ($5719) exceeds the $3000 budget; watch usage as you grow.",
+      "message": "Upper estimate ($5769) exceeds the $3000 budget; watch usage as you grow.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -469,7 +474,7 @@
       "media": "upload",
       "realtime": "chat"
     },
-    "combinations_evaluated": 1292,
+    "combinations_evaluated": 2648,
     "input_hash": "9d56ee5bdcac43ce"
   }
 }

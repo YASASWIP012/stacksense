@@ -2,21 +2,20 @@
   "scenario_id": "P3",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
+  "status": "ok_with_warnings",
   "summary": "Service oriented Go on Azure Container Apps with Azure Database for PostgreSQL – Flexible Server as the database; front end: React + Vite.",
   "architecture_style": "service_oriented",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA)",
-      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes TypeScript; well suited to realtime collab projects; strong performance for React + Vite (priority 5); strong scalability for React + Vite (priority 5).",
+      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes TypeScript; well suited to realtime collab projects; strong performance, which you rated 5/5; strong scalability, which you rated 5/5.",
       "driven_by": [
         "team.languages",
         "project.type",
         "priorities.performance",
         "priorities.scalability",
         "priorities.maintainability",
-        "priorities.cost",
-        "priorities.time_to_market"
+        "priorities.cost"
       ],
       "alternatives": [
         {
@@ -38,7 +37,7 @@
     },
     "backend": {
       "choice": "Go (net/http + chi)",
-      "justification": "Cheap goroutines handle many concurrent WebSocket connections per core. Fit for this project: team.languages includes Go; strong performance for Go (priority 5); strong scalability for Go (priority 5); well suited to realtime collab projects.",
+      "justification": "Cheap goroutines handle many concurrent WebSocket connections per core. Fit for this project: team.languages includes Go; strong performance, which you rated 5/5; strong scalability, which you rated 5/5; well suited to realtime collab projects.",
       "driven_by": [
         "team.languages",
         "priorities.performance",
@@ -54,8 +53,8 @@
           "why_not": "Scored 3.5 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
         },
         {
-          "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-          "why_not": "Scored 1.5 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
+          "choice": "Firebase (Firestore + Cloud Functions)",
+          "why_not": "Scored 6.3 points lower: proprietary API increases lock-in; the chosen option wins on project.type (well suited to realtime collab projects)."
         }
       ],
       "tradeoffs": [
@@ -64,20 +63,18 @@
     },
     "database": {
       "choice": "Azure Database for PostgreSQL – Flexible Server (West Europe)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; strong maintainability for PostgreSQL (priority 4); strong performance for PostgreSQL (priority 5); strong scalability for PostgreSQL (priority 5).",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep payments and subscriptions consistent; strong maintainability, which you rated 4/5; strong performance, which you rated 5/5; strong scalability, which you rated 5/5.",
       "driven_by": [
         "requirements.payments",
         "priorities.maintainability",
         "priorities.performance",
         "priorities.scalability",
-        "priorities.security",
-        "requirements.multi_tenant",
-        "priorities.time_to_market"
+        "requirements.multi_tenant"
       ],
       "alternatives": [
         {
           "choice": "Azure Database for MySQL – Flexible Server (West Europe)",
-          "why_not": "Scored 0.9 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 4))."
+          "why_not": "Scored 0.9 points lower: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
         },
         {
           "choice": "TimescaleDB on Azure VM (self-managed) (West Europe)",
@@ -90,17 +87,16 @@
     },
     "hosting": {
       "choice": "Azure Container Apps (West Europe)",
-      "justification": "Serverless containers on Azure. Fit for this project: strong scalability for Azure Container Apps (priority 5); scales automatically with spiky traffic; strong performance for Azure Container Apps (priority 5); strong time to market for Azure Container Apps (priority 3).",
+      "justification": "Serverless containers on Azure. Fit for this project: strong scalability, which you rated 5/5; scales automatically with spiky traffic; strong performance, which you rated 5/5.",
       "driven_by": [
         "priorities.scalability",
         "scale.traffic_pattern",
-        "priorities.performance",
-        "priorities.time_to_market"
+        "priorities.performance"
       ],
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (West Europe)",
-          "why_not": "Scored 1.5 points lower: the chosen option wins on priorities.scalability (strong scalability for Azure Container Apps (priority 5))."
+          "why_not": "Scored 1.5 points lower: the chosen option wins on priorities.scalability (strong scalability, which you rated 5/5)."
         },
         {
           "choice": "Google Cloud Run (europe-west1 Belgium)",
@@ -189,10 +185,9 @@
       },
       {
         "layer": "cdn",
-        "choice": "Azure Front Door",
-        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
+        "choice": "Azure Front Door (Standard)",
+        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes.",
         "driven_by": [
-          "requirements.seo_critical",
           "requirements.file_media_storage"
         ],
         "alternatives": [
@@ -203,14 +198,14 @@
         ],
         "tradeoffs": [],
         "estimated_monthly_usd": [
-          20,
-          200
+          40,
+          250
         ]
       },
       {
         "layer": "realtime",
-        "choice": "Yjs (CRDT) + Hocuspocus sync server, Redis pub/sub between nodes",
-        "justification": "Concurrent edits to one board must merge without conflicts: Yjs CRDTs do that, Hocuspocus (TypeScript) syncs documents and awareness (live cursors) over WebSockets, and Redis fans updates out across instances for 5000 concurrent users. Board snapshots persist to the database.",
+        "choice": "Yjs (CRDT) + Hocuspocus sync server (TypeScript), Redis pub/sub between nodes",
+        "justification": "Concurrent edits to the same document/board must merge without conflicts: Yjs CRDTs do that, the Hocuspocus sync server syncs updates and awareness (live cursors, presence) over WebSockets, and Redis fans updates out across instances for 5000 concurrent users. Snapshots persist to Azure Database for PostgreSQL – Flexible Server.",
         "driven_by": [
           "requirements.realtime",
           "project.type",
@@ -222,8 +217,8 @@
             "why_not": "Managed and fast to start, but per-MAU pricing and US data storage."
           },
           {
-            "choice": "Custom operational-transform server in Go",
-            "why_not": "Months of work to get conflict handling right."
+            "choice": "Last-write-wins over plain WebSockets",
+            "why_not": "Loses concurrent edits."
           }
         ],
         "tradeoffs": [
@@ -265,7 +260,7 @@
       {
         "layer": "queue",
         "choice": "NATS JetStream",
-        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "justification": "Moves slow or retry-prone work (payment webhooks, image/file processing) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "requirements.payments",
           "requirements.file_media_storage",
@@ -328,8 +323,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 479,
-    "max": 3515,
+    "min": 499,
+    "max": 3565,
     "assumptions": [
       "Scale level L3: ~50000 users, ~5000 peak concurrent, ~1000 req/s at peak, ~200 GB stored",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
@@ -356,8 +351,8 @@
         15
       ],
       "cdn": [
-        20,
-        200
+        40,
+        250
       ],
       "realtime": [
         50,
@@ -383,9 +378,9 @@
   },
   "warnings": [
     {
-      "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "Upper estimate ($3515) exceeds the $1500 budget; watch usage as you grow.",
+      "code": "BUDGET_RISK",
+      "severity": "warning",
+      "message": "The low estimate ($499) fits the $1500 budget, but growth to the high estimate ($3565) would be more than double it; set billing alerts and revisit sizing.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -422,7 +417,7 @@
       "realtime": "live",
       "subscription": "per seat"
     },
-    "combinations_evaluated": 254,
+    "combinations_evaluated": 754,
     "input_hash": "5ce3c181265effaa"
   }
 }
