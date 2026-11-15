@@ -50,7 +50,7 @@ def conflicts(c, warnings, assumptions):
                       "cloud_preference=%s conflicts with deployment_model=%s: a public cloud cannot also be "
                       "on-premise/air-gapped. Set cloud_preference to 'none' or pick a cloud deployment model."
                       % (c.cloud, c.deploy), ["infrastructure.cloud_preference", "infrastructure.deployment_model"]))
-    if c.cloud == "none" and c.deploy in ("managed_cloud", "self_hosted_cloud_vm"):
+    if c.cloud == "none" and c.deploy == "managed_cloud":
         hard.append(W("NO_CLOUD_VS_CLOUD_DEPLOYMENT", "critical",
                       "cloud_preference=none means no public cloud (use 'any' for no preference), but deployment_model=%s "
                       "needs a cloud provider. Set cloud_preference to 'any' or choose on_premise." % c.deploy,

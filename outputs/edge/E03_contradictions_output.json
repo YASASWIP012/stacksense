@@ -243,7 +243,7 @@
       {
         "layer": "observability",
         "choice": "Sentry (errors + performance) + host logs + uptime checks and on-call paging",
-        "justification": "Free Developer plan catches crashes in the app and mobile clients with stack traces. 99.99% needs alerting that wakes someone up.",
+        "justification": "Free Developer plan catches errors in the backend and mobile apps with stack traces. 99.99% needs alerting that wakes someone up.",
         "driven_by": [
           "requirements.availability"
         ],

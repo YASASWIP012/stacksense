@@ -18,11 +18,11 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 7.9 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
+          "why_not": "Scored 10.9 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
         },
         {
           "choice": "Nuxt (Vue)",
-          "why_not": "Scored 9.8 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
+          "why_not": "Scored 12.8 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
         }
       ],
       "tradeoffs": [
@@ -44,7 +44,7 @@
       "alternatives": [
         {
           "choice": "FastAPI (Python)",
-          "why_not": "Scored 11.2 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Scored 14.2 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
         },
         {
           "choice": "AWS Lambda + API Gateway",
@@ -67,7 +67,7 @@
       "alternatives": [
         {
           "choice": "SQLite (in Docker Compose on the VM)",
-          "why_not": "Scored 2.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Scored 4.6 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
         },
         {
           "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
@@ -89,7 +89,7 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Scored 14.5 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Scored 14.5 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
         },
         {
           "choice": "Cloudflare Pages",
@@ -146,7 +146,7 @@
       {
         "layer": "observability",
         "choice": "Sentry (errors + performance) + host logs",
-        "justification": "Free Developer plan catches crashes in the app and mobile clients with stack traces.",
+        "justification": "Free Developer plan catches errors in the backend and web front end with stack traces.",
         "driven_by": [
           "requirements.availability"
         ],

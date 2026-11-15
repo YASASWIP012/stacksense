@@ -107,7 +107,7 @@
       "alternatives": [
         {
           "choice": "AWS serverless (Lambda + API Gateway + S3/CloudFront) (ap-south-1 Mumbai)",
-          "why_not": "Scored 1.7 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Scored 1.7 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
         },
         {
           "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
@@ -202,7 +202,7 @@
       {
         "layer": "cdn",
         "choice": "Amazon CloudFront",
-        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes. Private files (e.g. KYC or health documents) bypass the CDN and are served via short-lived signed links from the in-country bucket.",
+        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes. Private user uploads bypass the CDN and are served via short-lived signed links from the bucket in the residency region.",
         "driven_by": [
           "requirements.file_media_storage"
         ],
@@ -271,14 +271,14 @@
       {
         "layer": "ml",
         "choice": "Amazon SageMaker real-time endpoint (ap-south-1 Mumbai) for the scoring model",
-        "justification": "Serves a model you train on your own data behind an internal API; versioned models and logged inputs/outputs make every decision explainable and auditable. Credit decisions need explainability (feature attributions) and human review of rejections.",
+        "justification": "Serves a model you train on your own data behind an internal API; versioned models and logged inputs/outputs make every prediction reproducible and auditable. Credit/risk decisions need explainability (feature attributions) and human review of rejections.",
         "driven_by": [
           "requirements.ml_features"
         ],
         "alternatives": [
           {
             "choice": "Third-party scoring API",
-            "why_not": "Credit models are a core asset and contain personal data; keep them in your region."
+            "why_not": "Risk models are a core asset and contain personal data; keep them in your region."
           },
           {
             "choice": "LLM-based scoring",

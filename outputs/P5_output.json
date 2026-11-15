@@ -19,11 +19,11 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 0.2 points lower: the chosen option wins on priorities.security (strong security, which you rated 4/5)."
+          "why_not": "Scored 3.2 points lower: the chosen option wins on priorities.security (strong security, which you rated 4/5)."
         },
         {
           "choice": "Next.js (React)",
-          "why_not": "Scored 1.3 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Scored 4.3 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
         }
       ],
       "tradeoffs": [
@@ -49,11 +49,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 4.8 points lower: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
+          "why_not": "Scored 4.9 points lower: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
         },
         {
           "choice": "Node.js + Fastify",
-          "why_not": "Scored 5.7 points lower: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
+          "why_not": "Scored 5.9 points lower: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
         },
         {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
@@ -209,7 +209,7 @@
       {
         "layer": "other",
         "choice": "Migration and integration plan for existing systems",
-        "justification": "On-prem SQL Server 2019: same engine as the recommended database, so lift the schema and data with Azure Database Migration Service and upgrade the version in the same step.",
+        "justification": "On-prem SQL Server 2019: same engine as the recommended database, so lift the schema and data with Azure Database Migration Service and upgrade to a supported version in the same step.",
         "driven_by": [
           "infrastructure.existing_systems"
         ],

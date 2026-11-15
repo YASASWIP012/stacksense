@@ -196,7 +196,7 @@
       {
         "layer": "cdn",
         "choice": "Cloudflare (free plan)",
-        "justification": "Caches public pages and media close to users and absorbs traffic spikes. Private files (e.g. KYC or health documents) bypass the CDN and are served via short-lived signed links from the in-country bucket.",
+        "justification": "Caches public pages and media close to users and absorbs traffic spikes. Private user uploads bypass the CDN and are served via short-lived signed links from the bucket in the residency region.",
         "driven_by": [
           "requirements.seo_critical",
           "requirements.file_media_storage"
@@ -351,7 +351,7 @@
       {
         "layer": "observability",
         "choice": "Sentry (errors + performance) + host logs",
-        "justification": "Free Developer plan catches crashes in the app and mobile clients with stack traces.",
+        "justification": "Free Developer plan catches errors in the backend and mobile apps with stack traces.",
         "driven_by": [
           "requirements.availability",
           "infrastructure.data_residency"

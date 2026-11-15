@@ -167,7 +167,7 @@
         "alternatives": [
           {
             "choice": "Cloudflare R2",
-            "why_not": "No egress fees, but no India jurisdiction option."
+            "why_not": "No egress fees, but a second vendor next to AWS."
           }
         ],
         "tradeoffs": [
@@ -181,7 +181,7 @@
       {
         "layer": "cdn",
         "choice": "Amazon CloudFront",
-        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes. Private files (e.g. KYC or health documents) bypass the CDN and are served via short-lived signed links from the in-country bucket.",
+        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes. Private user uploads bypass the CDN and are served via short-lived signed links from the bucket in the residency region.",
         "driven_by": [
           "requirements.file_media_storage"
         ],

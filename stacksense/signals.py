@@ -20,7 +20,7 @@ SIGNALS = {
                       "poor connectivity"),
     "lowend_device": ([r"low[- ]end", r"\b[12] ?gb ram", r"budget (phone|device)s?", r"entry[- ]level"],
                       "low-end devices"),
-    "geo": ([r"\bgps\b", r"geo[- ]?tag", r"location", r"\bmaps?\b", r"nearby", r"geofenc"], "location data"),
+    "geo": ([r"\bgps\b", r"geo[- ]?tag", r"\blocations?\b", r"(?<![-\w])maps?\b(?!-)", r"nearby", r"geofenc", r"live tracking"], "location data"),
     "ledger": ([r"ledger", r"double[- ]entry", r"accounting", r"\bwallet", r"reconcil"],
                "money ledger (strong consistency)"),
     "payments": ([r"\bpaid\b", r"get paid", r"payment", r"\bupi\b", r"\bemi\b", r"disburs", r"checkout",

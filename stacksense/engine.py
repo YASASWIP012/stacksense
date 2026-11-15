@@ -187,6 +187,8 @@ def provider_check(pid, c, role):
         return None
     p = kb.PROVIDERS[pid]
     family = {"azure_swa": "azure", "firebase": "gcp"}.get(pid, pid)
+    if c.cloud == "none" and c.deploy == "self_hosted_cloud_vm" and pid in ("aws", "gcp", "azure"):
+        return ("infrastructure.cloud_preference", "cloud_preference=none rules out the hyperscalers (%s)" % p["name"])
     if c.cloud in ("aws", "gcp", "azure") and family not in (c.cloud, "self"):
         return ("infrastructure.cloud_preference",
                 "%s is not on %s, and cloud_preference=%s is a hard constraint" % (p["name"], c.cloud.upper(), c.cloud))
@@ -203,6 +205,8 @@ def provider_check(pid, c, role):
 
 def resolve_cloud(c):
     """Cloud used for generic VM/Kubernetes hosting."""
+    if c.cloud == "none":
+        return "digitalocean"  # 'none' = no hyperscaler: a VPS provider
     if c.cloud in ("aws", "gcp", "azure"):
         return c.cloud
     hinted = [v for k, v in c.hints if k == "cloud"]
@@ -562,7 +566,7 @@ def _hosting(cand, c, contribs):
             contribs.append(("infrastructure.existing_systems", 1.0, "the organisation already uses %s" % kb.PROVIDERS[pid]["name"]))
     if c.extras.get("geo_spread") == "global" and "cdn" in caps:
         contribs.append(("extras.geo_spread", 1.0, "global edge network for worldwide users"))
-    if r["auth"] == "enterprise_sso" and "easy_auth" in caps:
+    if r["auth"] == "enterprise_sso" and "easy_auth" in caps and any(v in ("entra", "ad_onprem") for k, v in c.hints if k == "idp"):
         contribs.append(("requirements.auth", 1.0, "built-in Entra ID sign-in (Easy Auth)"))
     if c.deploy == "self_hosted_cloud_vm" and cid == "vm_compose":
         contribs.append(("infrastructure.deployment_model", 1.5, "matches deployment_model=self_hosted_cloud_vm"))
@@ -743,6 +747,15 @@ def pair_rules(combo, c):
     dbs, why = realize_db(db, host, be, c)
     if dbs is None:
         return False, why, out, None
+    fams = set()
+    for part in (web, mob, desk, be if be["id"] in SERVER_BACKENDS else None):
+        if part:
+            ls = set(part["langs"]) - {"sql", "html", "css"}
+            if ls:
+                fams.add(min(kb.LANG_FAMILY.get(x, x) for x in ls) if not (ls & {"javascript", "typescript"}) else "js")
+    if len(fams) > 1 and (not c.langs or c.exp == "beginner" or c.size <= 2):
+        out.append(("team.languages", -3.0 * (len(fams) - 1), "%d programming languages across the stack for a %s team of %d"
+                    % (len(fams), c.exp, c.size)))
     # vendor count for small teams
     provs = {host_provider(host, c), dbs.get("provider"), be.get("provider")} - {None, "self"}
     if c.size <= 3 and len(provs) > 1:
@@ -758,7 +771,7 @@ def pair_rules(combo, c):
         out.append(("budget.monthly_infra_usd", -min(6.0, 3.0 * (total_min / (0.8 * c.budget) - 1)),
                     "core stack starts near $%d/month against a $%g budget" % (total_min, c.budget)))
     if dbs.get("self") and not c.devops and c.deploy == "managed_cloud":
-        out.append(("team.has_devops", -1.0, "self-managed database without a DevOps engineer"))
+        out.append(("team.has_devops", -3.5, "self-managed database without a DevOps engineer"))
     if c.req["availability"] in ("99.95", "99.99") and dbs.get("self"):
         out.append(("requirements.availability", -1.5, "self-managed DB needs your own replication for %s%%" % c.req["availability"]))
     if c.req["offline_support"] and mob and be["id"] in SERVER_BACKENDS | {"supabase"}:
@@ -836,6 +849,7 @@ def search(c):
 
 # ------------------------------------------------------------------ explanation
 WHY_OVERRIDE = {("rn_expo", False): "builds Android and iOS apps from one JavaScript/TypeScript codebase"}
+WHY_NO_LANG = {"blazor": "a C# component framework that renders interactive UI from the ASP.NET Core server or WebAssembly"}
 
 
 def _explain(cand, contribs, extra_pair=None, max_n=4, ctx=None):
@@ -850,6 +864,8 @@ def _explain(cand, contribs, extra_pair=None, max_n=4, ctx=None):
     why = cand.get("why") or cand["name"]
     if ctx is not None and (cand["id"], "web" in ctx.platforms) in WHY_OVERRIDE:
         why = WHY_OVERRIDE[(cand["id"], "web" in ctx.platforms)]
+    if ctx is not None and cand["id"] in WHY_NO_LANG and not (set(cand["langs"]) & set(ctx.langs)):
+        why = WHY_NO_LANG[cand["id"]]
     just = why[:1].upper() + why[1:]
     if reasons:
         just += ". Fit for this project: " + "; ".join(reasons) + "."
@@ -890,7 +906,8 @@ def _why_not(alt, alt_contribs, chosen_contribs, gap, excl=None):
         if best_txt:
             parts.append("the chosen option wins on %s (%s)" % (f, best_txt[0][2]))
     if not parts:
-        parts.append("close runner-up; the chosen option combines better with the rest of the stack")
+        parts.append("close runner-up; the chosen option combines better with the rest of the stack" if gap < 1.0
+                     else "weaker overall fit once team skills, priorities and the other layers are combined")
     return "Scored %.1f points lower: %s." % (max(gap, 0.1), "; ".join(parts))
 
 
@@ -912,7 +929,9 @@ def _host_name(h, c):
     if h["id"] == "onprem":
         return h["name"]
     if h["id"] == "baas_hosted":
-        return "None (the %s app calls the managed backend directly)" % ("desktop" if "desktop" in c.platforms and not ("android" in c.platforms or "ios" in c.platforms) else "mobile")
+        kinds = [p for p in ("mobile" if ("android" in c.platforms or "ios" in c.platforms) else None,
+                             "desktop" if "desktop" in c.platforms else None) if p]
+        return "None (the %s calls the managed backend directly)" % (" and ".join(k + " app" for k in kinds) if kinds else "client")
     if pid in ("github", "cloudflare"):
         return h["name"]
     if c.is_static and h["provider"] in ("netlify", "vercel"):
@@ -991,6 +1010,8 @@ def _recommend(raw):
         if name in sigmod.IMPLIES:
             field, val = sigmod.IMPLIES[name]
             key = field.split(".", 1)[1]
+            if name == "realtime" and c.type == "ai_ml_product":
+                continue
             if c.req.get(key) != val and not any(field in a for a in assumptions if a.startswith("Relaxed")):
                 warnings.append({"code": "DESCRIPTION_MISMATCH", "severity": "info",
                                  "message": "The description mentions '%s' but %s is %s. StackSense follows the "
@@ -1075,9 +1096,10 @@ def _recommend(raw):
             _region(dbs["provider"], c), c.eff_residency)
         if "infrastructure.data_residency" not in dbc["driven_by"]:
             dbc["driven_by"].append("infrastructure.data_residency")
-    if c.existing and "infrastructure.existing_systems" not in dbc["driven_by"] and any(k == "db" for k, _ in c.hints):
+    _plan = any("Migration" in s_["choice"] for s_ in supporting_preview(c, combo, dbs, combo["hosting"]))
+    if c.existing and "infrastructure.existing_systems" not in dbc["driven_by"] and any(k == "db" for k, _ in c.hints) and _plan:
         dbc["driven_by"].append("infrastructure.existing_systems")
-        dbc["justification"] += " Existing data is migrated as described in the migration plan (supporting services)."
+        dbc["justification"] += " Existing data is handled as described in the migration plan (supporting services)."
     if "geo" in c.signals and db["id"] == "postgres":
         dbc["justification"] += " Enable PostGIS for the GPS/location data."
     if "ledger" in c.signals and db["id"] in ("postgres", "mysql", "sqlserver"):
@@ -1104,7 +1126,7 @@ def _recommend(raw):
     team = set(c.langs)
     if team:
         for layer in ("backend", "web", "mobile"):
-            if layer in combo:
+            if layer in combo and combo[layer]["id"] not in ("supabase", "firebase", "aws_lambda", "azure_functions"):
                 need = set(combo[layer]["langs"]) - {"sql", "html", "css"}
                 fam = {kb.LANG_FAMILY.get(x) for x in need} - {None}
                 if need and not (need & team) and not (fam & {kb.LANG_FAMILY.get(x) for x in team}):
@@ -1136,6 +1158,11 @@ def _recommend(raw):
                     "input_hash": hashlib.sha256(json.dumps(raw, sort_keys=True).encode()).hexdigest()[:16]},
     })
     return base
+
+
+def supporting_preview(c, combo, dbs, host):
+    sup, _ = choose_supporting(c, combo, dbs, host_provider(host, c))
+    return sup
 
 
 def _dedupe(ws):
@@ -1176,7 +1203,7 @@ def summary(c, combo, dbs, style, host):
     if host["id"] == "baas_hosted":
         return "%s %s for the API, auth, storage and %s database%s; front end: %s; no separate hosting." % (
             style_txt[:1].upper() + style_txt[1:], be["name"].split(" (")[0], dbs["name"].split(" (")[0],
-            " in India" if c.eff_residency == "india" else "", ", ".join(fe))
+            " in India" if c.eff_residency == "india" else "", ", ".join(fe) or "none (API only)")
     return "%s %s on %s with %s as the database%s; front end: %s." % (
         style_txt[:1].upper() + style_txt[1:], be["name"].split(" (")[0], _host_name(host, c).split(" (")[0],
         dbs["name"].split(" (")[0], " in %s" % c.eff_residency.upper() if c.eff_residency in ("eu", "us") else

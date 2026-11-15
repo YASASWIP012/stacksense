@@ -93,11 +93,11 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Scored 2.9 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Scored 2.9 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
         },
         {
           "choice": "Netlify (us-east-2)",
-          "why_not": "Scored 3.3 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Scored 3.3 points lower: weaker overall fit once team skills, priorities and the other layers are combined."
         }
       ],
       "tradeoffs": [

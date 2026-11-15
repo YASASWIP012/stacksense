@@ -13,6 +13,7 @@ SAAS = {
     "pusher": {"india": True, "eu": True, "us": True, "src": "https://pusher.com/docs/channels/miscellaneous/clusters/"},
     "sentry": {"india": False, "eu": True, "us": True, "src": "https://docs.sentry.io/organization/data-storage-location/"},
     "msg91": {"india": True, "eu": False, "us": False, "src": "https://msg91.com/help/what-is-dlt"},
+    "workos": {"india": False, "eu": False, "us": True, "src": "https://workos.com/security"},
     "twilio": {"india": False, "eu": True, "us": True, "src": "https://www.twilio.com/docs/verify"},
 }
 
@@ -62,7 +63,7 @@ def _domain_items(c, combo, dbs, hp, onprem, prior=()):
                      [("Self-managed ClickHouse", "Fastest per dollar but needs operations.")], ["Per-query pricing needs guardrails."], (20, 500)))
     if c.type == "api_platform":
         ch = {"aws": "Amazon API Gateway (usage plans + API keys)", "gcp": "Apigee X / API Gateway", "azure": "Azure API Management"}.get(
-            hp, "Kong Gateway (self-hosted) or Zuplo") if not onprem else "Kong Gateway (self-hosted)"
+            hp, "Kong Gateway (self-hosted)" if c.devops else "Zuplo (managed API gateway)") if not onprem else "Kong Gateway (self-hosted)"
         out.append(S("other", ch, "API products need per-customer keys, rate limits, quotas and usage metering at the edge; the "
                      "gateway also publishes the OpenAPI developer portal.", ["project.type", "project.platforms"],
                      [("Rate limiting inside the app", "Every service re-implements keys and quotas.")], [], (0, 100) if c.L <= 2 else (50, 600)))
@@ -146,10 +147,15 @@ def _existing_plan(c, combo, dbs, hp):
                                     or (("sql server" in low or "mssql" in low) and db_id == "sqlserver")
                                     or ("mongo" in low and db_id == "mongodb")):
                 tool = {"aws": "AWS DMS", "azure": "Azure Database Migration Service", "gcp": "Database Migration Service"}.get(hp, "native dump/restore with a short read-only window")
-                lines.append("%s: same engine as the recommended database, so lift the schema and data with %s and "
-                             "upgrade the version in the same step." % (src, tool))
+                eol = any(__import__("re").search(pat, low) for pat, *_ in kb.EOL)
+                lines.append("%s: same engine as the recommended database, so lift the schema and data with %s%s." % (
+                    src, tool, " and upgrade to a supported version in the same step" if eol else ""))
+            elif c.type == "data_analytics":
+                lines.append("%s: keep it as the system of record and replicate changes into the analytics store with "
+                             "change-data-capture (e.g. Debezium/Oracle GoldenGate or the cloud DMS in CDC mode); do not "
+                             "migrate or retire it." % src)
             elif db_id != "none":
-                tool = "pgloader" if db_id == "postgres" else {"aws": "AWS DMS", "azure": "Azure DMS", "gcp": "Database Migration Service"}.get(hp, "an ETL script")
+                tool = ("ora2pg (or AWS SCT + DMS)" if "oracle" in low else "pgloader") if db_id == "postgres" else {"aws": "AWS DMS", "azure": "Azure DMS", "gcp": "Database Migration Service"}.get(hp, "an ETL script")
                 lines.append("%s: migrate to %s with %s; run both in parallel with change-data-capture until "
                              "cut-over, then retire the old server." % (src, dbs["name"].split(" (")[0], tool))
         elif any(k in low for k in ("node", "api", "service", "backend", "php", "java", "django", "rails")):
@@ -158,9 +164,18 @@ def _existing_plan(c, combo, dbs, hp):
         elif any(k in low for k in ("angular", "react", "vue", "admin", "frontend", "jquery")):
             lines.append("%s: replace screen by screen in the recommended front end; link both from one "
                          "navigation until the old UI is empty." % item)
+        elif any(k in low for k in ("redis", "valkey", "kafka", "rabbitmq", "active directory", "entra", "okta", "keycloak",
+                                    "microsoft 365", "office 365", "google workspace", "salesforce", "sap", "twilio", "firebase", "stripe", "razorpay", "ldap")):
+            continue  # handled by the matching layer (cache/queue/auth/integration)
         elif any(k in low for k in ("centos", "ubuntu", "windows server", "servers", "vm")):
             lines.append("%s: do not deploy new services there; move workloads to the recommended hosting and "
                          "decommission once empty." % item)
+        else:
+            if not any(k in low for k in ("redis", "valkey", "kafka", "rabbitmq", "active directory", "entra", "okta", "keycloak",
+                                          "microsoft 365", "office 365", "google workspace", "salesforce", "sap", "twilio",
+                                          "firebase", "stripe", "razorpay", "oracle", "mysql", "postgres", "sql server", "mongo")):
+                lines.append("%s: not modelled by the knowledge base; keep it and integrate through its documented API or file "
+                             "exports behind an adapter module, with an integration test in CI." % item)
     if lines:
         items.append(S("other", "Migration and integration plan for existing systems",
                        " ".join(lines), ["infrastructure.existing_systems"],
@@ -221,9 +236,9 @@ def choose_supporting(c, combo, dbs, hp):
             has_entra = "entra" in idp
             if onprem:
                 if "ad_onprem" in idp or has_entra:
-                    ch = "Keycloak (self-hosted) federated to Active Directory over LDAP/Kerberos"
+                    ch = "Keycloak (self-hosted) federated to the existing directory (Active Directory/LDAP)"
                     why = ("The deployment is %s, so no cloud identity service is allowed. Keycloak runs inside the "
-                           "network, federates users from the existing Active Directory and gives the app OIDC/SAML "
+                           "network, federates users from the existing directory over LDAP/Kerberos and gives the app OIDC/SAML "
                            "single sign-on." % c.deploy.replace("_", "-"))
                     alts = [("Microsoft Entra ID", "Cloud service: not reachable from a %s network." % c.deploy.replace("_", "-")),
                             ("AD FS", "Also on-prem, but Windows-only and SAML/WS-Fed oriented; Keycloak covers OIDC for modern apps.")]
@@ -256,9 +271,12 @@ def choose_supporting(c, combo, dbs, hp):
                 else:
                     ch, why = "WorkOS (enterprise SSO per customer)", "Customers plug in their own Okta/Entra/Google IdP without you running an IdP."
                     alts = [("Keycloak", "Needs someone to operate it.")]
-                    if c.eff_residency == "india":
-                        ch, why = "Keycloak (self-hosted, Organizations per customer)", "Customer IdPs federate into a Keycloak you host in India."
-                        alts = [("WorkOS / Auth0", "No India data region.")]
+                    if not _saas_ok("workos", c):
+                        ch, why = ("Keycloak (self-hosted, Organizations per customer)",
+                                   "Customer IdPs federate into a Keycloak you host in the required region (data_residency=%s); "
+                                   "WorkOS keeps its data in the US." % c.eff_residency)
+                        alts = [("WorkOS / Auth0", "No guaranteed %s data region." % c.eff_residency.upper())]
+                        drv.append("infrastructure.data_residency")
             elif c.cloud == "azure" or hp == "azure":
                 ch, why = "Microsoft Entra ID (workforce SSO)", "Managed SSO native to the chosen Azure platform; federates with other corporate IdPs."
                 alts = [("Keycloak", "Needs someone to operate it.")]
@@ -297,14 +315,23 @@ def choose_supporting(c, combo, dbs, hp):
             lib = {"django": "Django auth + django-allauth", "nestjs": "Passport.js (NestJS) with JWT sessions",
                    "fastify": "@fastify/auth + JWT sessions", "fastapi": "FastAPI security utilities + Authlib",
                    "spring_boot": "Spring Security (+ OAuth2 client)", "aspnet": "ASP.NET Core Identity",
-                   "go_chi": "Ory Kratos (self-hosted identity server)", "laravel": "Laravel Fortify + Socialite",
+                   "go_chi": {"aws": "Amazon Cognito", "gcp": "Google Identity Platform", "azure": "Microsoft Entra External ID"}.get(hp, "Ory Kratos (self-hosted identity server)"), "laravel": "Laravel Fortify + Socialite",
                    "rails": "Devise + OmniAuth", "phoenix": "phx.gen.auth + Ueberauth",
                    "next_fullstack": "Auth.js (NextAuth)", "azure_functions": "Microsoft Entra External ID"}.get(be, "Framework built-in auth")
             ch = lib
-            why = "Uses the backend framework's maintained auth library, so user data stays in your own database%s." % (
-                " in %s" % c.eff_residency.upper() if c.eff_residency in ("eu", "us") else (" in India" if c.eff_residency == "india" else ""))
-            alts = [("Auth0 / Clerk", "Separate vendor with per-MAU pricing%s." % (
-                "; no India region" if c.eff_residency == "india" else ""))]
+            if lib.startswith(("Amazon Cognito", "Google Identity Platform", "Microsoft Entra External ID")):
+                why = ("Managed user directory in the same cloud%s, so the service only verifies tokens instead of storing passwords." % (
+                    " and region" if c.eff_residency in ("india", "eu", "us") else ""))
+                alts = [("Ory Kratos (self-hosted)", "Another service to run for standard email/social login.")]
+            elif lib.startswith(("Ory Kratos", "Keycloak")):
+                why = "Open-source identity server run next to the API, so user data stays in your own infrastructure%s." % (
+                    " in %s" % c.eff_residency.upper() if c.eff_residency in ("eu", "us") else (" in India" if c.eff_residency == "india" else ""))
+                alts = [("Auth0 / Clerk", "Separate vendor with per-MAU pricing.")]
+            else:
+                why = "Uses the backend framework's maintained auth library, so user data stays in your own database%s." % (
+                    " in %s" % c.eff_residency.upper() if c.eff_residency in ("eu", "us") else (" in India" if c.eff_residency == "india" else ""))
+                alts = [("Auth0 / Clerk", "Separate vendor with per-MAU pricing%s." % (
+                    "; no India region" if c.eff_residency == "india" else ""))]
         if r["auth"] == "phone_otp" and not airgap:
             sms = "MSG91 (DLT-registered SMS OTP)" if _india(c) else "Twilio Verify"
             ch = "%s + %s" % (ch, sms)
@@ -395,7 +422,7 @@ def choose_supporting(c, combo, dbs, hp):
             alts = [("Ceph RGW", "Much heavier to operate.")]
         elif hp == "aws" or c.cloud == "aws":
             ch = "Amazon S3 (%s) with pre-signed uploads" % kb.PROVIDERS["aws"]["region_label"].get(c.eff_residency if c.eff_residency != "none" else ("eu" if "gdpr" in c.compliance else "none"), "same region as the database")
-            alts = [("Cloudflare R2", "No egress fees, but no India jurisdiction option.")]
+            alts = [("Cloudflare R2", "No egress fees, but %s." % ("no India jurisdiction option" if c.eff_residency == "india" else "a second vendor next to AWS"))]
         elif hp == "gcp":
             ch = "Google Cloud Storage (%s)" % kb.PROVIDERS["gcp"]["region_label"].get(c.eff_residency if c.eff_residency != "none" else ("eu" if "gdpr" in c.compliance else "none"), "same region as the database")
             alts = [("Amazon S3", "Cross-cloud egress and IAM.")]
@@ -430,7 +457,7 @@ def choose_supporting(c, combo, dbs, hp):
         ch = {"aws": "Amazon CloudFront", "gcp": "Cloud CDN", "azure": "Azure Front Door (Standard)"}.get(hp, "Cloudflare (free plan)")
         cdrv = [f for f, on in (("requirements.seo_critical", r["seo_critical"]), ("requirements.file_media_storage", r["file_media_storage"]),
                                 ("extras.geo_spread", c.extras.get("geo_spread") in ("multi_region", "global"))) if on]
-        note = " Private files (e.g. KYC or health documents) bypass the CDN and are served via short-lived signed links from the in-country bucket." if c.eff_residency in ("india", "eu", "us") and r["file_media_storage"] else ""
+        note = " Private user uploads bypass the CDN and are served via short-lived signed links from the bucket in the residency region." if c.eff_residency in ("india", "eu", "us") and r["file_media_storage"] else ""
         what = "public pages and media" if r["seo_critical"] else ("uploaded media and static assets" if r["file_media_storage"] else "static assets")
         out.append(S("cdn", ch, "Caches %s close to users and absorbs traffic spikes.%s" % (what, note), cdrv,
                      [("No CDN", "Slower first loads for public pages and media.")], [],
@@ -512,15 +539,18 @@ def choose_supporting(c, combo, dbs, hp):
     # ---------------------------------------------------------------- cache
     need_cache = (L >= 3 or (r["p95_latency_ms"] and r["p95_latency_ms"] <= 150) or c.rps >= 500
                   or (r["realtime"] and be not in ("supabase", "firebase")))
+    existing_redis = next((x for x in c.existing if "redis" in x.lower() or "valkey" in x.lower()), None)
     if need_cache and be not in ("supabase", "firebase", "aws_lambda", "next_fullstack", "azure_functions"):
-        if onprem or c.deploy == "self_hosted_cloud_vm" or host["id"] == "vm_compose":
+        if existing_redis:
+            ch = "Existing %s (reused)" % existing_redis
+        elif onprem or c.deploy == "self_hosted_cloud_vm" or host["id"] == "vm_compose":
             ch = "Valkey (Redis-compatible, container)"
         else:
             ch = {"aws": "Amazon ElastiCache for Valkey", "gcp": "Memorystore for Valkey",
                   "azure": "Azure Managed Redis", "digitalocean": "DigitalOcean Managed Caching (Valkey)",
                   "render": "Render Key Value (Valkey)", "railway": "Redis on Railway"}.get(hp, "Valkey (managed)")
-        why = ("Caches hot reads and sessions to hold p95=%sms, and doubles as the pub/sub and job-queue broker."
-               % (r["p95_latency_ms"] or "low"))
+        why = ("Caches hot reads and sessions%s, and doubles as the pub/sub and job-queue broker."
+               % (" to hold p95=%dms" % r["p95_latency_ms"] if r["p95_latency_ms"] else " to keep latency low at peak"))
         out.append(S("cache", ch, why,
                      [x for x, on in (("requirements.p95_latency_ms", bool(r["p95_latency_ms"])), ("scale.peak_concurrent_users", L >= 3),
                                       ("requirements.realtime", r["realtime"])) if on] or ["scale.users_12_months"],
@@ -621,12 +651,28 @@ def choose_supporting(c, combo, dbs, hp):
             else:
                 ch = "Model trained offline, served in-process via ONNX Runtime from the %s backend" % combo["backend"]["name"].split(" (")[0]
                 sep, cost = False, (0, 0)
-            why = ("Serves a model you train on your own data behind an internal API; versioned models and logged "
-                   "inputs/outputs make every decision explainable and auditable.")
-            if c.type == "fintech":
-                why += " Credit decisions need explainability (feature attributions) and human review of rejections."
-            alts = [("Third-party scoring API", "Credit models are a core asset and contain personal data; keep them in your region."),
-                    ("LLM-based scoring", "Non-deterministic and hard to explain for credit decisions.")]
+            dsc = (c.spec.get("project.description") or "").lower()
+            textgen = any(k in dsc for k in ("summar", "chatbot", "assistant", "generate", "draft", "translat", "llm", "gpt"))
+            credit = any(k in dsc for k in ("credit", "loan", "lending", "fraud", "risk scor"))
+            if textgen:
+                llm = {"aws": "Amazon Bedrock (in-region)", "azure": "Azure OpenAI (in-region deployment)",
+                       "gcp": "Vertex AI (Gemini, in-region)"}.get(hp, "a hosted LLM API (e.g. Claude or GPT) with zero-retention terms")
+                ch = "Hosted LLM via %s, called from the backend" % llm
+                sep, cost = False, (20, 300)
+                why = ("Text generation (summaries, drafts, chat) is a foundation-model task; calling a hosted model from the "
+                       "backend avoids training or serving your own, and prompts/outputs are logged for review.")
+                alts = [("Self-hosted open-weight model", "Needs GPUs and MLOps for a small team."),
+                        ("Training a custom model", "No labelled data or need at this stage.")]
+            else:
+                why = ("Serves a model you train on your own data behind an internal API; versioned models and logged "
+                       "inputs/outputs make every prediction reproducible and auditable.")
+                if credit:
+                    why += " Credit/risk decisions need explainability (feature attributions) and human review of rejections."
+                    alts = [("Third-party scoring API", "Risk models are a core asset and contain personal data; keep them in your region."),
+                            ("LLM-based scoring", "Non-deterministic and hard to explain for credit decisions.")]
+                else:
+                    alts = [("Managed AutoML endpoint", "Faster start, but higher per-prediction cost and less control."),
+                            ("Rules only", "Cannot learn from the data as it grows.")]
         elif r["ml_features"] == "llm_rag":
             vec = "pgvector" if db in ("postgres",) else ("Atlas Vector Search" if db == "mongodb" else "pgvector (add Postgres)")
             if onprem:
@@ -729,7 +775,8 @@ def choose_supporting(c, combo, dbs, hp):
                       "; Sentry has no India data region" if c.eff_residency == "india" else ""), (10, 50) if L <= 2 else (50, 500))
         elif sentry_ok:
             ob = ("Sentry (errors + performance) + host logs",
-                  "Free Developer plan catches crashes in the app and mobile clients with stack traces.", (0, 26))
+                  "Free Developer plan catches errors in the backend%s with stack traces." % (
+                      " and mobile apps" if ("android" in c.platforms or "ios" in c.platforms) else (" and web front end" if "web" in c.platforms else "")), (0, 26))
         else:
             ob = ("Grafana Cloud (free tier) + OpenTelemetry",
                   "Free tier for logs/metrics; scrub personal data before export since data residency applies.", (0, 50))

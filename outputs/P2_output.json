@@ -87,7 +87,7 @@
         },
         {
           "choice": "TimescaleDB on EC2 (self-managed) (ap-south-1 Mumbai)",
-          "why_not": "Scored 7.8 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Scored 10.3 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
         }
       ],
       "tradeoffs": [

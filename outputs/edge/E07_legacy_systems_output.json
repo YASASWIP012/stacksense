@@ -71,7 +71,7 @@
     },
     "database": {
       "choice": "PostgreSQL (Supabase, South Asia (Mumbai, ap-south-1))",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep bookings and payouts consistent; well suited to marketplace projects; strong time to market, which you rated 5/5; strong cost, which you rated 4/5. Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Existing data is migrated as described in the migration plan (supporting services).",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep bookings and payouts consistent; well suited to marketplace projects; strong time to market, which you rated 5/5; strong cost, which you rated 4/5. Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Existing data is handled as described in the migration plan (supporting services).",
       "driven_by": [
         "requirements.payments",
         "project.type",
@@ -88,7 +88,7 @@
         },
         {
           "choice": "TimescaleDB on EC2 (self-managed) (ap-south-1 Mumbai)",
-          "why_not": "Scored 7.8 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Scored 10.3 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
         }
       ],
       "tradeoffs": [

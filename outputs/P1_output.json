@@ -67,7 +67,7 @@
       "alternatives": [
         {
           "choice": "SQLite (in Docker Compose on the VM)",
-          "why_not": "Scored 25.6 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "why_not": "Scored 28.1 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         },
         {
           "choice": "PostgreSQL (Supabase, East US (N. Virginia))",

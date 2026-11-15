@@ -47,7 +47,7 @@
       "alternatives": [
         {
           "choice": "Django (Python)",
-          "why_not": "Scored 2.7 points lower: the chosen option wins on timeline.mvp_weeks (a 2-person team ships in 10 weeks without building auth/storage)."
+          "why_not": "Scored 5.7 points lower: the chosen option wins on timeline.mvp_weeks (a 2-person team ships in 10 weeks without building auth/storage)."
         },
         {
           "choice": "NestJS (Node.js, TypeScript)",
@@ -76,11 +76,11 @@
       "alternatives": [
         {
           "choice": "SQLite (in Docker Compose on the VM)",
-          "why_not": "Scored 8.4 points lower: the chosen option wins on project.description (geo queries (description mentions 'gps'))."
+          "why_not": "Scored 11.8 points lower: the chosen option wins on project.description (geo queries (description mentions 'gps'))."
         },
         {
           "choice": "Amazon RDS for MySQL (ap-south-1 Mumbai)",
-          "why_not": "Scored 4.3 points lower: the chosen option wins on project.description (geo queries (description mentions 'gps'))."
+          "why_not": "Scored 5.2 points lower: the chosen option wins on project.description (geo queries (description mentions 'gps'))."
         }
       ],
       "tradeoffs": [
@@ -101,7 +101,7 @@
         },
         {
           "choice": "AWS Elastic Beanstalk (ap-south-1 Mumbai)",
-          "why_not": "Scored 2.7 points lower: the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
+          "why_not": "Scored 3.5 points lower: the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         }
       ],
       "tradeoffs": [

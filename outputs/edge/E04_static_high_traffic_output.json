@@ -45,11 +45,11 @@
       "alternatives": [
         {
           "choice": "Django (Python)",
-          "why_not": "Scored 20.4 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "why_not": "Scored 23.4 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         },
         {
           "choice": "FastAPI (Python)",
-          "why_not": "Scored 21.6 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "why_not": "Scored 24.6 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         }
       ],
       "tradeoffs": []
@@ -69,7 +69,7 @@
         },
         {
           "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
-          "why_not": "Scored 20.5 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "why_not": "Scored 21.7 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
       "tradeoffs": []
