@@ -97,6 +97,10 @@
         {
           "choice": "GitHub Pages",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "Azure Static Web Apps (East US 2)",
+          "why_not": "Close runner-up: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": []

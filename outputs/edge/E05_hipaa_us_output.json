@@ -69,6 +69,10 @@
           "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
+          "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+          "why_not": "Lower overall fit: audited money/health logic spread across RLS and functions is hard to review; a 6-person team benefits from an explicit service codebase."
+        },
+        {
           "choice": "Firebase (Firestore + Cloud Functions)",
           "why_not": "Excluded: Firebase (Google) lacks HIPAA attestation/BAA (compliance)."
         }
@@ -119,6 +123,10 @@
         },
         {
           "choice": "Cloud Storage + Cloud CDN (static site) (us-central1 Iowa)",
+          "why_not": "Lower overall fit: static hosting only; the API must run elsewhere."
+        },
+        {
+          "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
           "why_not": "Lower overall fit: static hosting only; the API must run elsewhere."
         }
       ],

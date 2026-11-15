@@ -72,6 +72,10 @@
           "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
+          "choice": "Next.js Route Handlers + Server Actions",
+          "why_not": "Lower overall fit: no long-lived connections; a separate real-time service is needed; the chosen option wins on project.type (well suited to marketplace projects)."
+        },
+        {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
           "why_not": "Excluded: Supabase (Postgres + Auth + Storage + Realtime + Edge Functions) is not suited to deployment_model=self_hosted_cloud_vm (infrastructure.deployment_model)."
         }
@@ -126,7 +130,7 @@
       "alternatives": [
         {
           "choice": "DigitalOcean Kubernetes (FRA1 Frankfurt)",
-          "why_not": "Lower overall fit: starts around $250/month against a $150 budget; Kubernetes is over-engineering for 3 engineers at this scale."
+          "why_not": "Lower overall fit: starts around $250/month against a $150 budget; Kubernetes is over-engineering for 3 engineers at this scale; a large amount of infrastructure to operate with no DevOps engineer."
         },
         {
           "choice": "Azure Static Web Apps",

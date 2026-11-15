@@ -125,6 +125,10 @@
         {
           "choice": "DigitalOcean App Platform (BLR1 Bengaluru)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "Cloud Storage + Cloud CDN (static site) (asia-south1 Mumbai)",
+          "why_not": "Close runner-up: static hosting only; the API must run elsewhere."
         }
       ],
       "tradeoffs": [

@@ -116,6 +116,10 @@
         {
           "choice": "Render (Oregon/Ohio/Virginia)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
+        },
+        {
+          "choice": "Azure Container Apps (East US)",
+          "why_not": "Close runner-up: some infrastructure to operate with no DevOps engineer."
         }
       ],
       "tradeoffs": [

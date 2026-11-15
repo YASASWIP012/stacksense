@@ -70,7 +70,7 @@
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
-          "why_not": "Lower overall fit: costs at least $800/month but the budget is $0; large scale outgrows a single BaaS project; the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
+          "why_not": "Lower overall fit: costs at least $800/month but the budget is $0; large scale outgrows a single BaaS project; proprietary API increases lock-in; the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         }
       ],
       "tradeoffs": [
@@ -128,6 +128,10 @@
         {
           "choice": "AWS Elastic Beanstalk (us-east-1 N. Virginia)",
           "why_not": "Lower overall fit: costs at least $900/month but the budget is $0."
+        },
+        {
+          "choice": "Netlify (us-east-2)",
+          "why_not": "Lower overall fit: costs at least $100/month but the budget is $0."
         }
       ],
       "tradeoffs": [

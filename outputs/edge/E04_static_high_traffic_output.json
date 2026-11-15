@@ -91,6 +91,10 @@
         {
           "choice": "Azure Static Web Apps (East US 2)",
           "why_not": "Lower overall fit: starts around $20/month against a $20 budget."
+        },
+        {
+          "choice": "Netlify",
+          "why_not": "Lower overall fit: starts around $20/month against a $20 budget."
         }
       ],
       "tradeoffs": []

@@ -67,6 +67,10 @@
           "why_not": "Lower overall fit: the chosen option wins on timeline.mvp_weeks (a 2-person team ships in 10 weeks without building auth/storage)."
         },
         {
+          "choice": "Azure Functions",
+          "why_not": "Lower overall fit: some infrastructure to operate with no DevOps engineer; proprietary API increases lock-in; learning curve 3/5 for a mixed team."
+        },
+        {
           "choice": "Firebase (Firestore + Cloud Functions)",
           "why_not": "Excluded: Firebase (Google) stores Firebase Authentication data in the US (Firestore itself can run in Mumbai) (infrastructure.data_residency)."
         }
@@ -115,6 +119,10 @@
         {
           "choice": "DigitalOcean App Platform (BLR1 Bengaluru)",
           "why_not": "Lower overall fit: the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
+        },
+        {
+          "choice": "Azure Container Apps (Central India (Pune))",
+          "why_not": "Lower overall fit: some infrastructure to operate with no DevOps engineer."
         }
       ],
       "tradeoffs": [

@@ -97,6 +97,10 @@
         {
           "choice": "Azure SQL Database (West Europe)",
           "why_not": "Lower overall fit: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates."
+        },
+        {
+          "choice": "MongoDB Atlas (AWS Frankfurt)",
+          "why_not": "Lower overall fit: weaker multi-record transactions for payments and subscriptions; the chosen option wins on requirements.payments (ACID transactions keep payments and subscriptions consistent)."
         }
       ],
       "tradeoffs": [
@@ -122,6 +126,10 @@
         },
         {
           "choice": "Netlify (eu-central-1)",
+          "why_not": "Lower overall fit: the chosen option wins on priorities.scalability (strong scalability, which you rated 5/5)."
+        },
+        {
+          "choice": "Vercel (fra1 Frankfurt)",
           "why_not": "Lower overall fit: the chosen option wins on priorities.scalability (strong scalability, which you rated 5/5)."
         }
       ],

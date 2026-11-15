@@ -102,6 +102,10 @@
         {
           "choice": "Render (Oregon/Ohio/Virginia)",
           "why_not": "Close runner-up: starts around $7/month against a $10 budget."
+        },
+        {
+          "choice": "Google Cloud Run (us-central1 Iowa)",
+          "why_not": "Lower overall fit: some infrastructure to operate with no DevOps engineer."
         }
       ],
       "tradeoffs": [

@@ -129,7 +129,7 @@
         },
         {
           "choice": "Amazon EC2 + Docker Compose (ap-south-1 Mumbai)",
-          "why_not": "Lower overall fit: you manage the OS although managed_cloud was requested; fixed capacity under spiky traffic; the chosen option wins on priorities.scalability (strong scalability, which you rated 4/5)."
+          "why_not": "Lower overall fit: you manage the OS although managed_cloud was requested; fixed capacity under spiky traffic; a fair amount of infrastructure to operate; the chosen option wins on priorities.scalability (strong scalability, which you rated 4/5)."
         },
         {
           "choice": "Azure Container Apps",

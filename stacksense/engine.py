@@ -936,7 +936,7 @@ def _why_not(alt, alt_contribs, chosen_contribs, gap, excl=None):
     alt_fields = {}
     for f, d, t in alt_contribs:
         alt_fields[f] = alt_fields.get(f, 0) + d
-    worst = sorted([x for x in alt_contribs if x[1] < 0 and x[2]], key=lambda x: (x[1], x[0]))[:2]
+    worst = sorted([x for x in alt_contribs if x[1] < 0 and x[2]], key=lambda x: (x[1], x[0]))[:3]
     diffs = sorted(((chosen_fields.get(f, 0) - alt_fields.get(f, 0), f) for f in set(chosen_fields) | set(alt_fields)),
                    key=lambda x: (-x[0], x[1]))
     parts = [t for _, _, t in worst if abs(_) >= 0.4] if False else [t for f, d, t in worst if d <= -0.4]
@@ -984,7 +984,7 @@ def _host_name(h, c):
     return "%s (%s)" % (h["name"], _region(pid, c))
 
 
-def _alternatives(layer, best, combos, scored, excluded, c, chosen_contribs, n=3):
+def _alternatives(layer, best, combos, scored, excluded, c, chosen_contribs, n=4):
     chosen_id = best[2][layer]["id"]
     best_with = {}
     for combo_row in combos:
