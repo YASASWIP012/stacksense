@@ -3,7 +3,7 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok",
-  "summary": "Modular monolith Django on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL Multi-AZ as the database in US; front end: Angular, React Native.",
+  "summary": "Modular monolith Django on Azure Container Apps with Azure Database for PostgreSQL – Flexible Server zone-redundant HA as the database in US; front end: Angular, React Native.",
   "architecture_style": "modular_monolith",
   "architecture_rationale": {
     "text": "One Django deployable split into internal modules: clear boundaries for 6 engineers without the operational cost of microservices. Microservices rejected: 6 engineer(s) cannot absorb their operational overhead.",
@@ -75,8 +75,8 @@
       ]
     },
     "database": {
-      "choice": "Amazon RDS for PostgreSQL Multi-AZ (us-east-1 N. Virginia)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep patient records and appointments consistent; strong security, which you rated 5/5; well suited to healthtech projects; strong maintainability, which you rated 4/5. Data stays in us-east-1 N. Virginia to satisfy data_residency=us.",
+      "choice": "Azure Database for PostgreSQL – Flexible Server zone-redundant HA (East US)",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep patient records and appointments consistent; strong security, which you rated 5/5; well suited to healthtech projects; strong maintainability, which you rated 4/5. Data stays in East US to satisfy data_residency=us.",
       "driven_by": [
         "requirements.payments",
         "priorities.security",
@@ -86,7 +86,7 @@
       ],
       "alternatives": [
         {
-          "choice": "Amazon RDS for MySQL Multi-AZ (us-east-1 N. Virginia)",
+          "choice": "Azure Database for MySQL – Flexible Server zone-redundant HA (East US)",
           "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
@@ -99,23 +99,23 @@
       ]
     },
     "hosting": {
-      "choice": "AWS Elastic Beanstalk (us-east-1 N. Virginia)",
-      "justification": "Managed web hosting on AWS (load balancer, auto scaling, health checks) without container orchestration. Fit for this project: multi-zone deployments for 99.95%.",
+      "choice": "Azure Container Apps (East US)",
+      "justification": "Serverless containers on Azure. Fit for this project: multi-zone deployments for 99.95%.",
       "driven_by": [
         "requirements.availability"
       ],
       "alternatives": [
         {
-          "choice": "Azure Container Apps (East US)",
+          "choice": "Google Cloud Run (us-central1 Iowa)",
           "why_not": "Close runner-up: it fits the rest of the stack less well."
         },
         {
-          "choice": "Google Cloud Run (us-central1 Iowa)",
-          "why_not": "Close runner-up: it fits the rest of the stack less well."
+          "choice": "AWS ECS on Fargate (+ ALB) (us-east-1 N. Virginia)",
+          "why_not": "Close runner-up: a fair amount of infrastructure to operate."
         }
       ],
       "tradeoffs": [
-        "Less flexible than ECS; platform versions must be kept current."
+        "Dapr/KEDA concepts add learning."
       ]
     },
     "supporting": [
@@ -168,16 +168,16 @@
       },
       {
         "layer": "storage",
-        "choice": "Amazon S3 (us-east-1 N. Virginia) with pre-signed uploads",
-        "justification": "Clients upload directly with pre-signed URLs, so large files never pass through the API; objects are encrypted at rest and private by default.",
+        "choice": "Azure Blob Storage (East US)",
+        "justification": "Clients upload directly with short-lived SAS tokens, so large files never pass through the API; objects are encrypted at rest and private by default.",
         "driven_by": [
           "requirements.file_media_storage",
           "infrastructure.data_residency"
         ],
         "alternatives": [
           {
-            "choice": "Cloudflare R2",
-            "why_not": "No egress fees, but a second vendor next to AWS."
+            "choice": "Amazon S3",
+            "why_not": "Cross-cloud egress and identity."
           }
         ],
         "tradeoffs": [
@@ -190,7 +190,7 @@
       },
       {
         "layer": "cdn",
-        "choice": "Amazon CloudFront",
+        "choice": "Azure Front Door (Standard)",
         "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes. Private user uploads bypass the CDN and are served via short-lived signed links from the bucket in the residency region.",
         "driven_by": [
           "requirements.file_media_storage"
@@ -231,7 +231,7 @@
       },
       {
         "layer": "cache",
-        "choice": "Amazon ElastiCache for Valkey",
+        "choice": "Azure Managed Redis",
         "justification": "Caches hot reads and sessions to hold p95=300ms, and carries pub/sub for real-time fan-out.",
         "driven_by": [
           "requirements.p95_latency_ms",
@@ -321,7 +321,7 @@
       },
       {
         "layer": "other",
-        "choice": "AWS KMS + Secrets Manager + CloudTrail + AWS WAF",
+        "choice": "Azure Key Vault + Activity Log + Azure WAF",
         "justification": "Compliance controls for HIPAA, SOC2: encryption keys you control, no secrets in code, tamper-evident audit logs and a web application firewall.",
         "driven_by": [
           "compliance"
@@ -362,7 +362,7 @@
       },
       {
         "layer": "observability",
-        "choice": "Amazon CloudWatch + OpenTelemetry tracing + uptime checks and on-call paging",
+        "choice": "Azure Monitor + Application Insights + OpenTelemetry tracing + uptime checks and on-call paging",
         "justification": "Logs, metrics and traces stay in the same cloud and region as the data. 99.95% needs alerting that wakes someone up.",
         "driven_by": [
           "requirements.availability",
@@ -384,8 +384,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 1111,
-    "max": 3383,
+    "min": 1036,
+    "max": 3158,
     "assumptions": [
       "Scale level L3: ~60000 users, ~1500 peak concurrent, ~300 req/s at peak, ~3046.9 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
@@ -394,8 +394,8 @@
     ],
     "breakdown": {
       "hosting": [
-        225,
-        1350
+        150,
+        1050
       ],
       "database": [
         605,
@@ -447,7 +447,7 @@
     {
       "code": "BUDGET_HEADROOM",
       "severity": "info",
-      "message": "The low estimate ($1111) fits the $3000 budget, but the upper estimate ($3383) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
+      "message": "The low estimate ($1036) fits the $3000 budget, but the upper estimate ($3158) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -474,7 +474,7 @@
     "Priorities not given for cost, time_to_market, scalability, performance; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; estimated 3046.9 GB (52 MB per user).",
     "team.languages lists several languages; the first (typescript) is treated as the team's primary language.",
-    "cloud_preference=any: provider chosen by scoring (AWS)."
+    "cloud_preference=any: provider chosen by scoring (Microsoft Azure)."
   ],
   "validation_errors": [],
   "decision_trace": {
@@ -608,17 +608,9 @@
     ],
     "hosting": [
       {
-        "candidate": "AWS Elastic Beanstalk",
-        "score": 2.75,
-        "chosen": true,
-        "top_factors": [
-          "+1.00 multi-zone deployments for 99.95%"
-        ]
-      },
-      {
         "candidate": "Azure Container Apps",
         "score": 2.5,
-        "chosen": false,
+        "chosen": true,
         "top_factors": [
           "+1.00 multi-zone deployments for 99.95%",
           "-0.25 some infrastructure to operate"
@@ -631,6 +623,16 @@
         "top_factors": [
           "+1.00 multi-zone deployments for 99.95%",
           "-0.25 some infrastructure to operate"
+        ]
+      },
+      {
+        "candidate": "AWS ECS on Fargate (+ ALB)",
+        "score": 2.45,
+        "chosen": false,
+        "top_factors": [
+          "+1.00 private subnets, security groups and per-task IAM roles make the PCI/regulated scope auditable",
+          "+1.00 multi-zone deployments for 99.95%",
+          "-0.50 a fair amount of infrastructure to operate"
         ]
       }
     ]

@@ -3,7 +3,7 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok",
-  "summary": "Service oriented Spring Boot on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL Multi-AZ as the database in India; front end: Angular, React Native.",
+  "summary": "Service oriented Spring Boot on AWS ECS on Fargate with Amazon RDS for PostgreSQL Multi-AZ as the database in India; front end: Angular, React Native.",
   "architecture_style": "service_oriented",
   "architecture_rationale": {
     "text": "A Spring Boot core plus ml as separate services, because they have different runtimes/scaling needs; a 8-person team with DevOps can operate a few services. Microservices rejected: 8 engineer(s) cannot absorb their operational overhead.",
@@ -107,21 +107,23 @@
       ]
     },
     "hosting": {
-      "choice": "AWS Elastic Beanstalk (ap-south-1 Mumbai)",
-      "justification": "Managed web hosting on AWS (load balancer, auto scaling, health checks) without container orchestration. Fit for this project: multi-zone deployments for 99.95%; strong scalability, which you rated 4/5.",
+      "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
+      "justification": "Managed containers inside your own AWS VPC, multi-AZ. Fit for this project: strong scalability, which you rated 4/5; private subnets, security groups and per-task IAM roles make the PCI/regulated scope auditable; multi-zone deployments for 99.95%.",
       "driven_by": [
         "infrastructure.cloud_preference",
+        "priorities.scalability",
+        "compliance",
         "requirements.availability",
-        "priorities.scalability"
+        "team.has_devops"
       ],
       "alternatives": [
         {
           "choice": "AWS serverless (Lambda + API Gateway + S3/CloudFront) (ap-south-1 Mumbai)",
-          "why_not": "Lower overall fit: it scores lower once team skills, priorities and the other layers are combined."
+          "why_not": "Lower overall fit: the chosen option wins on compliance (private subnets, security groups and per-task IAM roles make the PCI/regulated scope auditable)."
         },
         {
-          "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
-          "why_not": "Close runner-up: a fair amount of infrastructure to operate."
+          "choice": "AWS Elastic Beanstalk (ap-south-1 Mumbai)",
+          "why_not": "Lower overall fit: less control over network isolation and task-level IAM than ECS for a regulated, high-availability workload; the chosen option wins on compliance (private subnets, security groups and per-task IAM roles make the PCI/regulated scope auditable)."
         },
         {
           "choice": "Azure Container Apps",
@@ -129,7 +131,8 @@
         }
       ],
       "tradeoffs": [
-        "Less flexible than ECS; platform versions must be kept current."
+        "More moving parts (VPC, ALB, task definitions, IAM) than a PaaS.",
+        "A fair amount of infrastructure to operate."
       ]
     },
     "supporting": [
@@ -390,8 +393,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 1155,
-    "max": 3515,
+    "min": 1305,
+    "max": 3965,
     "assumptions": [
       "Scale level L3: ~300000 users, ~10000 peak concurrent, ~2000 req/s at peak, ~500 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
@@ -401,8 +404,8 @@
     ],
     "breakdown": {
       "hosting": [
-        225,
-        1350
+        375,
+        2250
       ],
       "database": [
         350,
@@ -643,12 +646,13 @@
         ]
       },
       {
-        "candidate": "AWS Elastic Beanstalk",
-        "score": 2.57,
+        "candidate": "AWS ECS on Fargate (+ ALB)",
+        "score": 2.8,
         "chosen": true,
         "top_factors": [
-          "+1.00 multi-zone deployments for 99.95%",
-          "+0.52 strong scalability, which you rated 4/5"
+          "+1.05 strong scalability, which you rated 4/5",
+          "+1.00 private subnets, security groups and per-task IAM roles make the PCI/regulated scope auditable",
+          "+1.00 multi-zone deployments for 99.95%"
         ]
       },
       {

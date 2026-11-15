@@ -53,6 +53,26 @@ There are 33 tests (24 core + 7 regressions from independent review + 2 for rela
 python3 tests/fuzz.py 3000   # 3,000 random valid scenarios; fails on any exception
 ```
 
+## Key results
+
+- **33 unit tests pass** (`python3 -m unittest discover -s tests`): output contract, determinism, hard constraints, sensitivity, all edge-case categories, and regressions found in independent review.
+- **Fuzz: 3,000 random schema-valid scenarios, 0 exceptions** (`python3 tests/fuzz.py 3000`, fixed seed 42); every result is valid JSON with a status.
+- **Knowledge base:** 64 technologies across 6 layers, 15 providers with region and compliance facts, 29 dated end-of-life rules, 140+ cited source URLs (all listed in the report).
+- **Deterministic:** the same input gives byte-identical output; the six shipped outputs regenerate exactly (commands below).
+- **Hard constraints never violated silently:** excluded options appear as alternatives with the reason; contradictions return `infeasible` with verified `suggested_relaxations`.
+
+## Reproducible evidence
+
+```bash
+cd source
+python3 -m stacksense run scenarios/public/all_public.json --out-dir /tmp/check   # regenerate P1-P6
+for i in 1 2 3 4 5 6; do diff <(python3 -c "import json;d=json.load(open('/tmp/check/P${i}_output.json'));print(json.dumps(d['stack'],sort_keys=True))") <(python3 -c "import json;d=json.load(open('outputs/P${i}_output.json'));print(json.dumps(d['stack'],sort_keys=True))") && echo "P$i identical"; done
+python3 -m unittest discover -s tests
+python3 tests/fuzz.py 3000
+```
+
+Edge-case scenarios used in the report are in `scenarios/edge/` (13 files, one per category plus hard-conflict cases) with their outputs in `outputs/edge/`.
+
 ## 4. LLM switch
 
 **StackSense uses no LLM at all.** Description parsing is done by deterministic keyword rules (`stacksense/signals.py`), and every explanation is generated from the scoring trace. There is nothing to switch off: the LLM-off test passes by construction, and every output carries `"llm_used": false`.

@@ -582,6 +582,11 @@ def _hosting(cand, c, contribs):
         contribs.append(("extras.geo_spread", 1.0, "global edge network for worldwide users"))
     if r["auth"] == "enterprise_sso" and "easy_auth" in caps and any(v in ("entra", "ad_onprem") for k, v in c.hints if k == "idp"):
         contribs.append(("requirements.auth", 1.0, "built-in Entra ID sign-in (Easy Auth)"))
+    if cid == "beanstalk" and c.devops and (set(c.compliance) & {"pci_dss", "hipaa", "rbi_localisation"} or av in ("99.95", "99.99")):
+        contribs.append(("compliance" if set(c.compliance) & {"pci_dss", "hipaa", "rbi_localisation"} else "requirements.availability", -1.5,
+                         "less control over network isolation and task-level IAM than ECS for a regulated, high-availability workload"))
+    if cid == "ecs_fargate" and c.devops and (set(c.compliance) & {"pci_dss", "hipaa", "rbi_localisation"}):
+        contribs.append(("compliance", 1.0, "private subnets, security groups and per-task IAM roles make the PCI/regulated scope auditable"))
     if c.deploy == "self_hosted_cloud_vm" and cid == "vm_compose":
         contribs.append(("infrastructure.deployment_model", 1.5, "matches deployment_model=self_hosted_cloud_vm"))
     if cid == "vm_compose" and c.deploy == "managed_cloud":
