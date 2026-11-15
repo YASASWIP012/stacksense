@@ -3,8 +3,8 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok_with_warnings",
-  "summary": "Service oriented Laravel on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL as the database; front end: React + Vite, Progressive Web App.",
-  "architecture_style": "service_oriented",
+  "summary": "Monolith Laravel on DigitalOcean App Platform with DigitalOcean Managed PostgreSQL as the database; front end: React + Vite, Progressive Web App.",
+  "architecture_style": "monolith",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA) (web) + Progressive Web App (mobile)",
@@ -19,11 +19,11 @@
       "alternatives": [
         {
           "choice": "Next.js (React)",
-          "why_not": "Fit score 0.7 lower than the chosen option: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.type (well suited to gaming projects)."
+          "why_not": "Close runner-up: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.type (well suited to gaming projects)."
         },
         {
           "choice": "React Native (Expo)",
-          "why_not": "Fit score 0.8 lower than the chosen option: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.platforms (reuses the web codebase)."
+          "why_not": "Close runner-up: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.platforms (reuses the web codebase)."
         }
       ],
       "tradeoffs": [
@@ -50,11 +50,11 @@
       "alternatives": [
         {
           "choice": "ASP.NET Core (C#)",
-          "why_not": "Fit score 6.8 lower than the chosen option: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes PHP)."
+          "why_not": "Lower overall fit: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes PHP)."
         },
         {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-          "why_not": "Fit score 4.9 lower than the chosen option: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes PHP)."
+          "why_not": "Lower overall fit: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes PHP)."
         }
       ],
       "tradeoffs": [
@@ -63,7 +63,7 @@
       ]
     },
     "database": {
-      "choice": "Amazon RDS for PostgreSQL (us-east-1 N. Virginia)",
+      "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
       "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong performance, which you rated 5/5; strong time to market, which you rated 4/5.",
       "driven_by": [
         "priorities.performance",
@@ -72,11 +72,11 @@
       "alternatives": [
         {
           "choice": "Amazon DynamoDB (us-east-1 N. Virginia)",
-          "why_not": "Fit score 0.2 lower than the chosen option: proprietary API increases lock-in; learning curve 4/5 for a intermediate team."
+          "why_not": "Close runner-up: proprietary API increases lock-in; learning curve 4/5 for a intermediate team."
         },
         {
           "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
-          "why_not": "Fit score 0.7 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": [
@@ -84,8 +84,8 @@
       ]
     },
     "hosting": {
-      "choice": "AWS Elastic Beanstalk (us-east-1 N. Virginia)",
-      "justification": "Managed web hosting on AWS (load balancer, auto scaling, health checks) without container orchestration. Fit for this project: strong time to market, which you rated 4/5; strong performance, which you rated 5/5.",
+      "choice": "DigitalOcean App Platform (NYC3 New York)",
+      "justification": "Simple PaaS with managed Postgres and regions in India, Europe and the US. Fit for this project: strong time to market, which you rated 4/5; strong performance, which you rated 5/5.",
       "driven_by": [
         "priorities.time_to_market",
         "priorities.performance"
@@ -93,15 +93,15 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Fit score 4.9 lower than the chosen option: weaker overall fit once team skills, priorities and the other layers are combined."
+          "why_not": "Lower overall fit: it scores lower once team skills, priorities and the other layers are combined."
         },
         {
-          "choice": "DigitalOcean App Platform (NYC3 New York)",
-          "why_not": "Fit score 0.1 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
+          "choice": "AWS Elastic Beanstalk (us-east-1 N. Virginia)",
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": [
-        "Less flexible than ECS; platform versions must be kept current."
+        "Fewer managed services than AWS/GCP/Azure (no managed search or ML)."
       ]
     },
     "supporting": [
@@ -156,7 +156,7 @@
       },
       {
         "layer": "cache",
-        "choice": "Amazon ElastiCache for Valkey",
+        "choice": "DigitalOcean Managed Caching (Valkey)",
         "justification": "Caches hot reads and sessions to hold p95=150ms, and carries pub/sub for real-time fan-out.",
         "driven_by": [
           "requirements.p95_latency_ms",
@@ -245,8 +245,8 @@
       },
       {
         "layer": "observability",
-        "choice": "Amazon CloudWatch + OpenTelemetry tracing",
-        "justification": "Logs, metrics and traces stay in the same cloud and region as the data.",
+        "choice": "Sentry (errors + performance) + host logs",
+        "justification": "Free Developer plan catches errors in the backend and mobile apps with stack traces.",
         "driven_by": [
           "requirements.availability"
         ],
@@ -258,27 +258,27 @@
         ],
         "tradeoffs": [],
         "estimated_monthly_usd": [
-          50,
-          500
+          0,
+          26
         ]
       }
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 476,
-    "max": 3239,
+    "min": 316,
+    "max": 2065,
     "assumptions": [
       "Scale level L3: ~80000 users, ~4000 peak concurrent, ~800 req/s at peak, ~156.2 GB stored",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
-        150,
-        900
+        90,
+        500
       ],
       "database": [
-        166,
-        839
+        116,
+        539
       ],
       "auth": [
         0,
@@ -305,16 +305,16 @@
         50
       ],
       "observability": [
-        50,
-        500
+        0,
+        26
       ]
     }
   },
   "warnings": [
     {
-      "code": "OVER_BUDGET",
+      "code": "BUDGET_RISK",
       "severity": "warning",
-      "message": "Estimated $476-3239/month exceeds the $400 budget at the low end. Use the cheapest tier of each service or raise the budget.",
+      "message": "The low estimate ($316) fits the $400 budget, but growth to the high estimate ($2065) would be more than double it; set billing alerts and revisit sizing.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -352,8 +352,8 @@
     "compliance not given; defaulted to [].",
     "Priorities not given for cost, scalability, maintainability, security; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; estimated 156.2 GB (2 MB per user).",
-    "Relaxed: budget.monthly_infra_usd ($400) is below the ~$476 minimum of the compliant stack; the cheapest viable stack is shown.",
-    "cloud_preference=any: provider chosen by scoring (AWS)."
+    "Budget fallback: the top-scoring stack starts at ~$476/month, above the $400 budget; the best-scoring stack that fits (from ~$316/month, 0.0 fit points lower) was chosen instead.",
+    "cloud_preference=any: provider chosen by scoring (DigitalOcean)."
   ],
   "validation_errors": [],
   "derived": {

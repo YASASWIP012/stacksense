@@ -20,7 +20,7 @@
       "alternatives": [
         {
           "choice": "Django templates + HTMX",
-          "why_not": "Fit score 22.9 lower than the chosen option: the chosen option wins on project.type (well suited to content site projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": [
@@ -41,7 +41,7 @@
       "alternatives": [
         {
           "choice": "Django (Python)",
-          "why_not": "Fit score 22.0 lower than the chosen option: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "why_not": "Lower overall fit: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         }
       ],
       "tradeoffs": []
@@ -57,7 +57,7 @@
       "alternatives": [
         {
           "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
-          "why_not": "Fit score 15.3 lower than the chosen option: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "why_not": "Lower overall fit: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
       "tradeoffs": []
@@ -73,11 +73,11 @@
       "alternatives": [
         {
           "choice": "GitHub Pages",
-          "why_not": "Fit score 0.7 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         },
         {
           "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
-          "why_not": "Fit score 1.1 lower than the chosen option: the chosen option wins on project.type (well suited to content site projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": []
@@ -129,7 +129,7 @@
     "max": 0,
     "assumptions": [
       "Scale level L3: ~400000 users, ~20000 peak concurrent, ~4000 req/s at peak, ~1 GB stored",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [

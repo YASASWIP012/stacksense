@@ -2,7 +2,7 @@
   "scenario_id": "P5",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
+  "status": "ok_with_warnings",
   "summary": "Monolith ASP.NET Core on Azure App Service with Azure SQL Database as the database in India; front end: Blazor.",
   "architecture_style": "monolith",
   "stack": {
@@ -19,7 +19,7 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Fit score 4.0 lower than the chosen option: the chosen option wins on team.languages (team.languages includes C#)."
+          "why_not": "Lower overall fit: the chosen option wins on team.languages (team.languages includes C#)."
         }
       ],
       "tradeoffs": [
@@ -45,11 +45,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Fit score 6.6 lower than the chosen option: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
+          "why_not": "Lower overall fit: the chosen option wins on infrastructure.existing_systems (first-class Microsoft Entra ID integration)."
         },
         {
           "choice": "AWS Lambda + API Gateway",
-          "why_not": "Excluded: AWS is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
+          "why_not": "Excluded: AWS is not on Azure, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
         }
       ],
       "tradeoffs": [
@@ -71,15 +71,15 @@
       "alternatives": [
         {
           "choice": "Azure Database for PostgreSQL – Flexible Server (Central India (Pune))",
-          "why_not": "Fit score 2.4 lower than the chosen option: the chosen option wins on infrastructure.existing_systems (reuses the existing SQL Server / Azure SQL Database data and skills)."
+          "why_not": "Lower overall fit: the chosen option wins on infrastructure.existing_systems (reuses the existing SQL Server / Azure SQL Database data and skills)."
         },
         {
           "choice": "Azure Database for MySQL – Flexible Server (Central India (Pune))",
-          "why_not": "Fit score 4.2 lower than the chosen option: the chosen option wins on infrastructure.existing_systems (reuses the existing SQL Server / Azure SQL Database data and skills)."
+          "why_not": "Lower overall fit: the chosen option wins on infrastructure.existing_systems (reuses the existing SQL Server / Azure SQL Database data and skills)."
         },
         {
           "choice": "Cloud Firestore",
-          "why_not": "Excluded: Google Cloud is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
+          "why_not": "Excluded: Google Cloud is not on Azure, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
         }
       ],
       "tradeoffs": [
@@ -98,15 +98,15 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Fit score 11.6 lower than the chosen option: no india region (fine for public static files, but keeps the app outside the residency zone)."
+          "why_not": "Lower overall fit: no india region (fine for public static files, but keeps the app outside the residency zone)."
         },
         {
           "choice": "Azure Container Apps (Central India (Pune))",
-          "why_not": "Fit score 3.7 lower than the chosen option: some infrastructure to operate with no DevOps engineer; the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Lower overall fit: some infrastructure to operate with no DevOps engineer; the chosen option wins on project.type (well suited to internal tool projects)."
         },
         {
           "choice": "AWS Elastic Beanstalk",
-          "why_not": "Excluded: AWS is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
+          "why_not": "Excluded: AWS is not on Azure, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
         }
       ],
       "tradeoffs": [
@@ -288,7 +288,7 @@
     "max": 571,
     "assumptions": [
       "Scale level L2: ~1500 users, ~300 peak concurrent, ~60 req/s at peak, ~20 GB stored",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
@@ -327,6 +327,14 @@
   },
   "warnings": [
     {
+      "code": "BUDGET_HEADROOM",
+      "severity": "warning",
+      "message": "The low estimate ($102) fits the $300 budget, but the upper estimate ($571) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    },
+    {
       "code": "RENAMED_PRODUCT",
       "severity": "info",
       "message": "Existing system 'Microsoft Entra ID (Azure AD)': Azure AD is now Microsoft Entra ID; same service, new name. Integrate via OIDC/SAML. Source: https://learn.microsoft.com/en-us/entra/fundamentals/new-name",
@@ -340,14 +348,6 @@
       "message": "Existing system 'On-prem SQL Server 2019': Mainstream support ended 28 Feb 2025; extended (security-only) support runs to 8 Jan 2030. Plan an upgrade or migrate to Azure SQL Database. Source: https://learn.microsoft.com/en-us/lifecycle/products/sql-server-2019",
       "fields": [
         "infrastructure.existing_systems"
-      ]
-    },
-    {
-      "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "Upper estimate ($571) exceeds the $300 budget; watch usage as you grow.",
-      "fields": [
-        "budget.monthly_infra_usd"
       ]
     },
     {

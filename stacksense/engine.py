@@ -204,7 +204,7 @@ def provider_check(pid, c, role):
         return ("infrastructure.cloud_preference", "cloud_preference=none rules out the hyperscalers (%s)" % p["name"])
     if c.cloud in ("aws", "gcp", "azure") and family not in (c.cloud, "self"):
         return ("infrastructure.cloud_preference",
-                "%s is not on %s, and cloud_preference=%s is a hard constraint" % (p["name"], c.cloud.upper(), c.cloud))
+                "%s is not on %s, and cloud_preference=%s is a hard constraint" % (p["name"], {"aws": "AWS", "gcp": "Google Cloud", "azure": "Azure"}[c.cloud], c.cloud))
     if role in ("data", "compute") and c.eff_residency in ("india", "eu", "us") and c.eff_residency not in p["regions"]:
         why = p.get("residency_note") or "has no %s region for personal data" % (
             c.eff_residency.upper() if c.eff_residency != "india" else "India")
@@ -674,6 +674,8 @@ def realize_db(db, host, be, c):
     if bad:
         return None, bad
     selfm = "self-managed" in name
+    if c.req["availability"] in ("99.95", "99.99") and not selfm and prov in ("aws", "gcp", "azure"):
+        name += {"aws": " Multi-AZ", "gcp": " (regional HA)", "azure": " zone-redundant HA"}[prov]
     return {"name": "%s (%s)" % (name, _region(prov, c)), "provider": prov,
             "cost": db_service_cost(did, prov, selfm, c), "self": selfm}, None
 
@@ -732,6 +734,9 @@ def pair_rules(combo, c):
         return False, ("hosting", "%s cannot run a long-lived %s server" % (host["name"], be["name"])), out, None
     if be["id"] == "next_fullstack" and not (caps & {"functions", "containers"}):
         return False, ("hosting", "%s cannot run Next.js server code" % host["name"]), out, None
+    if be["id"] in ("supabase", "firebase") and "static" not in caps and caps & {"containers"} and not (
+            web and web["id"] in ("nextjs", "nuxt", "sveltekit", "angular", "blazor")):
+        out.append(("hosting", -2.0, "app-server hosting has nothing to run next to a backend-as-a-service"))
     if be["id"] in ("supabase", "firebase", "none") and not (caps & {"static", "functions", "containers", "baas"}):
         return False, ("hosting", "no static hosting"), out, None
     if web and web["id"] in ("nextjs", "nuxt", "sveltekit") and caps == {"static"} and be["id"] != "none":
@@ -933,9 +938,9 @@ def _why_not(alt, alt_contribs, chosen_contribs, gap, excl=None):
         if best_txt:
             parts.append("the chosen option wins on %s (%s)" % (f, best_txt[0][2]))
     if not parts:
-        parts.append("close runner-up; the chosen option combines better with the rest of the stack" if gap < 1.0
-                     else "weaker overall fit once team skills, priorities and the other layers are combined")
-    return "Fit score %.1f lower than the chosen option: %s." % (max(gap, 0.1), "; ".join(parts))
+        parts.append("it fits the rest of the stack less well" if gap < 1.0
+                     else "it scores lower once team skills, priorities and the other layers are combined")
+    return "%s: %s." % ("Close runner-up" if gap < 1.0 else "Lower overall fit", "; ".join(parts))
 
 
 def _component(choice, cand, contribs, pair, alts, ctx=None):
@@ -1021,7 +1026,7 @@ def recommend(raw):
                 "assumptions": [], "validation_errors": [{"field": "$", "message": str(e)}]}
 
 
-def _recommend(raw):
+def _recommend(raw, _nested=False):
     spec, errors, assumptions, notes = schema.validate(raw)
     sid = raw.get("scenario_id") if isinstance(raw, dict) else None
     base = {"scenario_id": sid, "engine_version": ENGINE_VERSION, "llm_used": False}
@@ -1050,6 +1055,7 @@ def _recommend(raw):
                                  "fields": ["project.description", field]})
     if hard:
         warnings = hard + warnings + soft_relax
+        base["suggested_relaxations"] = [] if _nested else suggest_relaxations(raw, [w["code"] for w in hard])
         base.update({"status": "infeasible",
                      "summary": "Hard constraints contradict each other (%s); no compliant stack exists until one "
                                 "is relaxed." % ", ".join(sorted({w["code"] for w in hard})),
@@ -1070,13 +1076,34 @@ def _recommend(raw):
         warnings.append({"code": "NO_FEASIBLE_STACK", "severity": "critical",
                          "message": "No stack satisfies every hard constraint: " + "; ".join(reasons) + ".",
                          "fields": fields or ["infrastructure"]})
+        base["suggested_relaxations"] = [] if _nested else suggest_relaxations(raw, ["NO_FEASIBLE_STACK"])
         base.update({"status": "infeasible", "summary": "No stack satisfies the hard constraints; see warnings.",
                      "architecture_style": None, "stack": None, "estimated_monthly_cost_usd": None,
                      "warnings": warnings, "assumptions": assumptions, "validation_errors": []})
         return base
 
     best = combos[0]
+    budget_note = None
+    if c.budget > 0 and not getattr(c, "_nested", False):
+        def _min_cost(row):
+            _t, _k, cb, _p, ds, _parts = row
+            sup, _w = choose_supporting(c, cb, ds, host_provider(cb["hosting"], c))
+            return estimate(c, cb, ds, sup, host_provider(cb["hosting"], c))["min"]
+        m0 = _min_cost(best)
+        if m0 > c.budget:
+            for row in combos[1:30]:
+                if best[0] - row[0] > 6.0:
+                    break
+                m = _min_cost(row)
+                if m <= c.budget:
+                    budget_note = ("Budget fallback: the top-scoring stack starts at ~$%d/month, above the $%g budget; the "
+                                   "best-scoring stack that fits (from ~$%d/month, %.1f fit points lower) was chosen instead."
+                                   % (m0, c.budget, m, best[0] - row[0]))
+                    best = row
+                    break
     total, key, combo, pair, dbs, parts = best
+    if budget_note:
+        assumptions.append(budget_note)
     pair_by_layer = {}
     layer_of = {"hosting": "hosting", "budget.monthly_infra_usd": "hosting", "requirements.realtime": "hosting",
                 "team.size": "hosting", "web": "web", "backend": "backend", "database": "database",
@@ -1152,6 +1179,29 @@ def _recommend(raw):
     warnings += sup_warn
     style = architecture_style(c, combo, supporting)
     cost = estimate(c, combo, dbs, supporting, host_provider(host, c))
+    if c.budget > 0 and cost["min"] > c.budget:
+        def _optional(sx):
+            ch = sx["choice"]
+            if sx["layer"] == "cdn":
+                return True
+            if sx["layer"] == "cache" and not c.req["realtime"] and "sorted sets" not in ch and "broker" not in sx["justification"]:
+                return True
+            if sx["layer"] == "other" and any(k in ch for k in ("WAF", "KMS", "Key Vault", "Vault")) and not (
+                    set(c.compliance) & {"pci_dss", "hipaa", "rbi_localisation"}):
+                return True
+            if sx["layer"] == "search" and ("OpenSearch" in ch or "Cloud" in ch) and dbs.get("name", "").startswith(("PostgreSQL", "Amazon RDS for PostgreSQL", "Azure Database for PostgreSQL", "Cloud SQL for PostgreSQL", "DigitalOcean Managed PostgreSQL")):
+                return True
+            return False
+        trimmed = []
+        for sx in sorted([x for x in supporting if _optional(x)], key=lambda x: -(x.get("estimated_monthly_usd") or [0, 0])[0]):
+            supporting.remove(sx)
+            trimmed.append(sx["choice"].split(" (")[0])
+            cost = estimate(c, combo, dbs, supporting, host_provider(host, c))
+            if cost["min"] <= c.budget:
+                break
+        if trimmed:
+            assumptions.append("Trimmed for budget: deferred %s until usage justifies them (start ~$%d/month)."
+                               % (", ".join(trimmed), cost["min"]))
     warnings += budget_warnings(c, cost, assumptions)
     warnings += soft_relax
     if c.residency == "none" and "gdpr" in c.compliance:
@@ -1206,6 +1256,41 @@ def supporting_preview(c, combo, dbs, host):
     return sup
 
 
+RELAX = {
+    "CLOUD_VS_DEPLOYMENT": [("infrastructure.cloud_preference", "none"), ("infrastructure.deployment_model", "managed_cloud")],
+    "NO_CLOUD_VS_CLOUD_DEPLOYMENT": [("infrastructure.cloud_preference", "any"), ("infrastructure.deployment_model", "on_premise")],
+    "RBI_VS_RESIDENCY": [("infrastructure.data_residency", "india"), ("compliance", "-rbi_localisation")],
+    "NO_FEASIBLE_STACK": [("infrastructure.cloud_preference", "any"), ("infrastructure.data_residency", "none"),
+                          ("infrastructure.deployment_model", "managed_cloud")],
+}
+
+
+def suggest_relaxations(raw, codes):
+    """Try the smallest single-field changes and report which ones make the scenario feasible (deterministic)."""
+    import copy as _copy
+    out, tried = [], set()
+    for code in codes:
+        for path, val in RELAX.get(code, []):
+            if (path, val) in tried:
+                continue
+            tried.add((path, val))
+            sc = _copy.deepcopy(raw)
+            if path == "compliance":
+                sc["compliance"] = [x for x in sc.get("compliance", []) if x != val.lstrip("-")]
+                change = "remove %s from compliance" % val.lstrip("-")
+            else:
+                sec, key = path.split(".")
+                sc.setdefault(sec, {})[key] = val
+                change = "set %s = %s" % (path, val)
+            try:
+                res = _recommend(sc, _nested=True)
+            except Exception:
+                continue
+            if res["status"] in ("ok", "ok_with_warnings"):
+                out.append({"change": change, "resulting_status": res["status"], "resulting_summary": res["summary"]})
+    return out
+
+
 def _dedupe(ws):
     seen, out = set(), []
     for w in ws:
@@ -1227,7 +1312,7 @@ def architecture_style(c, combo, supporting):
     ml_svc = any(s["layer"] == "ml" and s.get("separate_service") for s in supporting)
     if c.L >= 4 and c.size >= 15 and c.devops:
         return "microservices"
-    if realtime_svc or ml_svc:
+    if (realtime_svc or ml_svc) and c.size > 5:
         return "service_oriented"
     if c.size >= 4 or c.type in ("fintech", "healthtech", "saas_b2b", "marketplace", "ecommerce"):
         return "modular_monolith"
@@ -1274,8 +1359,9 @@ def budget_warnings(c, cost, assumptions):
                                "be more than double it; set billing alerts and revisit sizing." % (mn, c.budget, mx),
                     "fields": ["budget.monthly_infra_usd"]})
     elif c.budget > 0 and mx > c.budget:
-        out.append({"code": "BUDGET_HEADROOM", "severity": "info",
-                    "message": "Upper estimate ($%d) exceeds the $%g budget; watch usage as you grow." % (mx, c.budget),
+        out.append({"code": "BUDGET_HEADROOM", "severity": "warning" if mx > 1.5 * c.budget else "info",
+                    "message": "The low estimate ($%d) fits the $%g budget, but the upper estimate ($%d) exceeds it as usage "
+                               "grows; set billing alerts and use the cost-control notes in each component." % (mn, c.budget, mx),
                     "fields": ["budget.monthly_infra_usd"]})
     if c.budget == 0 and mn == 0 and c.deploy == "managed_cloud":
         out.append({"code": "FREE_TIER_LIMITS", "severity": "info",

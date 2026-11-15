@@ -67,12 +67,16 @@ def estimate(c, combo, dbs, supporting, host_pid):
         cs = s.get("estimated_monthly_usd")
         if cs:
             items.append((s["layer"], cs[0], cs[1]))
+    if c.req["auth"] == "phone_otp" and c.deploy != "air_gapped":
+        logins = max(c.users, 1)
+        items.append(("sms_otp", logins * 0.001, logins * 0.004))
+        assumptions.append("SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)")
     mn = sum(x[1] for x in items)
     mx = sum(x[2] for x in items)
     assumptions.insert(0, "Scale level L%d: ~%d users, ~%d peak concurrent, ~%d req/s at peak, ~%s GB stored" % (
         c.L, c.users, c.peak, c.rps, ("%g" % c.data_gb)))
     assumptions.append("List prices for the smallest production tier that fits; no reserved-instance or startup "
-                       "credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees")
+                       "credits; excludes domains, app-store fees and payment-gateway transaction fees")
     if c.deploy in ("on_premise", "air_gapped"):
         assumptions.append("On-premise: hardware purchase (capex) is excluded; figure covers power, licences and "
                            "maintenance contracts only")

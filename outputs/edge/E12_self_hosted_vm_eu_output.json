@@ -2,7 +2,7 @@
   "scenario_id": "E12",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
+  "status": "ok_with_warnings",
   "summary": "Modular monolith Django on DigitalOcean Droplet + Docker Compose with PostgreSQL as the database in EU; front end: Next.js, React Native.",
   "architecture_style": "modular_monolith",
   "stack": {
@@ -20,11 +20,11 @@
       "alternatives": [
         {
           "choice": "Nuxt (Vue)",
-          "why_not": "Fit score 1.6 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Progressive Web App",
-          "why_not": "Fit score 0.1 lower than the chosen option: limited camera/GPS access."
+          "why_not": "Close runner-up: limited camera/GPS access."
         }
       ],
       "tradeoffs": [
@@ -50,11 +50,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Fit score 0.2 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Close runner-up: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Node.js + Fastify",
-          "why_not": "Fit score 1.5 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
@@ -80,11 +80,11 @@
       "alternatives": [
         {
           "choice": "MySQL (in Docker Compose on the VM)",
-          "why_not": "Fit score 1.9 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "PostgreSQL + TimescaleDB (in Docker Compose on the VM)",
-          "why_not": "Fit score 3.5 lower than the chosen option: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Lower overall fit: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Cloud Firestore",
@@ -107,7 +107,7 @@
       "alternatives": [
         {
           "choice": "DigitalOcean Kubernetes (FRA1 Frankfurt)",
-          "why_not": "Fit score 17.8 lower than the chosen option: starts around $250/month against a $150 budget; Kubernetes is over-engineering for 3 engineers at this scale."
+          "why_not": "Lower overall fit: starts around $250/month against a $150 budget; Kubernetes is over-engineering for 3 engineers at this scale."
         },
         {
           "choice": "Azure Static Web Apps",
@@ -371,11 +371,12 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 26,
-    "max": 154,
+    "min": 56,
+    "max": 274,
     "assumptions": [
       "Scale level L2: ~30000 users, ~800 peak concurrent, ~160 req/s at peak, ~50 GB stored",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
@@ -429,14 +430,18 @@
       "observability": [
         0,
         26
+      ],
+      "sms_otp": [
+        30,
+        120
       ]
     }
   },
   "warnings": [
     {
       "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "Upper estimate ($154) exceeds the $150 budget; watch usage as you grow.",
+      "severity": "warning",
+      "message": "The low estimate ($56) fits the $150 budget, but the upper estimate ($274) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
       "fields": [
         "budget.monthly_infra_usd"
       ]

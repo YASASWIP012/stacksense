@@ -2,8 +2,8 @@
   "scenario_id": "E05",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
-  "summary": "Modular monolith Django on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL as the database in US; front end: Angular, React Native.",
+  "status": "ok_with_warnings",
+  "summary": "Modular monolith Django on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL Multi-AZ as the database in US; front end: Angular, React Native.",
   "architecture_style": "modular_monolith",
   "stack": {
     "frontend": {
@@ -18,11 +18,11 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Fit score 1.3 lower than the chosen option: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "why_not": "Lower overall fit: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "Ionic Capacitor",
-          "why_not": "Fit score 0.8 lower than the chosen option: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
+          "why_not": "Close runner-up: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
         }
       ],
       "tradeoffs": [
@@ -48,11 +48,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Fit score 1.1 lower than the chosen option: the chosen option wins on project.type (well suited to healthtech projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
           "choice": "FastAPI (Python)",
-          "why_not": "Fit score 2.3 lower than the chosen option: the chosen option wins on project.type (well suited to healthtech projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
@@ -65,7 +65,7 @@
       ]
     },
     "database": {
-      "choice": "Amazon RDS for PostgreSQL (us-east-1 N. Virginia)",
+      "choice": "Amazon RDS for PostgreSQL Multi-AZ (us-east-1 N. Virginia)",
       "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep patient records and appointments consistent; strong security, which you rated 5/5; well suited to healthtech projects; strong maintainability, which you rated 4/5. Data stays in us-east-1 N. Virginia to satisfy data_residency=us.",
       "driven_by": [
         "requirements.payments",
@@ -76,12 +76,12 @@
       ],
       "alternatives": [
         {
-          "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
-          "why_not": "Fit score 2.4 lower than the chosen option: the chosen option wins on project.type (well suited to healthtech projects)."
+          "choice": "Amazon RDS for MySQL Multi-AZ (us-east-1 N. Virginia)",
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
-          "choice": "Azure SQL Database (East US)",
-          "why_not": "Fit score 3.9 lower than the chosen option: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates."
+          "choice": "Azure SQL Database zone-redundant HA (East US)",
+          "why_not": "Lower overall fit: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates."
         }
       ],
       "tradeoffs": [
@@ -97,11 +97,11 @@
       "alternatives": [
         {
           "choice": "Azure Container Apps (East US)",
-          "why_not": "Fit score 0.2 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         },
         {
           "choice": "Google Cloud Run (us-central1 Iowa)",
-          "why_not": "Fit score 0.2 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": [
@@ -379,7 +379,7 @@
     "assumptions": [
       "Scale level L3: ~60000 users, ~1500 peak concurrent, ~300 req/s at peak, ~3046.9 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
@@ -435,8 +435,8 @@
   "warnings": [
     {
       "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "Upper estimate ($5819) exceeds the $3000 budget; watch usage as you grow.",
+      "severity": "warning",
+      "message": "The low estimate ($1111) fits the $3000 budget, but the upper estimate ($5819) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
       "fields": [
         "budget.monthly_infra_usd"
       ]

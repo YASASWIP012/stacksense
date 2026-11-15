@@ -2,7 +2,7 @@
   "scenario_id": "P2",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
+  "status": "ok_with_warnings",
   "summary": "Serverless Supabase on Vercel with PostgreSQL as the database in India; front end: Next.js, React Native.",
   "architecture_style": "serverless",
   "stack": {
@@ -20,11 +20,11 @@
       "alternatives": [
         {
           "choice": "Nuxt (Vue)",
-          "why_not": "Fit score 2.1 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Progressive Web App",
-          "why_not": "Fit score 0.1 lower than the chosen option: limited camera/GPS access."
+          "why_not": "Close runner-up: limited camera/GPS access."
         }
       ],
       "tradeoffs": [
@@ -53,11 +53,11 @@
       "alternatives": [
         {
           "choice": "Django (Python)",
-          "why_not": "Fit score 4.0 lower than the chosen option: the chosen option wins on requirements.realtime (native WebSocket/real-time support)."
+          "why_not": "Lower overall fit: the chosen option wins on requirements.realtime (native WebSocket/real-time support)."
         },
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Fit score 4.3 lower than the chosen option: the chosen option wins on timeline.mvp_weeks (a 3-person team ships in 8 weeks without building auth/storage)."
+          "why_not": "Lower overall fit: the chosen option wins on timeline.mvp_weeks (a 3-person team ships in 8 weeks without building auth/storage)."
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
@@ -83,7 +83,7 @@
       "alternatives": [
         {
           "choice": "Amazon RDS for MySQL (ap-south-1 Mumbai)",
-          "why_not": "Fit score 5.9 lower than the chosen option: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to marketplace projects)."
         }
       ],
       "tradeoffs": [
@@ -100,11 +100,11 @@
       "alternatives": [
         {
           "choice": "Cloudflare Pages",
-          "why_not": "Fit score 2.9 lower than the chosen option: static hosting only; the API must run elsewhere."
+          "why_not": "Lower overall fit: static hosting only; the API must run elsewhere."
         },
         {
           "choice": "AWS Elastic Beanstalk (ap-south-1 Mumbai)",
-          "why_not": "Fit score 0.5 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": [
@@ -320,12 +320,13 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 46,
-    "max": 213,
+    "min": 76,
+    "max": 333,
     "assumptions": [
       "Scale level L2: ~30000 users, ~800 peak concurrent, ~160 req/s at peak, ~50 GB stored",
       "Supabase Pro ($25/month) for production: free projects pause when idle and include ~1 GB of file storage",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
@@ -371,14 +372,18 @@
       "observability": [
         0,
         50
+      ],
+      "sms_otp": [
+        30,
+        120
       ]
     }
   },
   "warnings": [
     {
-      "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "Upper estimate ($213) exceeds the $150 budget; watch usage as you grow.",
+      "code": "BUDGET_RISK",
+      "severity": "warning",
+      "message": "The low estimate ($76) fits the $150 budget, but growth to the high estimate ($333) would be more than double it; set billing alerts and revisit sizing.",
       "fields": [
         "budget.monthly_infra_usd"
       ]

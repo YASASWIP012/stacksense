@@ -16,11 +16,11 @@
       "alternatives": [
         {
           "choice": "Django templates + HTMX",
-          "why_not": "Fit score 8.4 lower than the chosen option: the team would have to learn Python."
+          "why_not": "Lower overall fit: the team would have to learn Python."
         },
         {
           "choice": "Angular",
-          "why_not": "Fit score 0.5 lower than the chosen option: the team would have to learn TypeScript; learning curve 4/5 for a intermediate team; the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Close runner-up: the team would have to learn TypeScript; learning curve 4/5 for a intermediate team; the chosen option wins on project.type (well suited to internal tool projects)."
         }
       ],
       "tradeoffs": [
@@ -44,7 +44,7 @@
       "alternatives": [
         {
           "choice": "ASP.NET Core (C#)",
-          "why_not": "Fit score 8.4 lower than the chosen option: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java)."
+          "why_not": "Lower overall fit: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java)."
         },
         {
           "choice": "AWS Lambda + API Gateway",
@@ -69,11 +69,11 @@
       "alternatives": [
         {
           "choice": "MySQL (self-hosted)",
-          "why_not": "Fit score 1.7 lower than the chosen option: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "why_not": "Lower overall fit: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "SQL Server (licensed) (self-hosted)",
-          "why_not": "Fit score 3.1 lower than the chosen option: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates; the chosen option wins on team.languages (the team already writes SQL)."
+          "why_not": "Lower overall fit: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates; the chosen option wins on team.languages (the team already writes SQL)."
         },
         {
           "choice": "Cloud Firestore",
@@ -219,7 +219,7 @@
     "max": 60,
     "assumptions": [
       "Scale level L1: ~1200 users, ~200 peak concurrent, ~40 req/s at peak, ~2.3 GB stored",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees",
       "On-premise: hardware purchase (capex) is excluded; figure covers power, licences and maintenance contracts only"
     ],
     "breakdown": {

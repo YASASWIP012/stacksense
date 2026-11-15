@@ -3,7 +3,7 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok",
-  "summary": "Service oriented Spring Boot on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL as the database in India; front end: Angular, React Native.",
+  "summary": "Service oriented Spring Boot on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL Multi-AZ as the database in India; front end: Angular, React Native.",
   "architecture_style": "service_oriented",
   "stack": {
     "frontend": {
@@ -19,11 +19,11 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Fit score 0.8 lower than the chosen option: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "why_not": "Close runner-up: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "Kotlin Multiplatform + Compose Multiplatform",
-          "why_not": "Fit score 0.2 lower than the chosen option: younger ecosystem and smaller hiring pool."
+          "why_not": "Close runner-up: younger ecosystem and smaller hiring pool."
         }
       ],
       "tradeoffs": [
@@ -51,11 +51,11 @@
       "alternatives": [
         {
           "choice": "AWS Lambda + API Gateway",
-          "why_not": "Fit score 1.1 lower than the chosen option: the chosen option wins on project.type (well suited to fintech projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Fit score 4.8 lower than the chosen option: the chosen option wins on project.type (well suited to fintech projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
           "choice": "Azure Functions",
@@ -68,7 +68,7 @@
       ]
     },
     "database": {
-      "choice": "Amazon RDS for PostgreSQL (ap-south-1 Mumbai)",
+      "choice": "Amazon RDS for PostgreSQL Multi-AZ (ap-south-1 Mumbai)",
       "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep balances and ledger entries consistent; strong security, which you rated 5/5; well suited to fintech projects; strong maintainability, which you rated 4/5. Data stays in ap-south-1 Mumbai to satisfy data_residency=india. Model the ledger as append-only double-entry journal tables with SERIALIZABLE transactions.",
       "driven_by": [
         "requirements.payments",
@@ -80,12 +80,12 @@
       ],
       "alternatives": [
         {
-          "choice": "Amazon RDS for MySQL (ap-south-1 Mumbai)",
-          "why_not": "Fit score 2.4 lower than the chosen option: the chosen option wins on project.type (well suited to fintech projects)."
+          "choice": "Amazon RDS for MySQL Multi-AZ (ap-south-1 Mumbai)",
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
-          "choice": "Amazon RDS for SQL Server (ap-south-1 Mumbai)",
-          "why_not": "Fit score 3.7 lower than the chosen option: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates."
+          "choice": "Amazon RDS for SQL Server Multi-AZ (ap-south-1 Mumbai)",
+          "why_not": "Lower overall fit: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates."
         },
         {
           "choice": "Cloud Firestore",
@@ -107,11 +107,11 @@
       "alternatives": [
         {
           "choice": "AWS serverless (Lambda + API Gateway + S3/CloudFront) (ap-south-1 Mumbai)",
-          "why_not": "Fit score 1.1 lower than the chosen option: weaker overall fit once team skills, priorities and the other layers are combined."
+          "why_not": "Lower overall fit: it scores lower once team skills, priorities and the other layers are combined."
         },
         {
           "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
-          "why_not": "Fit score 0.8 lower than the chosen option: a fair amount of infrastructure to operate."
+          "why_not": "Close runner-up: a fair amount of infrastructure to operate."
         },
         {
           "choice": "Azure Container Apps",
@@ -380,12 +380,13 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 855,
-    "max": 5255,
+    "min": 1155,
+    "max": 6455,
     "assumptions": [
       "Scale level L3: ~300000 users, ~10000 peak concurrent, ~2000 req/s at peak, ~500 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
@@ -435,10 +436,22 @@
       "observability": [
         50,
         500
+      ],
+      "sms_otp": [
+        300,
+        1200
       ]
     }
   },
   "warnings": [
+    {
+      "code": "BUDGET_HEADROOM",
+      "severity": "info",
+      "message": "The low estimate ($1155) fits the $6000 budget, but the upper estimate ($6455) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    },
     {
       "code": "RBI_LOCALISATION",
       "severity": "info",

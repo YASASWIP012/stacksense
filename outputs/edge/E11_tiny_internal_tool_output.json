@@ -3,7 +3,7 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok_with_warnings",
-  "summary": "Monolith Django on DigitalOcean App Platform with DigitalOcean Managed PostgreSQL as the database; front end: Django templates + HTMX.",
+  "summary": "Monolith Django on Railway with MongoDB Atlas as the database; front end: Django templates + HTMX.",
   "architecture_style": "monolith",
   "stack": {
     "frontend": {
@@ -18,7 +18,7 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Fit score 10.9 lower than the chosen option: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
+          "why_not": "Lower overall fit: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
         }
       ],
       "tradeoffs": [
@@ -40,7 +40,7 @@
       "alternatives": [
         {
           "choice": "FastAPI (Python)",
-          "why_not": "Fit score 14.2 lower than the chosen option: the chosen option wins on project.type (well suited to internal tool projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to internal tool projects)."
         }
       ],
       "tradeoffs": [
@@ -49,48 +49,46 @@
       ]
     },
     "database": {
-      "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 5/5; well suited to internal tool projects.",
+      "choice": "MongoDB Atlas (AWS N. Virginia)",
+      "justification": "Flexible document model with Atlas Search and geo queries. Fit for this project: strong time to market, which you rated 5/5.",
       "driven_by": [
-        "priorities.cost",
-        "priorities.time_to_market",
-        "project.type"
+        "priorities.time_to_market"
       ],
       "alternatives": [
         {
           "choice": "SQLite (in Docker Compose on the VM)",
-          "why_not": "Fit score 4.6 lower than the chosen option: weaker overall fit once team skills, priorities and the other layers are combined."
+          "why_not": "Lower overall fit: it scores lower once team skills, priorities and the other layers are combined."
         },
         {
-          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
-          "why_not": "Fit score 1.3 lower than the chosen option: the chosen option wins on project.type (well suited to internal tool projects)."
+          "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": [
-        "Horizontal write scaling needs partitioning, read replicas or Citus."
+        "Multi-document transactions and joins are weaker than in a relational DB.",
+        "Server is SSPL-licensed (not OSI open source)."
       ]
     },
     "hosting": {
-      "choice": "DigitalOcean App Platform (NYC3 New York)",
-      "justification": "Simple PaaS with managed Postgres and regions in India, Europe and the US. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 5/5.",
+      "choice": "Railway (US East/West)",
+      "justification": "Usage-billed PaaS with one-click databases. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 5/5.",
       "driven_by": [
-        "budget.monthly_infra_usd",
         "priorities.time_to_market",
-        "priorities.cost"
+        "priorities.cost",
+        "team.size"
       ],
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Fit score 14.5 lower than the chosen option: weaker overall fit once team skills, priorities and the other layers are combined."
+          "why_not": "Lower overall fit: it scores lower once team skills, priorities and the other layers are combined."
         },
         {
-          "choice": "Railway (US East/West)",
-          "why_not": "Fit score 0.1 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
+          "choice": "DigitalOcean App Platform (NYC3 New York)",
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": [
-        "Fewer managed services than AWS/GCP/Azure (no managed search or ML).",
-        "Core stack starts near $12/month against a $10 budget."
+        "No India region; usage-based billing."
       ]
     },
     "supporting": [
@@ -157,20 +155,20 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 12,
-    "max": 71,
+    "min": 5,
+    "max": 56,
     "assumptions": [
       "Scale level L1: ~60 users, ~10 peak concurrent, ~2 req/s at peak, ~0.1 GB stored",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
         5,
-        25
+        20
       ],
       "database": [
-        7,
-        20
+        0,
+        10
       ],
       "auth": [
         0,
@@ -188,9 +186,9 @@
   },
   "warnings": [
     {
-      "code": "OVER_BUDGET",
+      "code": "BUDGET_RISK",
       "severity": "warning",
-      "message": "Estimated $12-71/month exceeds the $10 budget at the low end. Use the cheapest tier of each service or raise the budget.",
+      "message": "The low estimate ($5) fits the $10 budget, but growth to the high estimate ($56) would be more than double it; set billing alerts and revisit sizing.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -215,8 +213,8 @@
     "compliance not given; defaulted to [].",
     "Priorities not given for performance, maintainability, security; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; estimated 0.1 GB (2 MB per user).",
-    "Relaxed: budget.monthly_infra_usd ($10) is below the ~$12 minimum of the compliant stack; the cheapest viable stack is shown.",
-    "cloud_preference=any: provider chosen by scoring (DigitalOcean)."
+    "Budget fallback: the top-scoring stack starts at ~$12/month, above the $10 budget; the best-scoring stack that fits (from ~$5/month, 1.2 fit points lower) was chosen instead.",
+    "cloud_preference=any: provider chosen by scoring (Railway)."
   ],
   "validation_errors": [],
   "derived": {

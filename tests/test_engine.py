@@ -258,5 +258,18 @@ class JudgeRegressions(unittest.TestCase):
         self.assertIn("Connect", json.dumps(recommend(sc)["stack"]["supporting"]))
 
 
+class Relaxations(unittest.TestCase):
+    def test_infeasible_lists_verified_relaxations(self):
+        out = recommend(load("scenarios/edge/E10_rbi_vs_eu.json"))
+        self.assertEqual(out["status"], "infeasible")
+        self.assertTrue(out["suggested_relaxations"])
+        for r in out["suggested_relaxations"]:
+            self.assertIn(r["resulting_status"], ("ok", "ok_with_warnings"))
+
+    def test_budget_fallback_fits_budget(self):
+        out = recommend(load("scenarios/edge/E11_tiny_internal_tool.json"))
+        self.assertLessEqual(out["estimated_monthly_cost_usd"]["min"], 10)
+
+
 if __name__ == "__main__":
     unittest.main()

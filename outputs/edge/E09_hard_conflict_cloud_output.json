@@ -2,6 +2,18 @@
   "scenario_id": "E09",
   "engine_version": "1.0.0",
   "llm_used": false,
+  "suggested_relaxations": [
+    {
+      "change": "set infrastructure.cloud_preference = none",
+      "resulting_status": "ok_with_warnings",
+      "resulting_summary": "Modular monolith Django on On-premise servers with PostgreSQL as the database in India; front end: Next.js, React Native."
+    },
+    {
+      "change": "set infrastructure.deployment_model = managed_cloud",
+      "resulting_status": "ok_with_warnings",
+      "resulting_summary": "Modular monolith Django on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL as the database in India; front end: Next.js, React Native."
+    }
+  ],
   "status": "infeasible",
   "summary": "Hard constraints contradict each other (CLOUD_VS_DEPLOYMENT); no compliant stack exists until one is relaxed.",
   "architecture_style": null,

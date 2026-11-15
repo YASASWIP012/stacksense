@@ -78,7 +78,7 @@ def _domain_items(c, combo, dbs, hp, onprem, prior=()):
         hip = "hipaa" in c.compliance
         ch = "LiveKit (self-hosted in your cloud)" if (hip or onprem or c.eff_residency == "india") else "Daily (managed WebRTC video)"
         out.append(S("realtime", ch, "Video consultations need WebRTC with TURN relays; %s" % (
-            "self-hosting keeps media inside your HIPAA/residency boundary." if ch.startswith("LiveKit") else "a managed API avoids running media servers."),
+            ("self-hosting keeps media inside your %s boundary." % ("HIPAA and residency" if hip else "data-residency/compliance")) if ch.startswith("LiveKit") else "a managed API avoids running media servers."),
             ["project.description"] + (["compliance"] if hip else []),
             [("Zoom Video SDK", "Per-minute pricing; branding constraints."), ("Peer-to-peer WebRTC only", "Fails behind strict NATs without TURN.")],
             ["Media servers need bandwidth headroom."], (50, 600)))
@@ -199,7 +199,7 @@ def _existing_plan(c, combo, dbs, hp):
                 tool = (("ora2pg (or AWS SCT + DMS)" if hp == "aws" else "ora2pg") if "oracle" in low else "pgloader") if db_id == "postgres" else {"aws": "AWS DMS", "azure": "Azure DMS", "gcp": "Database Migration Service"}.get(hp, "an ETL script")
                 lines.append("%s: migrate to %s with %s; run both in parallel with change-data-capture until "
                              "cut-over, then retire the old server." % (src, dbs["name"].split(" (")[0], tool))
-        elif any(k in low for k in ("quickbooks", "xero", "zoho", "shopify", "hubspot", "tally", "freshdesk", "zendesk", "odk")):
+        elif any(k in low for k in ("quickbooks", "xero", "zoho", "shopify", "hubspot", "tally", "freshdesk", "zendesk", "odk", "whatsapp", "google workspace", "slack", "gmail", "notion", "jira")):
             lines.append("%s: a third-party product; keep it and integrate through its official API/webhooks behind an adapter "
                          "module (OAuth app, retry with idempotency keys)." % item)
         elif any(k in low for k in ("node", "api", "service", "backend", "php", "java", "django", "rails")):
@@ -300,6 +300,9 @@ def choose_supporting(c, combo, dbs, hp):
                     why = "Open-source IdP with SAML/OIDC that runs inside your network; no external identity service."
                     alts = [("Auth0 / Okta", "SaaS: not allowed for a %s deployment." % c.deploy.replace("_", "-"))]
                 drv.append("infrastructure.deployment_model")
+            elif "okta" in idp and ("okta" in (c.spec.get("project.description") or "").lower() or not has_entra):
+                ch, why = "Okta (existing IdP via OIDC)", "Reuses the company's Okta tenant named in the inputs; no new passwords or directory."
+                alts = [("Microsoft Entra ID", "Also listed, but the description names Okta as the SSO to use.") if has_entra else ("Keycloak", "Duplicates the existing IdP.")]
             elif has_entra or "ad_onprem" in idp:
                 ch = "Microsoft Entra ID (OIDC/SAML single sign-on)"
                 why = ("The organisation's directory is Microsoft (listed in existing_systems), so the app trusts Entra ID "

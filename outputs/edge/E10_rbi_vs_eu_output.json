@@ -2,6 +2,18 @@
   "scenario_id": "E10",
   "engine_version": "1.0.0",
   "llm_used": false,
+  "suggested_relaxations": [
+    {
+      "change": "set infrastructure.data_residency = india",
+      "resulting_status": "ok_with_warnings",
+      "resulting_summary": "Serverless Supabase on Vercel with PostgreSQL as the database in India; front end: Next.js, React Native."
+    },
+    {
+      "change": "remove rbi_localisation from compliance",
+      "resulting_status": "ok_with_warnings",
+      "resulting_summary": "Serverless Supabase on AWS Elastic Beanstalk with PostgreSQL as the database in EU; front end: Next.js, React Native."
+    }
+  ],
   "status": "infeasible",
   "summary": "Hard constraints contradict each other (RBI_VS_RESIDENCY); no compliant stack exists until one is relaxed.",
   "architecture_style": null,

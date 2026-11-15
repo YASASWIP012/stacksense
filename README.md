@@ -20,6 +20,8 @@ python3 -m stacksense serve            # opens on http://127.0.0.1:8000  (Ctrl+C
 python3 -m stacksense serve --port 8080   # if port 8000 is busy
 ```
 
+Or with Docker (optional): `docker compose up --build`, then open <http://127.0.0.1:8000>.
+
 Open <http://127.0.0.1:8000>, pick **P1–P6** or an edge case from the dropdown, or click **Import JSON** to load any scenario file. **Export output JSON** saves the result to your browser's download folder. For files written to a known path, use the CLI below.
 
 On Windows use `py -m stacksense serve` (or `python`), depending on how Python was installed.
@@ -45,7 +47,7 @@ The input must follow the standard schema in Section 3.2 of the problem statemen
 python3 -m unittest discover -s tests -v
 ```
 
-There are 31 tests (24 core + 7 regressions from independent review). They cover the output contract on all public scenarios, determinism, key-order independence, hard constraints (residency, cloud, on-premise), sensitivity to small input changes, and every edge-case category (missing and invalid fields, garbage input, contradictions, over-engineering traps, air-gapped deployment, end-of-life systems, infeasible hard conflicts).
+There are 33 tests (24 core + 7 regressions from independent review + 2 for relaxations and budget fallback). They cover the output contract on all public scenarios, determinism, key-order independence, hard constraints (residency, cloud, on-premise), sensitivity to small input changes, and every edge-case category (missing and invalid fields, garbage input, contradictions, over-engineering traps, air-gapped deployment, end-of-life systems, infeasible hard conflicts).
 
 ```bash
 python3 tests/fuzz.py 3000   # 3,000 random valid scenarios; fails on any exception
@@ -83,6 +85,8 @@ python3 tests/fuzz.py 3000   # 3,000 random valid scenarios; fails on any except
 | `stacksense/cost.py` | Order-of-magnitude monthly cost band with a per-layer breakdown and stated assumptions. |
 | `stacksense/server.py`, `web/` | Standard-library HTTP server and a vanilla-JS UI (form generated from the schema). |
 | `stacksense/cli.py` | `run` and `serve` commands. |
+
+**When constraints conflict.** An `infeasible` result includes `suggested_relaxations`: the single-field changes (e.g. `set infrastructure.data_residency = india`) that the engine re-ran and confirmed would make the scenario feasible. If the best stack starts above the budget, the engine falls back to the best-scoring stack that fits (within a small score margin) and records that in `assumptions`.
 
 **Data flow.** A scenario is validated first. Invalid input stops here. Next, a context is derived: scale level L1–L5 from users and peak concurrency, estimated req/s and data volume, effective residency (for example, `rbi_localisation` forces India), and description signals. Conflicting hard constraints stop with `infeasible`. Each candidate in each layer is then filtered by hard constraints and given a unary score, and the engine records every contribution as a (field, points, reason) triple. The top candidates per layer are combined exhaustively (up to a few thousand combinations), invalid pairings are dropped (e.g. Django on Netlify, SQLite on serverless, Supabase without Postgres), and pair bonuses or penalties plus the budget fit are added. The highest total wins, with ties broken by candidate id, which keeps the result deterministic. Those recorded contributions produce `driven_by`, the justifications, the alternatives' `why_not` and the trade-offs.
 

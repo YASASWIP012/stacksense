@@ -3,8 +3,8 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok_with_warnings",
-  "summary": "Service oriented Go on Azure Container Apps with Azure Database for PostgreSQL – Flexible Server as the database; front end: React + Vite.",
-  "architecture_style": "service_oriented",
+  "summary": "Modular monolith Go on Azure Container Apps with Azure Database for PostgreSQL – Flexible Server as the database; front end: React + Vite.",
+  "architecture_style": "modular_monolith",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA)",
@@ -20,11 +20,11 @@
       "alternatives": [
         {
           "choice": "Angular",
-          "why_not": "Fit score 1.1 lower than the chosen option: the chosen option wins on project.type (well suited to realtime collab projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to realtime collab projects)."
         },
         {
           "choice": "Next.js (React)",
-          "why_not": "Fit score 1.9 lower than the chosen option: the chosen option wins on project.type (well suited to realtime collab projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to realtime collab projects)."
         }
       ],
       "tradeoffs": [
@@ -50,11 +50,11 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Fit score 2.7 lower than the chosen option: the chosen option wins on project.type (well suited to realtime collab projects)."
+          "why_not": "Lower overall fit: the chosen option wins on project.type (well suited to realtime collab projects)."
         },
         {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-          "why_not": "Fit score 0.7 lower than the chosen option: the chosen option wins on project.type (well suited to realtime collab projects)."
+          "why_not": "Close runner-up: the chosen option wins on project.type (well suited to realtime collab projects)."
         }
       ],
       "tradeoffs": [
@@ -74,11 +74,11 @@
       "alternatives": [
         {
           "choice": "Azure Database for MySQL – Flexible Server (West Europe)",
-          "why_not": "Fit score 0.9 lower than the chosen option: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
+          "why_not": "Close runner-up: the chosen option wins on priorities.maintainability (strong maintainability, which you rated 4/5)."
         },
         {
           "choice": "TimescaleDB on Azure VM (self-managed) (West Europe)",
-          "why_not": "Fit score 1.7 lower than the chosen option: time-series extension adds operations without a time-series need."
+          "why_not": "Lower overall fit: time-series extension adds operations without a time-series need."
         }
       ],
       "tradeoffs": [
@@ -96,11 +96,11 @@
       "alternatives": [
         {
           "choice": "Azure Static Web Apps (West Europe)",
-          "why_not": "Fit score 0.7 lower than the chosen option: the chosen option wins on priorities.scalability (strong scalability, which you rated 5/5)."
+          "why_not": "Close runner-up: the chosen option wins on priorities.scalability (strong scalability, which you rated 5/5)."
         },
         {
           "choice": "Google Cloud Run (europe-west1 Belgium)",
-          "why_not": "Fit score 0.1 lower than the chosen option: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Close runner-up: it fits the rest of the stack less well."
         }
       ],
       "tradeoffs": [
@@ -326,7 +326,7 @@
     "max": 3315,
     "assumptions": [
       "Scale level L3: ~50000 users, ~5000 peak concurrent, ~1000 req/s at peak, ~200 GB stored",
-      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
