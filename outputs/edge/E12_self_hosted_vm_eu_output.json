@@ -196,7 +196,7 @@
       {
         "layer": "cdn",
         "choice": "Cloudflare (free plan)",
-        "justification": "Caches public pages and media close to users and absorbs traffic spikes.",
+        "justification": "Caches public pages and media close to users and absorbs traffic spikes. Private files (e.g. KYC or health documents) bypass the CDN and are served via short-lived signed links from the in-country bucket.",
         "driven_by": [
           "requirements.seo_critical",
           "requirements.file_media_storage"

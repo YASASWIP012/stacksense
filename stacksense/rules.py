@@ -21,11 +21,12 @@ def eol_warnings(existing):
         for pattern, name, end, msg, src in kb.EOL:
             if re.search(pattern, low):
                 past = end is not None and end <= kb.KB_DATE
+                if any(o["message"].startswith("Existing system '%s': %s" % (item, msg)) for o in out):
+                    continue
                 out.append({"code": "END_OF_LIFE" if end else "RENAMED_PRODUCT",
                             "severity": "warning" if past else "info",
                             "message": "Existing system '%s': %s Source: %s" % (item, msg, src),
                             "fields": ["infrastructure.existing_systems"]})
-                break
     return out
 
 
@@ -51,8 +52,8 @@ def conflicts(c, warnings, assumptions):
                       % (c.cloud, c.deploy), ["infrastructure.cloud_preference", "infrastructure.deployment_model"]))
     if c.cloud == "none" and c.deploy in ("managed_cloud", "self_hosted_cloud_vm"):
         hard.append(W("NO_CLOUD_VS_CLOUD_DEPLOYMENT", "critical",
-                      "cloud_preference=none (no public cloud) conflicts with deployment_model=%s, which needs a "
-                      "cloud provider." % c.deploy,
+                      "cloud_preference=none means no public cloud (use 'any' for no preference), but deployment_model=%s "
+                      "needs a cloud provider. Set cloud_preference to 'any' or choose on_premise." % c.deploy,
                       ["infrastructure.cloud_preference", "infrastructure.deployment_model"]))
     if "rbi_localisation" in c.compliance and c.residency in ("eu", "us", "other"):
         hard.append(W("RBI_VS_RESIDENCY", "critical",
@@ -153,7 +154,7 @@ def conflicts(c, warnings, assumptions):
         soft.append(W("PCI_SCOPE", "info",
                       "Taking payments: use the gateway's hosted checkout/SDK so card data never touches your "
                       "servers (PCI DSS SAQ A).", ["requirements.payments"]))
-    if r["payments"] and r["auth"] == "none":
+    if r["payments"] and r["auth"] == "none" and c.type != "content_site":
         soft.append(W("PAYMENTS_WITHOUT_AUTH", "warning",
                       "payments=true but auth=none: refunds, receipts and disputes usually need user accounts.",
                       ["requirements.payments", "requirements.auth"]))
@@ -183,7 +184,7 @@ def conflicts(c, warnings, assumptions):
                       "DPDP Act 2023: collect consent per purpose, honour erasure requests and report breaches; the "
                       "Act itself does not force India-only storage unless data_residency requires it.",
                       ["compliance"]))
-    if "gdpr" in c.compliance and c.residency == "none":
+    if "gdpr" in c.compliance and c.residency == "none" and c.deploy == "managed_cloud":
         soft.append(W("GDPR_REGION", "info",
                       "GDPR: an EU region is the simplest option; otherwise rely on the provider's DPA and SCCs.",
                       ["compliance", "infrastructure.data_residency"]))

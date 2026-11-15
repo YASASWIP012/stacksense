@@ -201,7 +201,8 @@
         "justification": "Metrics, dashboards and logs without any external SaaS.",
         "driven_by": [
           "requirements.availability",
-          "infrastructure.data_residency"
+          "infrastructure.data_residency",
+          "compliance"
         ],
         "alternatives": [
           {
@@ -273,6 +274,14 @@
       "fields": [
         "infrastructure.deployment_model",
         "requirements.auth"
+      ]
+    },
+    {
+      "code": "SKILL_GAP",
+      "severity": "warning",
+      "message": "The web choice (React + Vite (SPA)) needs JavaScript/TypeScript, which the team does not list; budget ramp-up time or a hire. It still scored best once constraints and other priorities were weighed.",
+      "fields": [
+        "team.languages"
       ]
     },
     {

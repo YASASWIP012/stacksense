@@ -36,7 +36,7 @@
     },
     "backend": {
       "choice": "None",
-      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost, which you rated 5/5; strong time to market, which you rated 4/5; strong security, which you rated 2/5.",
+      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
       "driven_by": [
         "project.type",
         "priorities.cost",
@@ -57,7 +57,7 @@
     },
     "database": {
       "choice": "None",
-      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost, which you rated 5/5; strong time to market, which you rated 4/5; strong security, which you rated 2/5.",
+      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
       "driven_by": [
         "project.type",
         "priorities.cost",
@@ -187,7 +187,7 @@
     "description_signals": {
       "markdown": "markdown"
     },
-    "combinations_evaluated": 477,
+    "combinations_evaluated": 488,
     "input_hash": "481bb0d49db0c843"
   }
 }

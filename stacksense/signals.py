@@ -11,7 +11,7 @@ import re
 SIGNALS = {
     "realtime": ([r"\bchat", r"real[- ]?time", r"\blive\b", r"multiplayer", r"collaborat", r"presence",
                   r"live cursor"], "live updates/chat"),
-    "media": ([r"upload", r"photo", r"image", r"video", r"document", r"\bkyc\b", r"attachment"],
+    "media": ([r"upload", r"photo", r"image", r"video", r"\bdocuments?\b", r"\bkyc\b", r"attachment"],
               "file/photo uploads"),
     "search": ([r"\bsearch", r"\bfind\b", r"catalog"], "search"),
     "offline": ([r"offline", r"intermittent", r"\b[23]g\b", r"no (network|signal|internet)",

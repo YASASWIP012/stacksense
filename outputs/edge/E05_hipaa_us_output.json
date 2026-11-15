@@ -2,8 +2,8 @@
   "scenario_id": "E05",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
-  "summary": "Modular monolith Django on Azure Container Apps with Azure Database for PostgreSQL – Flexible Server as the database in US; front end: Angular, React Native.",
+  "status": "ok_with_warnings",
+  "summary": "Modular monolith Django on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL as the database in US; front end: Angular, React Native.",
   "architecture_style": "modular_monolith",
   "stack": {
     "frontend": {
@@ -65,8 +65,8 @@
       ]
     },
     "database": {
-      "choice": "Azure Database for PostgreSQL – Flexible Server (East US)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep patient records and appointments consistent; strong security, which you rated 5/5; well suited to healthtech projects; strong maintainability, which you rated 4/5. Data stays in East US to satisfy data_residency=us.",
+      "choice": "Amazon RDS for PostgreSQL (us-east-1 N. Virginia)",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep patient records and appointments consistent; strong security, which you rated 5/5; well suited to healthtech projects; strong maintainability, which you rated 4/5. Data stays in us-east-1 N. Virginia to satisfy data_residency=us.",
       "driven_by": [
         "requirements.payments",
         "priorities.security",
@@ -76,11 +76,11 @@
       ],
       "alternatives": [
         {
-          "choice": "Azure Database for MySQL – Flexible Server (East US)",
+          "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
           "why_not": "Scored 2.4 points lower: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
-          "choice": "TimescaleDB on Azure VM (self-managed) (East US)",
+          "choice": "TimescaleDB on EC2 (self-managed) (us-east-1 N. Virginia)",
           "why_not": "Scored 5.1 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to healthtech projects)."
         }
       ],
@@ -89,23 +89,23 @@
       ]
     },
     "hosting": {
-      "choice": "Azure Container Apps (East US)",
-      "justification": "Serverless containers on Azure. Fit for this project: multi-zone deployments for 99.95%.",
+      "choice": "AWS Elastic Beanstalk (us-east-1 N. Virginia)",
+      "justification": "Managed web hosting on AWS (load balancer, auto scaling, health checks) without container orchestration. Fit for this project: multi-zone deployments for 99.95%.",
       "driven_by": [
         "requirements.availability"
       ],
       "alternatives": [
         {
-          "choice": "Google Cloud Run (us-central1 Iowa)",
-          "why_not": "Scored 0.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "choice": "Azure Container Apps (East US)",
+          "why_not": "Scored 0.2 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
-          "choice": "Cloud Storage + Cloud CDN (static site) (us-central1 Iowa)",
-          "why_not": "Scored 3.3 points lower: static hosting only; the API must run elsewhere."
+          "choice": "Google Cloud Run (us-central1 Iowa)",
+          "why_not": "Scored 0.2 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
-        "Dapr/KEDA concepts add learning."
+        "Less flexible than ECS; platform versions must be kept current."
       ]
     },
     "supporting": [
@@ -158,7 +158,7 @@
       },
       {
         "layer": "storage",
-        "choice": "Azure Blob Storage (East US)",
+        "choice": "Amazon S3 (us-east-1 N. Virginia) with pre-signed uploads",
         "justification": "Clients upload directly with pre-signed URLs, so large files never pass through the API; objects are encrypted at rest and private by default.",
         "driven_by": [
           "requirements.file_media_storage",
@@ -166,8 +166,8 @@
         ],
         "alternatives": [
           {
-            "choice": "SharePoint/OneDrive via Microsoft Graph",
-            "why_not": "Fine for documents, poor as app storage."
+            "choice": "Cloudflare R2",
+            "why_not": "No egress fees, but no India jurisdiction option."
           }
         ],
         "tradeoffs": [
@@ -180,8 +180,8 @@
       },
       {
         "layer": "cdn",
-        "choice": "Azure Front Door (Standard)",
-        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes.",
+        "choice": "Amazon CloudFront",
+        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes. Private files (e.g. KYC or health documents) bypass the CDN and are served via short-lived signed links from the in-country bucket.",
         "driven_by": [
           "requirements.file_media_storage"
         ],
@@ -221,7 +221,7 @@
       },
       {
         "layer": "cache",
-        "choice": "Azure Managed Redis",
+        "choice": "Amazon ElastiCache for Valkey",
         "justification": "Caches hot reads and sessions to hold p95=300ms, and doubles as the pub/sub and job-queue broker.",
         "driven_by": [
           "requirements.p95_latency_ms",
@@ -311,7 +311,7 @@
       },
       {
         "layer": "other",
-        "choice": "Azure Key Vault + Activity Log + Azure WAF",
+        "choice": "AWS KMS + Secrets Manager + CloudTrail + AWS WAF",
         "justification": "Compliance controls for HIPAA, SOC2: encryption keys you control, no secrets in code, tamper-evident audit logs and a web application firewall.",
         "driven_by": [
           "compliance"
@@ -352,11 +352,12 @@
       },
       {
         "layer": "observability",
-        "choice": "Azure Monitor + Application Insights + OpenTelemetry tracing + uptime checks and on-call paging",
+        "choice": "Amazon CloudWatch + OpenTelemetry tracing + uptime checks and on-call paging",
         "justification": "Logs, metrics and traces stay in the same cloud and region as the data. 99.95% needs alerting that wakes someone up.",
         "driven_by": [
           "requirements.availability",
-          "infrastructure.data_residency"
+          "infrastructure.data_residency",
+          "compliance"
         ],
         "alternatives": [
           {
@@ -373,8 +374,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 1061,
-    "max": 5769,
+    "min": 1136,
+    "max": 6069,
     "assumptions": [
       "Scale level L3: ~60000 users, ~1500 peak concurrent, ~300 req/s at peak, ~3046.9 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
@@ -382,8 +383,8 @@
     ],
     "breakdown": {
       "hosting": [
-        150,
-        1050
+        225,
+        1350
       ],
       "database": [
         605,
@@ -433,9 +434,9 @@
   },
   "warnings": [
     {
-      "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "Upper estimate ($5769) exceeds the $3000 budget; watch usage as you grow.",
+      "code": "BUDGET_RISK",
+      "severity": "warning",
+      "message": "The low estimate ($1136) fits the $3000 budget, but growth to the high estimate ($6069) would be more than double it; set billing alerts and revisit sizing.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -474,7 +475,7 @@
       "media": "upload",
       "realtime": "chat"
     },
-    "combinations_evaluated": 2648,
+    "combinations_evaluated": 3168,
     "input_hash": "9d56ee5bdcac43ce"
   }
 }

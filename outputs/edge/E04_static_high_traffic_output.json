@@ -68,7 +68,7 @@
           "why_not": "Scored 17.5 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         },
         {
-          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
+          "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
           "why_not": "Scored 20.5 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],

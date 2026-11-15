@@ -123,9 +123,12 @@ def backend_needs(c):
     needs = []
     if r["auth"] != "none":
         needs.append("requirements.auth")
+    static_ok = c.type == "content_site" and r["auth"] == "none"
     for k in ("payments", "realtime", "file_media_storage", "multi_tenant", "full_text_search",
               "offline_support"):
         if r[k]:
+            if static_ok and k in ("full_text_search", "payments", "file_media_storage"):
+                continue  # Pagefind index, hosted payment page, images in the repo/CDN
             needs.append("requirements.%s" % k)
     if r["ml_features"] != "none":
         needs.append("requirements.ml_features")
@@ -183,7 +186,8 @@ def provider_check(pid, c, role):
     if pid is None:
         return None
     p = kb.PROVIDERS[pid]
-    if c.cloud in ("aws", "gcp", "azure") and pid not in (c.cloud, "self"):
+    family = {"azure_swa": "azure", "firebase": "gcp"}.get(pid, pid)
+    if c.cloud in ("aws", "gcp", "azure") and family not in (c.cloud, "self"):
         return ("infrastructure.cloud_preference",
                 "%s is not on %s, and cloud_preference=%s is a hard constraint" % (p["name"], c.cloud.upper(), c.cloud))
     if role in ("data", "compute") and c.eff_residency in ("india", "eu", "us") and c.eff_residency not in p["regions"]:
@@ -252,7 +256,7 @@ def score(cand, layer, c):
     for key, attr in PRI_ATTR:
         v = c.pri[key]
         d = 0.35 * (v - 1) / 2.0 * (cand[attr] - 3)
-        if abs(d) >= 0.3 and v != 3:
+        if abs(d) >= 0.3 and v >= 4:
             word = {"cheap": "cost", "ttm": "time to market", "scale": "scalability", "perf": "performance",
                     "maint": "maintainability", "sec": "security"}[attr]
             contribs.append(("priorities.%s" % key, d, "%s %s, which you rated %d/5" % (
@@ -270,7 +274,7 @@ def score(cand, layer, c):
     if cand["maturity"] < 4:
         contribs.append(("priorities.maintainability", -0.5 * (4 - cand["maturity"]), "younger ecosystem and smaller hiring pool"))
     aff = cand["types"].get(c.type, 0)
-    if aff:
+    if aff and c.type != "other":
         contribs.append(("project.type", 0.6 * aff, "well suited to %s projects" % c.type.replace("_", " ")))
     if cand["scale"] < c.L - 1:
         contribs.append(("scale.users_12_months", -1.5 * (c.L - 1 - cand["scale"]),
@@ -297,7 +301,8 @@ def _budget_term(cand, c, contribs, share_frac):
     share = c.budget * share_frac
     if mn <= 0:
         if c.budget == 0:
-            contribs.append(("budget.monthly_infra_usd", 1.0, "fits a $0 budget on the free tier"))
+            contribs.append(("budget.monthly_infra_usd", 1.0, "fits a $0 budget on the free tier" if c.deploy == "managed_cloud"
+                             else "no recurring cloud bill (runs on your own servers)"))
         return
     if c.budget == 0:
         contribs.append(("budget.monthly_infra_usd", -5.0, "costs at least $%d/month but the budget is $0" % mn))
@@ -410,13 +415,20 @@ def _backend(cand, c, contribs):
         if c.type in ("fintech", "healthtech") or "pci_dss" in c.compliance or "hipaa" in c.compliance:
             contribs.append(("compliance", -2.5, "audited money/health logic spread across RLS and functions is hard to review"))
         if c.L >= 4:
-            contribs.append(("scale.users_12_months", -1.5, "large scale outgrows a single BaaS project"))
+            contribs.append(("scale.users_12_months", -1.5 if c.L == 4 else -5.0, "large scale outgrows a single BaaS project"))
         if c.size >= 6:
             contribs.append(("team.size", -1.0, "a %d-person team benefits from an explicit service codebase" % c.size))
         if c.size <= 3 and c.mvp <= 10:
             contribs.append(("timeline.mvp_weeks", 1.0, "a %d-person team ships in %d weeks without building auth/storage" % (c.size, c.mvp)))
         if r["offline_support"] and "offline" in caps:
             contribs.append(("requirements.offline_support", 0.8, "SDK offline cache"))
+        if r["auth"] == "enterprise_sso":
+            contribs.append(("requirements.auth", -1.5, "enterprise SSO and directory integration need server-side code and a paid SSO add-on"))
+        if any(k == "integration" for k, _ in c.hints):
+            contribs.append(("infrastructure.existing_systems", -1.5, "integrations with %s need a server you control" %
+                             ", ".join(v.split(" (")[0] for k, v in c.hints if k == "integration")))
+        if c.platforms == ["api_only"]:
+            contribs.append(("project.platforms", -3.0, "client SDK features (offline cache, live listeners) are unused by an API-only product"))
     if "serverless" in caps:
         if r["p95_latency_ms"] and r["p95_latency_ms"] <= 200:
             contribs.append(("requirements.p95_latency_ms", -1.5, "cold starts threaten p95=%dms" % r["p95_latency_ms"]))
@@ -506,6 +518,8 @@ def _database(cand, c, contribs):
         contribs.append(("requirements.multi_tenant", 0.5, "row-level security / tenant_id isolation"))
     if r["offline_support"] and "offline_sync" in caps:
         contribs.append(("requirements.offline_support", 0.6, "client SDK sync"))
+    if c.platforms == ["api_only"] and caps & {"offline_sync", "realtime_db"}:
+        contribs.append(("project.platforms", -3.0, "client-SDK features (offline cache, listeners) do not help an API-only service"))
     for kind, val in c.hints:
         if kind == "db" and val == cid:
             contribs.append(("infrastructure.existing_systems", 2.5, "reuses the existing %s data and skills" % cand["name"]))
@@ -554,6 +568,9 @@ def _hosting(cand, c, contribs):
         contribs.append(("infrastructure.deployment_model", 1.5, "matches deployment_model=self_hosted_cloud_vm"))
     if cid == "vm_compose" and c.deploy == "managed_cloud":
         contribs.append(("infrastructure.deployment_model", -1.0, "you manage the OS although managed_cloud was requested"))
+    pz = kb.PROVIDERS.get(pid, {}).get("regions")
+    if pz and c.eff_residency in ("india", "eu", "us") and c.eff_residency not in pz:
+        contribs.append(("infrastructure.data_residency", -1.5, "no %s region (fine for public static files, but keeps the app outside the residency zone)" % c.eff_residency))
     if c.is_static and caps & {"containers", "vm"} and "static" not in caps:
         contribs.append(("project.type", -2.5, "paying for servers to serve static files"))
     if c.needs_backend and not (caps & {"containers", "functions", "serverless", "baas", "vm", "onprem", "k8s"}):
@@ -708,7 +725,8 @@ def pair_rules(combo, c):
     # compute residency/compliance on the host
     compute = be["id"] in SERVER_BACKENDS or be["id"] == "next_fullstack"
     ssr = bool(web and web["id"] in ("nextjs", "nuxt", "sveltekit", "blazor", "angular") and not caps <= {"static", "cdn", "edge_fn"})
-    if compute or (ssr and any(x in HARD_COMPLIANCE for x in c.compliance)):
+    runs_code = ssr or bool(caps & {"functions", "edge_fn"} and web and web["id"] in ("nextjs", "nuxt", "sveltekit"))
+    if compute or (runs_code and (any(x in HARD_COMPLIANCE for x in c.compliance) or c.eff_residency in ("india", "eu", "us"))):
         bad = provider_check(host_provider(host, c), c, "compute")
         if bad:
             return False, bad, out, None
@@ -973,7 +991,7 @@ def _recommend(raw):
         if name in sigmod.IMPLIES:
             field, val = sigmod.IMPLIES[name]
             key = field.split(".", 1)[1]
-            if c.req.get(key) != val:
+            if c.req.get(key) != val and not any(field in a for a in assumptions if a.startswith("Relaxed")):
                 warnings.append({"code": "DESCRIPTION_MISMATCH", "severity": "info",
                                  "message": "The description mentions '%s' but %s is %s. StackSense follows the "
                                             "structured field; check it." % (matched, field, json.dumps(c.req.get(key))),
@@ -1014,7 +1032,8 @@ def _recommend(raw):
                 "requirements.auth": "backend", "team.has_devops": "database", "requirements.availability": "database",
                 "requirements.offline_support": "backend"}
     for f, d, t in pair:
-        pair_by_layer.setdefault(layer_of.get(f, "hosting"), []).append((f, d, t))
+        lay = "backend" if ("included in" in t or "come from one managed service" in t) else layer_of.get(f, "hosting")
+        pair_by_layer.setdefault(lay, []).append((f, d, t))
 
     stack = {}
     # frontend
@@ -1082,6 +1101,23 @@ def _recommend(raw):
     cost = estimate(c, combo, dbs, supporting, host_provider(host, c))
     warnings += budget_warnings(c, cost, assumptions)
     warnings += soft_relax
+    team = set(c.langs)
+    if team:
+        for layer in ("backend", "web", "mobile"):
+            if layer in combo:
+                need = set(combo[layer]["langs"]) - {"sql", "html", "css"}
+                fam = {kb.LANG_FAMILY.get(x) for x in need} - {None}
+                if need and not (need & team) and not (fam & {kb.LANG_FAMILY.get(x) for x in team}):
+                    warnings.append({"code": "SKILL_GAP", "severity": "warning",
+                                     "message": "The %s choice (%s) needs %s, which the team does not list; budget ramp-up time "
+                                                "or a hire. It still scored best once constraints and other priorities were weighed."
+                                                % (layer, combo[layer]["name"], "/".join(LANG_LABEL.get(x, x) for x in sorted(need))),
+                                     "fields": ["team.languages"]})
+    if c.L >= 5:
+        warnings.append({"code": "HYPERSCALE", "severity": "warning",
+                         "message": "%d users / %d concurrent is hyperscale: treat this stack as a starting point and plan "
+                                    "sharding, multi-region and capacity testing with specialists." % (c.users, c.peak),
+                         "fields": ["scale.users_12_months", "scale.peak_concurrent_users"]})
     warnings = _dedupe(warnings)
     sev = {w["severity"] for w in warnings}
     status = "ok_with_warnings" if (sev & {"warning", "critical"}) else "ok"
@@ -1157,13 +1193,13 @@ def budget_warnings(c, cost, assumptions):
                     "fields": ["budget.monthly_infra_usd"]})
         assumptions.append("Relaxed: budget.monthly_infra_usd ($0) treated as soft; cheapest viable stack shown.")
     elif c.budget > 0 and mn > c.budget:
-        sev = "critical" if mn > 2 * c.budget else "warning"
+        sev = "critical" if mn > 1.5 * c.budget else "warning"
         out.append({"code": "OVER_BUDGET", "severity": sev,
                     "message": "Estimated $%d-%d/month exceeds the $%g budget at the low end. Use the cheapest tier of "
                                "each service or raise the budget." % (mn, mx, c.budget),
                     "fields": ["budget.monthly_infra_usd"]})
-        if sev == "critical":
-            assumptions.append("Relaxed: budget.monthly_infra_usd ($%g) cannot fund the minimum compliant stack." % c.budget)
+        assumptions.append("Relaxed: budget.monthly_infra_usd ($%g) is below the ~$%d minimum of the compliant stack; "
+                           "the cheapest viable stack is shown." % (c.budget, mn))
     elif c.budget > 0 and mx > 2 * c.budget:
         out.append({"code": "BUDGET_RISK", "severity": "warning",
                     "message": "The low estimate ($%d) fits the $%g budget, but growth to the high estimate ($%d) would "
@@ -1173,7 +1209,7 @@ def budget_warnings(c, cost, assumptions):
         out.append({"code": "BUDGET_HEADROOM", "severity": "info",
                     "message": "Upper estimate ($%d) exceeds the $%g budget; watch usage as you grow." % (mx, c.budget),
                     "fields": ["budget.monthly_infra_usd"]})
-    if c.budget == 0 and mn == 0:
+    if c.budget == 0 and mn == 0 and c.deploy == "managed_cloud":
         out.append({"code": "FREE_TIER_LIMITS", "severity": "info",
                     "message": "Runs on free tiers; check their bandwidth/build limits if traffic grows.",
                     "fields": ["budget.monthly_infra_usd"]})

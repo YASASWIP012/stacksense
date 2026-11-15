@@ -148,8 +148,7 @@
         "choice": "Sentry (errors + performance) + host logs",
         "justification": "Free Developer plan catches crashes in the app and mobile clients with stack traces.",
         "driven_by": [
-          "requirements.availability",
-          "infrastructure.data_residency"
+          "requirements.availability"
         ],
         "alternatives": [
           {
@@ -223,7 +222,8 @@
     "requirements.seo_critical not given; defaulted to false.",
     "compliance not given; defaulted to [].",
     "Priorities not given for performance, maintainability, security; defaulted to 3.",
-    "scale.data_volume_gb_12_months not given; estimated 0.1 GB (2 MB per user)."
+    "scale.data_volume_gb_12_months not given; estimated 0.1 GB (2 MB per user).",
+    "Relaxed: budget.monthly_infra_usd ($10) is below the ~$12 minimum of the compliant stack; the cheapest viable stack is shown."
   ],
   "validation_errors": [],
   "derived": {

@@ -105,16 +105,16 @@
       ],
       "alternatives": [
         {
+          "choice": "Azure Static Web Apps (East US 2)",
+          "why_not": "Scored 11.4 points lower: no india region (fine for public static files, but keeps the app outside the residency zone)."
+        },
+        {
           "choice": "Azure Container Apps (Central India (Pune))",
           "why_not": "Scored 3.7 points lower: operational burden (ops 2/5) with no DevOps engineer; the chosen option wins on project.type (well suited to internal tool projects)."
         },
         {
-          "choice": "Azure VM + Docker Compose (Central India (Pune))",
-          "why_not": "Scored 5.5 points lower: operational burden (ops 3/5) with no DevOps engineer; you manage the OS although managed_cloud was requested."
-        },
-        {
-          "choice": "Azure Static Web Apps",
-          "why_not": "Excluded: Azure Static Web Apps is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
+          "choice": "AWS Elastic Beanstalk",
+          "why_not": "Excluded: AWS is not on AZURE, and cloud_preference=azure is a hard constraint (infrastructure.cloud_preference)."
         }
       ],
       "tradeoffs": [
@@ -137,7 +137,7 @@
           }
         ],
         "tradeoffs": [
-          "Account recovery and MFA flows must still be designed."
+          "Sign-in depends on the corporate IdP's availability; keep a break-glass admin account."
         ],
         "estimated_monthly_usd": [
           0,
@@ -147,7 +147,7 @@
       {
         "layer": "storage",
         "choice": "Azure Blob Storage (Central India (Pune))",
-        "justification": "Clients upload directly with pre-signed URLs, so large files never pass through the API; objects are encrypted at rest and private by default.",
+        "justification": "Clients upload directly with short-lived SAS tokens, so large files never pass through the API; objects are encrypted at rest and private by default.",
         "driven_by": [
           "requirements.file_media_storage",
           "infrastructure.data_residency"
@@ -274,7 +274,8 @@
         "justification": "Logs, metrics and traces stay in the same cloud and region as the data; Sentry has no India data region.",
         "driven_by": [
           "requirements.availability",
-          "infrastructure.data_residency"
+          "infrastructure.data_residency",
+          "compliance"
         ],
         "alternatives": [
           {
@@ -378,7 +379,7 @@
       "internal": "employee",
       "workflow": "approval"
     },
-    "combinations_evaluated": 560,
+    "combinations_evaluated": 564,
     "input_hash": "0fba875cbb3220d3"
   }
 }

@@ -51,11 +51,11 @@
       "alternatives": [
         {
           "choice": "Node.js + Fastify",
-          "why_not": "Scored 2.6 points lower: the chosen option wins on timeline.mvp_weeks (a 1-person team ships in 3 weeks without building auth/storage)."
+          "why_not": "Scored 1.9 points lower: the chosen option wins on timeline.mvp_weeks (a 1-person team ships in 3 weeks without building auth/storage)."
         },
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 3.3 points lower: learning curve 3/5 for a beginner team."
+          "why_not": "Scored 2.6 points lower: learning curve 3/5 for a beginner team."
         }
       ],
       "tradeoffs": [
@@ -79,8 +79,8 @@
           "why_not": "Scored 2.2 points lower: proprietary API increases lock-in; the chosen option wins on priorities.cost (strong cost, which you rated 5/5)."
         },
         {
-          "choice": "Azure Database for MySQL – Flexible Server (East US)",
-          "why_not": "Scored 3.9 points lower: the chosen option wins on project.type (well suited to social projects)."
+          "choice": "Amazon RDS for MySQL (us-east-1 N. Virginia)",
+          "why_not": "Scored 3.2 points lower: the chosen option wins on project.type (well suited to social projects)."
         }
       ],
       "tradeoffs": [
@@ -89,13 +89,12 @@
     },
     "hosting": {
       "choice": "Cloudflare Pages",
-      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 5/5; real-time channels included in Supabase.",
+      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 5/5.",
       "driven_by": [
         "budget.monthly_infra_usd",
         "priorities.cost",
         "priorities.time_to_market",
         "project.type",
-        "requirements.realtime",
         "team.size"
       ],
       "alternatives": [
@@ -246,8 +245,7 @@
         "choice": "Sentry (errors + performance) + host logs + uptime checks and on-call paging",
         "justification": "Free Developer plan catches crashes in the app and mobile clients with stack traces. 99.99% needs alerting that wakes someone up.",
         "driven_by": [
-          "requirements.availability",
-          "infrastructure.data_residency"
+          "requirements.availability"
         ],
         "alternatives": [
           {
@@ -268,6 +266,7 @@
     "max": 3981,
     "assumptions": [
       "Scale level L4: ~2000000 users, ~80000 peak concurrent, ~16000 req/s at peak, ~20000 GB stored",
+      "Supabase Pro ($25/month) for production: free projects pause when idle and include ~1 GB of file storage",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
     ],
     "breakdown": {

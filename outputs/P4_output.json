@@ -3,7 +3,7 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok",
-  "summary": "Service oriented Spring Boot on AWS ECS on Fargate with Amazon RDS for PostgreSQL as the database in India; front end: Angular, React Native.",
+  "summary": "Service oriented Spring Boot on AWS Elastic Beanstalk with Amazon RDS for PostgreSQL as the database in India; front end: Angular, React Native.",
   "architecture_style": "service_oriented",
   "stack": {
     "frontend": {
@@ -19,7 +19,7 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 0.8 points lower: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
+          "why_not": "Scored 0.9 points lower: the chosen option wins on priorities.security (strong security, which you rated 5/5)."
         },
         {
           "choice": "Kotlin Multiplatform + Compose Multiplatform",
@@ -51,7 +51,7 @@
       "alternatives": [
         {
           "choice": "AWS Lambda + API Gateway",
-          "why_not": "Scored 0.9 points lower: proprietary API increases lock-in; the chosen option wins on project.type (well suited to fintech projects)."
+          "why_not": "Scored 1.7 points lower: proprietary API increases lock-in; the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
           "choice": "NestJS (Node.js, TypeScript)",
@@ -97,22 +97,21 @@
       ]
     },
     "hosting": {
-      "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
-      "justification": "Managed containers inside your own AWS VPC, multi-AZ. Fit for this project: strong scalability, which you rated 4/5; multi-zone deployments for 99.95%.",
+      "choice": "AWS Elastic Beanstalk (ap-south-1 Mumbai)",
+      "justification": "Managed web hosting on AWS (load balancer, auto scaling, health checks) without container orchestration. Fit for this project: multi-zone deployments for 99.95%; strong scalability, which you rated 4/5.",
       "driven_by": [
         "infrastructure.cloud_preference",
-        "priorities.scalability",
         "requirements.availability",
-        "team.has_devops"
+        "priorities.scalability"
       ],
       "alternatives": [
         {
           "choice": "AWS serverless (Lambda + API Gateway + S3/CloudFront) (ap-south-1 Mumbai)",
-          "why_not": "Scored 0.9 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Scored 1.7 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
-          "choice": "Amazon EC2 + Docker Compose (ap-south-1 Mumbai)",
-          "why_not": "Scored 2.1 points lower: you manage the OS although managed_cloud was requested; fixed capacity under spiky traffic; the chosen option wins on priorities.scalability (strong scalability, which you rated 4/5)."
+          "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
+          "why_not": "Scored 0.8 points lower: operational burden (ops 3/5)."
         },
         {
           "choice": "Azure Container Apps",
@@ -120,8 +119,7 @@
         }
       ],
       "tradeoffs": [
-        "More moving parts (VPC, ALB, task definitions, IAM) than a PaaS.",
-        "Operational burden (ops 3/5)."
+        "Less flexible than ECS; platform versions must be kept current."
       ]
     },
     "supporting": [
@@ -204,7 +202,7 @@
       {
         "layer": "cdn",
         "choice": "Amazon CloudFront",
-        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes.",
+        "justification": "Caches uploaded media and static assets close to users and absorbs traffic spikes. Private files (e.g. KYC or health documents) bypass the CDN and are served via short-lived signed links from the in-country bucket.",
         "driven_by": [
           "requirements.file_media_storage"
         ],
@@ -364,7 +362,8 @@
         "justification": "Logs, metrics and traces stay in the same cloud and region as the data; Sentry has no India data region. 99.95% needs alerting that wakes someone up.",
         "driven_by": [
           "requirements.availability",
-          "infrastructure.data_residency"
+          "infrastructure.data_residency",
+          "compliance"
         ],
         "alternatives": [
           {
@@ -381,8 +380,8 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 1030,
-    "max": 6405,
+    "min": 880,
+    "max": 5505,
     "assumptions": [
       "Scale level L3: ~300000 users, ~10000 peak concurrent, ~2000 req/s at peak, ~500 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
@@ -390,8 +389,8 @@
     ],
     "breakdown": {
       "hosting": [
-        375,
-        2250
+        225,
+        1350
       ],
       "database": [
         350,
@@ -441,14 +440,6 @@
   },
   "warnings": [
     {
-      "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "Upper estimate ($6405) exceeds the $6000 budget; watch usage as you grow.",
-      "fields": [
-        "budget.monthly_infra_usd"
-      ]
-    },
-    {
       "code": "RBI_LOCALISATION",
       "severity": "info",
       "message": "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, must stay in India. Use an Indian DR region (e.g. AWS ap-south-2 Hyderabad / Azure South India) and keep observability data in-country.",
@@ -490,7 +481,7 @@
       "payments": "upi",
       "subscription": "emi"
     },
-    "combinations_evaluated": 1992,
+    "combinations_evaluated": 2616,
     "input_hash": "95a4a7261e2bb928"
   }
 }

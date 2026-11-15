@@ -6,9 +6,9 @@ smallest sensible production tier at each scale level. They are not quotes.
 from . import kb
 
 # managed relational DB by scale level (single instance; doubled for multi-AZ)
-BIG3_RDB = {1: (15, 35), 2: (30, 120), 3: (150, 800), 4: (800, 5000), 5: (5000, 30000)}
+BIG3_RDB = {1: (15, 35), 2: (30, 120), 3: (150, 800), 4: (400, 2500), 5: (2500, 15000)}
 PAAS_RDB = {1: (7, 20), 2: (15, 100), 3: (100, 500), 4: (500, 3000), 5: (3000, 15000)}
-SERVERLESS_DB = {1: (0, 5), 2: (5, 50), 3: (50, 500), 4: (500, 5000), 5: (5000, 30000)}
+SERVERLESS_DB = {1: (0, 5), 2: (5, 50), 3: (50, 500), 4: (300, 2500), 5: (2500, 15000)}
 ATLAS = {1: (0, 10), 2: (57, 150), 3: (200, 1000), 4: (1000, 6000), 5: (6000, 30000)}
 NEON = {1: (0, 19), 2: (19, 70), 3: (70, 700), 4: (700, 4000), 5: (4000, 20000)}
 AZURE_SQL = {1: (5, 15), 2: (15, 150), 3: (150, 1000), 4: (1000, 6000), 5: (6000, 30000)}
@@ -55,7 +55,12 @@ def estimate(c, combo, dbs, supporting, host_pid):
         assumptions.append("Compute sized for at least two zones for %s%% availability" % c.req["availability"])
     items = [("hosting", lo, hi)]
     if be["cost"] is not kb.FREE:
-        items.append(("backend", be["cost"][c.L][0], be["cost"][c.L][1]))
+        bl, bh = be["cost"][c.L]
+        if be["id"] == "supabase" and (c.commercial or (c.data_gb or 0) > 1 or c.users > 1000):
+            bl = max(bl, 25)
+            bh = max(bh, 60)
+            assumptions.append("Supabase Pro ($25/month) for production: free projects pause when idle and include ~1 GB of file storage")
+        items.append(("backend", bl, bh))
     if dbs and not dbs.get("included"):
         items.append(("database", dbs["cost"][0], dbs["cost"][1]))
     for s in supporting:

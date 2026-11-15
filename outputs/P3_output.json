@@ -164,15 +164,15 @@
       },
       {
         "layer": "storage",
-        "choice": "Azure Blob Storage (nearest region)",
-        "justification": "Clients upload directly with pre-signed URLs, so large files never pass through the API; objects are encrypted at rest and private by default.",
+        "choice": "Azure Blob Storage (West Europe)",
+        "justification": "Clients upload directly with short-lived SAS tokens, so large files never pass through the API; objects are encrypted at rest and private by default.",
         "driven_by": [
           "requirements.file_media_storage"
         ],
         "alternatives": [
           {
-            "choice": "SharePoint/OneDrive via Microsoft Graph",
-            "why_not": "Fine for documents, poor as app storage."
+            "choice": "Amazon S3",
+            "why_not": "Cross-cloud egress and identity."
           }
         ],
         "tradeoffs": [
@@ -305,8 +305,7 @@
         "choice": "Azure Monitor + Application Insights + OpenTelemetry tracing",
         "justification": "Logs, metrics and traces stay in the same cloud and region as the data.",
         "driven_by": [
-          "requirements.availability",
-          "infrastructure.data_residency"
+          "requirements.availability"
         ],
         "alternatives": [
           {

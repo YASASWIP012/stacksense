@@ -40,7 +40,7 @@ def _india(c):
             or "india" in text or "upi" in text)
 
 
-def _domain_items(c, combo, dbs, hp, onprem):
+def _domain_items(c, combo, dbs, hp, onprem, prior=()):
     out = []
     d = (c.spec.get("project.description") or "").lower()
     if c.type == "iot" or "timeseries" in c.signals:
@@ -79,6 +79,29 @@ def _domain_items(c, combo, dbs, hp, onprem):
         out.append(S("other", ch, "Several non-developer editors need drafts, roles, scheduling and media management; the site "
                      "pulls content from the CMS at build time and the CDN serves the pages.", ["project.type", "team.size"],
                      [("Markdown in Git", "Fine for one developer-author, not for an editorial team.")], [], (10, 60)))
+    if ("leaderboard" in d or "ranking" in d) and not any(x["layer"] == "cache" for x in prior):
+        ch = {"aws": "Amazon ElastiCache for Valkey (sorted sets)", "gcp": "Memorystore for Valkey (sorted sets)",
+              "azure": "Azure Managed Redis (sorted sets)"}.get(hp, "Valkey/Redis sorted sets")
+        out.append(S("cache", ch, "Leaderboards are sorted sets: ZADD/ZREVRANGE give rank and top-N in O(log n), well inside a tight p95; "
+                     "scores are persisted to the database for history.", ["project.description", "requirements.p95_latency_ms"],
+                     [("ORDER BY on the database", "Rank queries get slow and hot under write-heavy score updates.")], [], (15, 200)))
+    if "video" in d and any(k in d for k in ("lecture", "course", "recorded", "stream", "vod", "on-demand")):
+        if c.eff_residency == "india" or hp == "aws":
+            ch = "S3 + AWS Elemental MediaConvert (HLS) + CloudFront (%s)" % kb.PROVIDERS["aws"]["region_label"].get(c.eff_residency if c.eff_residency != "none" else ("eu" if "gdpr" in c.compliance else "none"), "same region as the database")
+        elif hp == "azure":
+            ch = "Azure Blob + transcoding (FFmpeg jobs) + Azure Front Door"
+        else:
+            ch = "Mux or Cloudflare Stream (managed transcoding + HLS delivery)"
+        out.append(S("other", ch, "Recorded video must be transcoded to adaptive HLS so it plays on low bandwidth, and delivered from a CDN; "
+                     "egress, not storage, dominates the cost.", ["project.description", "requirements.file_media_storage"],
+                     [("Serving MP4 files from object storage", "No adaptive bitrate: buffering on mobile networks.")],
+                     ["Video egress cost grows with watch time."], (30, 800)))
+    if c.type == "ecommerce" and (c.traffic == "spiky" or any(k in d for k in ("flash", "oversell", "limited stock", "drop"))):
+        out.append(S("other", "Inventory reservation (atomic Valkey DECR + DB row lock) and a virtual waiting room",
+                     "Flash sales oversell when many checkouts read the same stock; reserving stock atomically in Valkey, confirming "
+                     "with a row lock in the transaction, and queueing excess visitors keeps orders correct under spikes.",
+                     ["scale.traffic_pattern", "project.description"],
+                     [("Checking stock in application code", "Race conditions oversell under concurrency.")], [], (0, 50)))
     if "hipaa" in c.compliance and not onprem:
         out.append(S("other", "HIPAA programme: BAAs with every vendor that touches PHI", "Sign a Business Associate Agreement with "
                      "the cloud provider and each PHI-handling vendor before launch, keep PHI out of logs, push payloads and analytics, "
@@ -89,10 +112,12 @@ def _domain_items(c, combo, dbs, hp, onprem):
 
 def _push_use(c):
     d = (c.spec.get("project.description") or "").lower()
-    if c.type == "fintech" or "emi" in d or "loan" in d:
+    if "emi" in d or "loan" in d:
         return "EMI due-date reminders and disbursal/repayment status"
+    if c.type == "fintech":
+        return "transaction alerts and security notices"
     if c.req["offline_support"]:
-        return "sync-status nudges and new survey assignments"
+        return "sync-status nudges and new assignments"
     if "booking" in c.signals or c.type == "marketplace":
         return "booking and job-status updates"
     if c.req["realtime"]:
@@ -153,6 +178,18 @@ def choose_supporting(c, combo, dbs, hp):
     onprem = c.deploy in ("on_premise", "air_gapped")
     airgap = c.deploy == "air_gapped"
     if be == "none":
+        if r["full_text_search"]:
+            out.append(S("search", "Pagefind (static search index built at deploy time)",
+                         "Search runs entirely in the browser from an index generated during the build, so a static site needs no search server or budget.",
+                         ["requirements.full_text_search", "budget.monthly_infra_usd"],
+                         [("Algolia DocSearch", "Free for open-source docs, but an external service and application."),
+                          ("Postgres/Meilisearch", "Would add a server to a site that has none.")], [], (0, 0)))
+        if r["payments"]:
+            pay = "Razorpay Payment Pages / Payment Button" if _india(c) else "Stripe Payment Links"
+            out.append(S("payments", pay, "A hosted payment page handles the donation/checkout, receipts and card/UPI data, so the static site "
+                         "only links to it: no backend, PCI scope stays with the gateway.", ["requirements.payments"],
+                         [("Custom checkout with a backend", "Needs a server and webhooks for no benefit at this scale.")],
+                         ["Gateway transaction fees apply."], (0, 0)))
         out.append(S("ci_cd", "GitHub Actions (build and deploy on push)",
                      "Builds the static site on every push to main and deploys it; free for public repos.",
                      ["project.type", "budget.monthly_infra_usd"],
@@ -169,10 +206,14 @@ def choose_supporting(c, combo, dbs, hp):
     # ---------------------------------------------------------------- auth
     if r["auth"] != "none":
         drv = ["requirements.auth"]
-        if be == "supabase":
+        if be in ("supabase", "firebase") and r["auth"] == "enterprise_sso" and idp:
+            be_auth_override = True
+        else:
+            be_auth_override = False
+        if be == "supabase" and not be_auth_override:
             ch, why = "Supabase Auth", "Included in the Supabase project; issues JWTs that Postgres RLS policies check."
             alts = [("Clerk", "Separate vendor; user data stored in the US.")]
-        elif be == "firebase":
+        elif be == "firebase" and not be_auth_override:
             ch, why = "Firebase Authentication", "Included with Firebase; drop-in UI for email, phone and social sign-in."
             alts = [("Auth0", "Extra vendor for no gain here.")]
         elif r["auth"] == "enterprise_sso":
@@ -272,7 +313,8 @@ def choose_supporting(c, combo, dbs, hp):
             drv.append("requirements.auth")
             alts.append(("Firebase phone auth", "Firebase Authentication processes data in the US."))
         out.append(S("auth", ch, why, sorted(set(drv)), alts,
-                     ["Account recovery and MFA flows must still be designed."],
+                     ["Sign-in depends on the corporate IdP's availability; keep a break-glass admin account."] if r["auth"] == "enterprise_sso"
+                     else ["Account recovery and MFA flows must still be designed."],
                      (0, 25) if L <= 2 else (25, 250)))
 
     # ---------------------------------------------------------------- payments
@@ -281,7 +323,16 @@ def choose_supporting(c, combo, dbs, hp):
         sub = "subscription" in c.signals
         if _india(c):
             drv += ["infrastructure.data_residency"] if c.eff_residency == "india" else []
-            if c.type == "fintech" or "disburs" in (c.spec.get("project.description") or "").lower():
+            desc_l = (c.spec.get("project.description") or "").lower()
+            if c.type == "fintech" and ("wallet" in desc_l or "prepaid" in desc_l):
+                ch = "RBI-licensed PPI partner (e.g. via a sponsor bank) + Razorpay/Cashfree for top-ups"
+                why = ("A stored-value wallet is a Prepaid Payment Instrument under RBI rules: it needs a PPI licence or a licensed "
+                       "partner bank; top-ups and withdrawals run over UPI through a payment aggregator.")
+                alts = [("Holding balances yourself", "Not allowed without an RBI PPI authorisation.")]
+                warns.append({"code": "RBI_PPI_LICENCE", "severity": "warning",
+                              "message": "Wallets that hold customer money in India need an RBI Prepaid Payment Instrument licence or a licensed partner.",
+                              "fields": ["project.type", "project.description"]})
+            elif "disburs" in desc_l or "emi" in desc_l or "loan" in desc_l:
                 ch = "Razorpay (UPI/cards + UPI Autopay/eNACH for EMIs) + RazorpayX Payouts"
                 why = ("Indian, RBI-authorised payment aggregator and PCI DSS Level 1: collects EMIs through UPI "
                        "Autopay/eNACH mandates and disburses loans to bank accounts/UPI via RazorpayX payouts. "
@@ -343,14 +394,15 @@ def choose_supporting(c, combo, dbs, hp):
             ch = "MinIO (self-hosted S3-compatible object storage)"
             alts = [("Ceph RGW", "Much heavier to operate.")]
         elif hp == "aws" or c.cloud == "aws":
-            ch = "Amazon S3 (%s) with pre-signed uploads" % kb.PROVIDERS["aws"]["region_label"].get(c.eff_residency, "nearest region")
+            ch = "Amazon S3 (%s) with pre-signed uploads" % kb.PROVIDERS["aws"]["region_label"].get(c.eff_residency if c.eff_residency != "none" else ("eu" if "gdpr" in c.compliance else "none"), "same region as the database")
             alts = [("Cloudflare R2", "No egress fees, but no India jurisdiction option.")]
         elif hp == "gcp":
-            ch = "Google Cloud Storage (%s)" % kb.PROVIDERS["gcp"]["region_label"].get(c.eff_residency, "nearest region")
+            ch = "Google Cloud Storage (%s)" % kb.PROVIDERS["gcp"]["region_label"].get(c.eff_residency if c.eff_residency != "none" else ("eu" if "gdpr" in c.compliance else "none"), "same region as the database")
             alts = [("Amazon S3", "Cross-cloud egress and IAM.")]
         elif hp == "azure":
-            ch = "Azure Blob Storage (%s)" % kb.PROVIDERS["azure"]["region_label"].get(c.eff_residency, "nearest region")
-            alts = [("SharePoint/OneDrive via Microsoft Graph", "Fine for documents, poor as app storage.")]
+            ch = "Azure Blob Storage (%s)" % kb.PROVIDERS["azure"]["region_label"].get(c.eff_residency if c.eff_residency != "none" else ("eu" if "gdpr" in c.compliance else "none"), "same region as the database")
+            alts = [("SharePoint/OneDrive via Microsoft Graph", "Fine for documents, poor as app storage.")] if any(
+                "Graph" in v for k, v in c.hints) else [("Amazon S3", "Cross-cloud egress and identity.")]
         elif hp == "digitalocean":
             ch = "DigitalOcean Spaces (%s)" % kb.PROVIDERS["digitalocean"]["region_label"].get(c.eff_residency, "nearest region")
             alts = [("Amazon S3", "Another vendor and egress fees.")]
@@ -360,8 +412,8 @@ def choose_supporting(c, combo, dbs, hp):
             else:
                 ch = "Cloudflare R2 (S3-compatible, no egress fees)"
             alts = [("Amazon S3", "Egress fees for media-heavy apps.")]
-        why = ("Clients upload directly with pre-signed URLs, so large files never pass through the API; objects "
-               "are encrypted at rest and private by default.")
+        why = ("Clients upload directly with %s, so large files never pass through the API; objects "
+               "are encrypted at rest and private by default." % ("short-lived SAS tokens" if "Azure Blob" in ch else "pre-signed URLs"))
         if "kyc" in (c.spec.get("project.description") or "").lower():
             why += " KYC documents go in a separate bucket with KMS keys, short-lived links and access logging."
             drv.append("project.description")
@@ -378,8 +430,9 @@ def choose_supporting(c, combo, dbs, hp):
         ch = {"aws": "Amazon CloudFront", "gcp": "Cloud CDN", "azure": "Azure Front Door (Standard)"}.get(hp, "Cloudflare (free plan)")
         cdrv = [f for f, on in (("requirements.seo_critical", r["seo_critical"]), ("requirements.file_media_storage", r["file_media_storage"]),
                                 ("extras.geo_spread", c.extras.get("geo_spread") in ("multi_region", "global"))) if on]
+        note = " Private files (e.g. KYC or health documents) bypass the CDN and are served via short-lived signed links from the in-country bucket." if c.eff_residency in ("india", "eu", "us") and r["file_media_storage"] else ""
         what = "public pages and media" if r["seo_critical"] else ("uploaded media and static assets" if r["file_media_storage"] else "static assets")
-        out.append(S("cdn", ch, "Caches %s close to users and absorbs traffic spikes." % what, cdrv,
+        out.append(S("cdn", ch, "Caches %s close to users and absorbs traffic spikes.%s" % (what, note), cdrv,
                      [("No CDN", "Slower first loads for public pages and media.")], [],
                      ((35, 60) if hp == "azure" else (0, 20)) if L <= 2 else (40, 250)))
 
@@ -562,9 +615,12 @@ def choose_supporting(c, combo, dbs, hp):
             elif hp == "aws" and c.devops and c.budget >= 2000:
                 ch = "Amazon SageMaker real-time endpoint (%s) for the scoring model" % kb.PROVIDERS["aws"]["region_label"].get(c.eff_residency, "same region")
                 sep, cost = True, (100, 600)
-            else:
+            elif "python" in c.langs or not c.langs:
                 ch = "Python FastAPI scoring service (XGBoost/LightGBM) beside the main backend"
                 sep, cost = True, (10, 100)
+            else:
+                ch = "Model trained offline, served in-process via ONNX Runtime from the %s backend" % combo["backend"]["name"].split(" (")[0]
+                sep, cost = False, (0, 0)
             why = ("Serves a model you train on your own data behind an internal API; versioned models and logged "
                    "inputs/outputs make every decision explainable and auditable.")
             if c.type == "fintech":
@@ -605,7 +661,7 @@ def choose_supporting(c, combo, dbs, hp):
         lib = {"rn_expo": "expo-sqlite (or WatermelonDB)", "kotlin_android": "Room + WorkManager",
                "flutter": "drift (SQLite)", "kmp": "SQLDelight", "swift_ios": "SwiftData",
                "capacitor": "@capacitor-community/sqlite", "pwa": "IndexedDB + Background Sync"}.get(mobile["id"], "SQLite")
-        why = ("Every survey/form is saved to %s on the device first and placed in an outbox; a background job "
+        why = ("Every record/form is saved to %s on the device first and placed in an outbox; a background job "
                "syncs when signal returns using idempotent upload IDs, so retries never duplicate records."
                % lib.split(" (")[0])
         if "geo" in c.signals:
@@ -621,12 +677,27 @@ def choose_supporting(c, combo, dbs, hp):
                      "Free push delivery to Android%s for %s." % (" and iOS (via APNs)" if "ios" in c.platforms else "", _push_use(c)),
                      ["project.platforms"], [("SMS for every notification", "Costs per message and DLT templates.")],
                      ["Notification payloads must not contain sensitive data%s." % (" (no PHI: FCM is not covered by a HIPAA BAA)" if "hipaa" in c.compliance else "")], (0, 0)))
-    for kind, val in c.hints:
-        if kind == "integration":
+    integ = [v for k, v in c.hints if k == "integration"]
+    if any("SuccessFactors" in v for v in integ):
+        integ = [v for v in integ if not v.startswith("SAP (")]
+    for val in integ:
+        if True:
             out.append(S("other", val, "Listed in existing_systems; integrate through its official API with a "
                          "service account and least-privilege scopes rather than duplicating its data.",
                          ["infrastructure.existing_systems"], [("Manual CSV exports", "Error-prone and stale.")], [], (0, 0)))
-    out += _domain_items(c, combo, dbs, hp, onprem)
+    dom = _domain_items(c, combo, dbs, hp, onprem, out)
+    for x in dom:
+        if x["layer"] == "cache" and "sorted sets" in x["choice"]:
+            for y in out:
+                if y["layer"] == "cache":
+                    y["choice"] += " (also leaderboard sorted sets)"
+                    y["justification"] += " Leaderboards use Valkey sorted sets (ZADD/ZREVRANGE: rank and top-N in O(log n)); scores persist to the database."
+                    y["driven_by"] = sorted(set(y["driven_by"]) | {"project.description"})
+                    break
+            else:
+                out.append(x)
+        else:
+            out.append(x)
     out += _existing_plan(c, combo, dbs, hp)
     regulated = set(c.compliance) & {"pci_dss", "hipaa", "iso27001", "soc2", "rbi_localisation"}
     if regulated and not onprem:
@@ -664,6 +735,7 @@ def choose_supporting(c, combo, dbs, hp):
                   "Free tier for logs/metrics; scrub personal data before export since data residency applies.", (0, 50))
     if r["availability"] in ("99.95", "99.99"):
         ob = (ob[0] + " + uptime checks and on-call paging", ob[1] + " %s%% needs alerting that wakes someone up." % r["availability"], ob[2])
-    out.append(S("observability", ob[0], ob[1], ["requirements.availability", "infrastructure.data_residency"],
+    out.append(S("observability", ob[0], ob[1], [f for f, on in (("requirements.availability", True),
+                 ("infrastructure.data_residency", c.eff_residency != "none"), ("compliance", bool(regulated))) if on],
                  [("Datadog", "Strong product but expensive per host at this budget.")], [], ob[2]))
     return out, warns

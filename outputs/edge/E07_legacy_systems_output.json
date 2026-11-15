@@ -3,7 +3,7 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok_with_warnings",
-  "summary": "Serverless Supabase on DigitalOcean App Platform with PostgreSQL as the database in India; front end: Next.js, React Native.",
+  "summary": "Serverless Supabase on Vercel with PostgreSQL as the database in India; front end: Next.js, React Native.",
   "architecture_style": "serverless",
   "stack": {
     "frontend": {
@@ -20,7 +20,7 @@
       "alternatives": [
         {
           "choice": "Nuxt (Vue)",
-          "why_not": "Scored 1.1 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Scored 2.1 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Progressive Web App",
@@ -53,11 +53,11 @@
       "alternatives": [
         {
           "choice": "Django (Python)",
-          "why_not": "Scored 2.2 points lower: the chosen option wins on requirements.realtime (native WebSocket/real-time support)."
+          "why_not": "Scored 2.6 points lower: the chosen option wins on requirements.realtime (native WebSocket/real-time support)."
         },
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 3.2 points lower: the chosen option wins on timeline.mvp_weeks (a 3-person team ships in 8 weeks without building auth/storage)."
+          "why_not": "Scored 3.7 points lower: the chosen option wins on timeline.mvp_weeks (a 3-person team ships in 8 weeks without building auth/storage)."
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
@@ -83,11 +83,11 @@
       ],
       "alternatives": [
         {
-          "choice": "DigitalOcean Managed MySQL (BLR1 Bengaluru)",
-          "why_not": "Scored 2.2 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+          "choice": "Amazon RDS for MySQL (ap-south-1 Mumbai)",
+          "why_not": "Scored 2.6 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
-          "choice": "TimescaleDB on Azure VM (self-managed) (Central India (Pune))",
+          "choice": "TimescaleDB on EC2 (self-managed) (ap-south-1 Mumbai)",
           "why_not": "Scored 7.8 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
         }
       ],
@@ -96,26 +96,26 @@
       ]
     },
     "hosting": {
-      "choice": "DigitalOcean App Platform (BLR1 Bengaluru)",
-      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 4/5; real-time channels included in Supabase.",
+      "choice": "Vercel (bom1 Mumbai)",
+      "justification": "Zero-config Next.js hosting with preview deploys and Mumbai (bom1) functions. Fit for this project: strong time to market, which you rated 5/5; Vercel builds and serves Next.js natively.",
       "driven_by": [
         "priorities.time_to_market",
-        "requirements.realtime",
-        "priorities.cost",
+        "hosting",
         "team.size"
       ],
       "alternatives": [
         {
-          "choice": "Azure Static Web Apps (East US 2)",
-          "why_not": "Scored 1.0 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "choice": "Cloudflare Pages",
+          "why_not": "Scored 2.1 points lower: static hosting only; the API must run elsewhere."
         },
         {
-          "choice": "Cloudflare Pages",
-          "why_not": "Scored 1.3 points lower: static hosting only; the API must run elsewhere."
+          "choice": "AWS Elastic Beanstalk (ap-south-1 Mumbai)",
+          "why_not": "Scored 0.5 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
-        "Fewer managed services than AWS/GCP/Azure (no managed search or ML)."
+        "Hobby (free) plan is non-commercial only; commercial use needs Pro ($20/member).",
+        "Serverless functions cannot hold WebSockets."
       ]
     },
     "supporting": [
@@ -192,26 +192,6 @@
         "estimated_monthly_usd": [
           1,
           8
-        ]
-      },
-      {
-        "layer": "cdn",
-        "choice": "Cloudflare (free plan)",
-        "justification": "Caches public pages and media close to users and absorbs traffic spikes.",
-        "driven_by": [
-          "requirements.seo_critical",
-          "requirements.file_media_storage"
-        ],
-        "alternatives": [
-          {
-            "choice": "No CDN",
-            "why_not": "Slower first loads for public pages and media."
-          }
-        ],
-        "tradeoffs": [],
-        "estimated_monthly_usd": [
-          0,
-          20
         ]
       },
       {
@@ -367,16 +347,17 @@
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 51,
-    "max": 263,
+    "min": 46,
+    "max": 213,
     "assumptions": [
       "Scale level L2: ~30000 users, ~800 peak concurrent, ~160 req/s at peak, ~50 GB stored",
+      "Supabase Pro ($25/month) for production: free projects pause when idle and include ~1 GB of file storage",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
-        25,
-        90
+        20,
+        60
       ],
       "backend": [
         25,
@@ -393,10 +374,6 @@
       "storage": [
         1,
         8
-      ],
-      "cdn": [
-        0,
-        20
       ],
       "realtime": [
         0,
@@ -460,7 +437,7 @@
     {
       "code": "BUDGET_HEADROOM",
       "severity": "info",
-      "message": "Upper estimate ($263) exceeds the $150 budget; watch usage as you grow.",
+      "message": "Upper estimate ($213) exceeds the $150 budget; watch usage as you grow.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -495,7 +472,7 @@
       "payments": "paid",
       "realtime": "chat"
     },
-    "combinations_evaluated": 1640,
+    "combinations_evaluated": 2516,
     "input_hash": "bafa2f6db80dd6b2"
   }
 }
