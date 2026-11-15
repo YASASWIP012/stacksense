@@ -1,0 +1,62 @@
+{
+  "scenario_id": "E01",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "invalid_input",
+  "summary": "The input has 7 invalid or missing field(s); fix them and run again.",
+  "architecture_style": null,
+  "stack": null,
+  "estimated_monthly_cost_usd": null,
+  "warnings": [],
+  "assumptions": [
+    "scale.traffic_pattern not given; defaulted to \"steady\".",
+    "scale.workload not given; defaulted to \"balanced\".",
+    "team.has_devops not given; defaulted to false.",
+    "infrastructure.cloud_preference not given; defaulted to \"any\".",
+    "infrastructure.deployment_model not given; defaulted to \"managed_cloud\".",
+    "infrastructure.data_residency not given; defaulted to \"none\".",
+    "infrastructure.existing_systems not given; defaulted to [].",
+    "requirements.realtime not given; defaulted to false.",
+    "requirements.offline_support not given; defaulted to false.",
+    "requirements.full_text_search not given; defaulted to false.",
+    "requirements.file_media_storage not given; defaulted to false.",
+    "requirements.payments not given; defaulted to false.",
+    "requirements.auth not given; defaulted to \"none\".",
+    "requirements.multi_tenant not given; defaulted to false.",
+    "requirements.ml_features not given; defaulted to \"none\".",
+    "requirements.seo_critical not given; defaulted to false.",
+    "requirements.availability not given; defaulted to \"99.9\".",
+    "compliance not given; defaulted to [].",
+    "Priorities not given for cost, time_to_market, scalability, performance, maintainability, security; defaulted to 3."
+  ],
+  "validation_errors": [
+    {
+      "field": "project.platforms",
+      "message": "Required field is missing."
+    },
+    {
+      "field": "scale.users_at_launch",
+      "message": "Required field is missing."
+    },
+    {
+      "field": "scale.users_12_months",
+      "message": "Required field is missing."
+    },
+    {
+      "field": "team.experience",
+      "message": "Required field is missing."
+    },
+    {
+      "field": "team.languages",
+      "message": "Required field is missing."
+    },
+    {
+      "field": "budget.monthly_infra_usd",
+      "message": "Required field is missing."
+    },
+    {
+      "field": "timeline.mvp_weeks",
+      "message": "Required field is missing."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "scenario_id": "E03",
+  "project": {
+    "name": "MegaSocial",
+    "type": "social",
+    "description": "A social video app for everyone with live chat.",
+    "platforms": [
+      "web",
+      "android",
+      "ios"
+    ]
+  },
+  "scale": {
+    "users_at_launch": 100000,
+    "users_12_months": 2000000,
+    "peak_concurrent_users": 80000,
+    "traffic_pattern": "spiky",
+    "workload": "write_heavy",
+    "data_volume_gb_12_months": 20000
+  },
+  "team": {
+    "size": 1,
+    "experience": "beginner",
+    "languages": [
+      "javascript"
+    ],
+    "has_devops": false
+  },
+  "budget": {
+    "monthly_infra_usd": 0
+  },
+  "timeline": {
+    "mvp_weeks": 3
+  },
+  "requirements": {
+    "realtime": true,
+    "file_media_storage": true,
+    "auth": "social",
+    "availability": "99.99",
+    "p95_latency_ms": 100
+  },
+  "compliance": [],
+  "priorities": {
+    "cost": 5,
+    "time_to_market": 5
+  }
+}

@@ -1,0 +1,503 @@
+{
+  "scenario_id": "P4",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "ok",
+  "summary": "Service oriented Spring Boot on AWS ECS on Fargate with Amazon RDS for PostgreSQL as the database in India; front end: Angular, React Native.",
+  "architecture_style": "service_oriented",
+  "stack": {
+    "frontend": {
+      "choice": "Angular (web) + React Native (Expo) (mobile)",
+      "justification": "Web: An opinionated, batteries-included framework that scales to large teams. Fit for this project: team.languages includes TypeScript; strong maintainability for Angular (priority 4); strong scalability for Angular (priority 4); strong security for Angular (priority 5). Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes TypeScript; strong time to market for React Native (priority 3); well suited to fintech projects; strong maintainability for React Native (priority 4).",
+      "driven_by": [
+        "team.languages",
+        "priorities.maintainability",
+        "priorities.scalability",
+        "priorities.security",
+        "project.type",
+        "priorities.performance",
+        "priorities.time_to_market"
+      ],
+      "alternatives": [
+        {
+          "choice": "React + Vite (SPA)",
+          "why_not": "Scored 0.9 points lower: the chosen option wins on priorities.security (strong security for Angular (priority 5))."
+        },
+        {
+          "choice": "Kotlin Multiplatform + Compose Multiplatform",
+          "why_not": "Scored 1.1 points lower: younger ecosystem and smaller hiring pool; the chosen option wins on priorities.time_to_market (strong time to market for React Native (priority 3))."
+        }
+      ],
+      "tradeoffs": [
+        "Steeper learning curve and more boilerplate than React/Vue.",
+        "JS runtime adds memory overhead on very low-end phones.",
+        "Some native modules need a development build."
+      ],
+      "parts": {
+        "web": "Angular",
+        "mobile": "React Native (Expo)"
+      }
+    },
+    "backend": {
+      "choice": "Spring Boot (Java/Kotlin)",
+      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: well suited to fintech projects; team.languages includes Java/Kotlin; strong security for Spring Boot (priority 5); strong maintainability for Spring Boot (priority 4).",
+      "driven_by": [
+        "project.type",
+        "team.languages",
+        "priorities.security",
+        "priorities.maintainability",
+        "priorities.scalability",
+        "requirements.payments",
+        "project.description"
+      ],
+      "alternatives": [
+        {
+          "choice": "ASP.NET Core (C#)",
+          "why_not": "Scored 2.0 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java/Kotlin)."
+        },
+        {
+          "choice": "AWS Lambda + API Gateway",
+          "why_not": "Scored 1.0 points lower: proprietary API increases lock-in; the chosen option wins on project.type (well suited to fintech projects)."
+        },
+        {
+          "choice": "Azure Functions",
+          "why_not": "Excluded: Microsoft Azure is not on AWS, and cloud_preference=aws is a hard constraint (infrastructure.cloud_preference)."
+        }
+      ],
+      "tradeoffs": [
+        "Slower start-up and more memory than Go/Node.",
+        "More ceremony for small apps."
+      ]
+    },
+    "database": {
+      "choice": "Amazon RDS for PostgreSQL (ap-south-1 Mumbai)",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; strong security for PostgreSQL (priority 5); well suited to fintech projects; strong maintainability for PostgreSQL (priority 4). Data stays in ap-south-1 Mumbai to satisfy data_residency=india. Model the ledger as append-only double-entry journal tables with SERIALIZABLE transactions.",
+      "driven_by": [
+        "requirements.payments",
+        "priorities.security",
+        "project.type",
+        "priorities.maintainability",
+        "priorities.scalability",
+        "priorities.performance",
+        "priorities.time_to_market",
+        "infrastructure.data_residency"
+      ],
+      "alternatives": [
+        {
+          "choice": "Amazon RDS for MySQL (ap-south-1 Mumbai)",
+          "why_not": "Scored 2.4 points lower: the chosen option wins on project.type (well suited to fintech projects)."
+        },
+        {
+          "choice": "TimescaleDB on EC2 (self-managed) (ap-south-1 Mumbai)",
+          "why_not": "Scored 5.1 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to fintech projects)."
+        },
+        {
+          "choice": "Cloud Firestore",
+          "why_not": "Excluded: Google Cloud is not on AWS, and cloud_preference=aws is a hard constraint (infrastructure.cloud_preference)."
+        }
+      ],
+      "tradeoffs": [
+        "Horizontal write scaling needs partitioning, read replicas or Citus."
+      ]
+    },
+    "hosting": {
+      "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
+      "justification": "Managed containers inside your own AWS VPC, multi-AZ. Fit for this project: strong scalability for AWS ECS on Fargate (priority 4); multi-zone deployments for 99.95%; strong performance for AWS ECS on Fargate (priority 3).",
+      "driven_by": [
+        "infrastructure.cloud_preference",
+        "priorities.scalability",
+        "requirements.availability",
+        "team.has_devops",
+        "priorities.performance"
+      ],
+      "alternatives": [
+        {
+          "choice": "AWS serverless (Lambda + API Gateway + S3/CloudFront) (ap-south-1 Mumbai)",
+          "why_not": "Scored 1.0 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+        },
+        {
+          "choice": "Amazon EC2 + Docker Compose (ap-south-1 Mumbai)",
+          "why_not": "Scored 2.1 points lower: you manage the OS although managed_cloud was requested; fixed capacity under spiky traffic; the chosen option wins on priorities.scalability (strong scalability for AWS ECS on Fargate (priority 4))."
+        },
+        {
+          "choice": "Azure Static Web Apps",
+          "why_not": "Excluded: Microsoft Azure is not on AWS, and cloud_preference=aws is a hard constraint (infrastructure.cloud_preference)."
+        }
+      ],
+      "tradeoffs": [
+        "More moving parts (VPC, ALB, task definitions, IAM) than a PaaS.",
+        "Operational burden (ops 3/5)."
+      ]
+    },
+    "supporting": [
+      {
+        "layer": "auth",
+        "choice": "Spring Security (+ OAuth2 client) + MSG91 (DLT-registered SMS OTP)",
+        "justification": "Uses the backend framework's maintained auth library, so user data stays in your own database in India. Phone OTP is sent through MSG91; in India every SMS template and sender ID must be registered on the TRAI DLT platform first.",
+        "driven_by": [
+          "requirements.auth"
+        ],
+        "alternatives": [
+          {
+            "choice": "Auth0 / Clerk",
+            "why_not": "Separate vendor with per-MAU pricing; no India region."
+          },
+          {
+            "choice": "Firebase phone auth",
+            "why_not": "Firebase Authentication processes data in the US."
+          }
+        ],
+        "tradeoffs": [
+          "Account recovery and MFA flows must still be designed."
+        ],
+        "estimated_monthly_usd": [
+          25,
+          250
+        ]
+      },
+      {
+        "layer": "payments",
+        "choice": "Razorpay (UPI/cards + UPI Autopay/eNACH for EMIs) + RazorpayX Payouts",
+        "justification": "Indian, RBI-authorised payment aggregator and PCI DSS Level 1: collects EMIs through UPI Autopay/eNACH mandates and disburses loans to bank accounts/UPI via RazorpayX payouts. Payment data stays in India as RBI's storage directive requires.",
+        "driven_by": [
+          "compliance",
+          "infrastructure.data_residency",
+          "requirements.payments"
+        ],
+        "alternatives": [
+          {
+            "choice": "Cashfree Payments (Payouts + Subscriptions)",
+            "why_not": "Equally capable; Razorpay has wider mandate and payout docs. A sensible second gateway for redundancy."
+          },
+          {
+            "choice": "Stripe",
+            "why_not": "Stripe is invite-only for new Indian businesses and does not cover UPI payouts."
+          }
+        ],
+        "tradeoffs": [
+          "Gateway fees (~2% per transaction) are not part of the infra estimate.",
+          "Webhook handling must be idempotent."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "storage",
+        "choice": "Amazon S3 (ap-south-1 Mumbai) with pre-signed uploads",
+        "justification": "Clients upload directly with pre-signed URLs, so large files never pass through the API; objects are encrypted at rest and private by default. KYC documents go in a separate bucket with KMS keys, short-lived links and access logging.",
+        "driven_by": [
+          "requirements.file_media_storage",
+          "project.description",
+          "infrastructure.data_residency"
+        ],
+        "alternatives": [
+          {
+            "choice": "Cloudflare R2",
+            "why_not": "No egress fees, but no India jurisdiction option."
+          }
+        ],
+        "tradeoffs": [
+          "Needs lifecycle rules to control growth."
+        ],
+        "estimated_monthly_usd": [
+          10,
+          30
+        ]
+      },
+      {
+        "layer": "cdn",
+        "choice": "Amazon CloudFront",
+        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
+        "driven_by": [
+          "requirements.seo_critical",
+          "requirements.file_media_storage"
+        ],
+        "alternatives": [
+          {
+            "choice": "No CDN",
+            "why_not": "Slower first loads for public pages and media."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          20,
+          200
+        ]
+      },
+      {
+        "layer": "cache",
+        "choice": "Amazon ElastiCache for Valkey",
+        "justification": "Caches hot reads and sessions to hold p95=300ms, and doubles as the pub/sub and job-queue broker.",
+        "driven_by": [
+          "requirements.p95_latency_ms",
+          "scale.peak_concurrent_users",
+          "requirements.realtime"
+        ],
+        "alternatives": [
+          {
+            "choice": "Memcached",
+            "why_not": "No pub/sub or persistence, so it cannot double as a broker."
+          },
+          {
+            "choice": "No cache",
+            "why_not": "Every read hits the database at peak."
+          }
+        ],
+        "tradeoffs": [
+          "Another stateful component to size and monitor."
+        ],
+        "estimated_monthly_usd": [
+          50,
+          400
+        ]
+      },
+      {
+        "layer": "queue",
+        "choice": "Amazon SQS (+ dead-letter queue)",
+        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "driven_by": [
+          "requirements.payments",
+          "requirements.ml_features",
+          "requirements.file_media_storage",
+          "scale.users_12_months"
+        ],
+        "alternatives": [
+          {
+            "choice": "Kafka",
+            "why_not": "Event-streaming platform: heavy to run for job queues at this scale."
+          }
+        ],
+        "tradeoffs": [
+          "Jobs must be idempotent; monitor the dead-letter queue."
+        ],
+        "estimated_monthly_usd": [
+          10,
+          150
+        ]
+      },
+      {
+        "layer": "ml",
+        "choice": "Amazon SageMaker real-time endpoint (ap-south-1 Mumbai) for the scoring model",
+        "justification": "Serves a model you train on your own data behind an internal API; versioned models and logged inputs/outputs make every decision explainable and auditable. Credit decisions need explainability (feature attributions) and human review of rejections.",
+        "driven_by": [
+          "requirements.ml_features"
+        ],
+        "alternatives": [
+          {
+            "choice": "Third-party scoring API",
+            "why_not": "Credit models are a core asset and contain personal data; keep them in your region."
+          },
+          {
+            "choice": "LLM-based scoring",
+            "why_not": "Non-deterministic and hard to explain for credit decisions."
+          }
+        ],
+        "tradeoffs": [
+          "Models need monitoring for drift."
+        ],
+        "estimated_monthly_usd": [
+          100,
+          600
+        ],
+        "separate_service": true
+      },
+      {
+        "layer": "other",
+        "choice": "Firebase Cloud Messaging (push notifications)",
+        "justification": "Free push delivery to Android and iOS (via APNs) for job updates and reminders.",
+        "driven_by": [
+          "project.platforms"
+        ],
+        "alternatives": [
+          {
+            "choice": "SMS for every notification",
+            "why_not": "Costs per message and DLT templates."
+          }
+        ],
+        "tradeoffs": [
+          "Notification payloads must not contain sensitive data."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "other",
+        "choice": "AWS KMS + Secrets Manager + CloudTrail + AWS WAF",
+        "justification": "Compliance controls for ISO27001, PCI_DSS, RBI_LOCALISATION: encryption keys you control, no secrets in code, tamper-evident audit logs and a web application firewall.",
+        "driven_by": [
+          "compliance"
+        ],
+        "alternatives": [
+          {
+            "choice": "Application-level only",
+            "why_not": "Auditors expect platform-level key management and logs."
+          }
+        ],
+        "tradeoffs": [
+          "Costs grow with log volume."
+        ],
+        "estimated_monthly_usd": [
+          20,
+          200
+        ]
+      },
+      {
+        "layer": "ci_cd",
+        "choice": "GitHub Actions",
+        "justification": "Runs tests and deploys on every merge; free minutes cover a small team.",
+        "driven_by": [
+          "infrastructure.deployment_model",
+          "team.size"
+        ],
+        "alternatives": [
+          {
+            "choice": "Jenkins",
+            "why_not": "Self-hosted server to maintain."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          50
+        ]
+      },
+      {
+        "layer": "observability",
+        "choice": "Amazon CloudWatch + OpenTelemetry tracing + uptime checks and on-call paging",
+        "justification": "Logs, metrics and traces stay in the same cloud and region as the data; Sentry has no India data region. 99.95% needs alerting that wakes someone up.",
+        "driven_by": [
+          "requirements.availability",
+          "infrastructure.data_residency"
+        ],
+        "alternatives": [
+          {
+            "choice": "Datadog",
+            "why_not": "Strong product but expensive per host at this budget."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          50,
+          500
+        ]
+      }
+    ]
+  },
+  "estimated_monthly_cost_usd": {
+    "min": 1010,
+    "max": 6355,
+    "assumptions": [
+      "Scale level L3: ~300000 users, ~10000 peak concurrent, ~2000 req/s at peak, ~500 GB stored",
+      "Compute sized for at least two zones for 99.95% availability",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+    ],
+    "breakdown": {
+      "hosting": [
+        375,
+        2250
+      ],
+      "database": [
+        350,
+        1725
+      ],
+      "auth": [
+        25,
+        250
+      ],
+      "payments": [
+        0,
+        0
+      ],
+      "storage": [
+        10,
+        30
+      ],
+      "cdn": [
+        20,
+        200
+      ],
+      "cache": [
+        50,
+        400
+      ],
+      "queue": [
+        10,
+        150
+      ],
+      "ml": [
+        100,
+        600
+      ],
+      "other": [
+        20,
+        200
+      ],
+      "ci_cd": [
+        0,
+        50
+      ],
+      "observability": [
+        50,
+        500
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "code": "BUDGET_HEADROOM",
+      "severity": "info",
+      "message": "Upper estimate ($6355) exceeds the $6000 budget; watch usage as you grow.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    },
+    {
+      "code": "RBI_LOCALISATION",
+      "severity": "info",
+      "message": "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, must stay in India. Use an Indian DR region (e.g. AWS ap-south-2 Hyderabad / Azure South India) and keep observability data in-country.",
+      "fields": [
+        "compliance",
+        "infrastructure.data_residency"
+      ]
+    },
+    {
+      "code": "PCI_DSS_SCOPE",
+      "severity": "info",
+      "message": "PCI DSS: keep card data out of your systems with the gateway's tokenised checkout; your own scope then covers the pages that load it, plus access control, logging and quarterly scans.",
+      "fields": [
+        "compliance",
+        "requirements.payments"
+      ]
+    },
+    {
+      "code": "DPDP_NOTES",
+      "severity": "info",
+      "message": "DPDP Act 2023: collect consent per purpose, honour erasure requests and report breaches; the Act itself does not force India-only storage unless data_residency requires it.",
+      "fields": [
+        "compliance"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "validation_errors": [],
+  "derived": {
+    "scale_level": 3,
+    "peak_concurrent_users": 10000,
+    "estimated_peak_rps": 2000,
+    "data_volume_gb": 500,
+    "effective_data_residency": "india",
+    "description_signals": {
+      "ledger": "ledger",
+      "media": "upload",
+      "ml": "scoring model",
+      "payments": "upi",
+      "subscription": "emi"
+    },
+    "combinations_evaluated": 1660,
+    "input_hash": "95a4a7261e2bb928"
+  }
+}

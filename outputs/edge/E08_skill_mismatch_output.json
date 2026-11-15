@@ -1,0 +1,333 @@
+{
+  "scenario_id": "E08",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "ok",
+  "summary": "Serverless Supabase on Azure Static Web Apps with PostgreSQL as the database; front end: React + Vite, Progressive Web App.",
+  "architecture_style": "serverless",
+  "stack": {
+    "frontend": {
+      "choice": "React + Vite (SPA) (web) + Progressive Web App (mobile)",
+      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: strong cost for React + Vite (priority 3); strong performance for React + Vite (priority 5); well suited to gaming projects; strong time to market for React + Vite (priority 4). Mobile: Reuses the web app, installable without an app store. Fit for this project: strong time to market for Progressive Web App (priority 4); reuses the web codebase; strong cost for Progressive Web App (priority 3); strong maintainability for Progressive Web App (priority 3).",
+      "driven_by": [
+        "team.languages",
+        "priorities.cost",
+        "priorities.performance",
+        "project.type",
+        "priorities.time_to_market",
+        "priorities.maintainability",
+        "priorities.scalability",
+        "project.platforms"
+      ],
+      "alternatives": [
+        {
+          "choice": "Next.js (React)",
+          "why_not": "Scored 0.4 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.type (well suited to gaming projects)."
+        },
+        {
+          "choice": "React Native (Expo)",
+          "why_not": "Scored 0.8 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.platforms (reuses the web codebase)."
+        }
+      ],
+      "tradeoffs": [
+        "Client-rendered: no SEO for public pages.",
+        "Routing/data fetching are your choices.",
+        "The team would have to learn JavaScript/TypeScript.",
+        "iOS limits background sync and push; browsers may evict offline storage.",
+        "Weaker camera/GPS/background-upload control than a native app."
+      ],
+      "parts": {
+        "web": "React + Vite (SPA)",
+        "mobile": "Progressive Web App"
+      }
+    },
+    "backend": {
+      "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: native WebSocket/real-time support; strong time to market for Supabase (priority 4); a 3-person team ships in 10 weeks without building auth/storage; strong performance for Supabase (priority 5).",
+      "driven_by": [
+        "team.languages",
+        "requirements.realtime",
+        "priorities.time_to_market",
+        "timeline.mvp_weeks",
+        "requirements.auth",
+        "priorities.performance",
+        "priorities.cost"
+      ],
+      "alternatives": [
+        {
+          "choice": "Laravel (PHP)",
+          "why_not": "Scored 1.7 points lower: per-request overhead is tight for p95=150ms."
+        },
+        {
+          "choice": "ASP.NET Core (C#)",
+          "why_not": "Scored 1.3 points lower: the team would have to learn C#; the chosen option wins on timeline.mvp_weeks (a 3-person team ships in 10 weeks without building auth/storage)."
+        }
+      ],
+      "tradeoffs": [
+        "Business logic split across RLS policies, SQL and Edge Functions is harder to test.",
+        "Free projects pause after a week of inactivity; production needs the Pro plan.",
+        "The team would have to learn JavaScript/TypeScript."
+      ]
+    },
+    "database": {
+      "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong maintainability for PostgreSQL (priority 3); strong performance for PostgreSQL (priority 5); strong security for PostgreSQL (priority 3); strong time to market for PostgreSQL (priority 4).",
+      "driven_by": [
+        "priorities.maintainability",
+        "priorities.performance",
+        "priorities.security",
+        "priorities.time_to_market",
+        "priorities.cost",
+        "priorities.scalability"
+      ],
+      "alternatives": [
+        {
+          "choice": "Azure Database for MySQL – Flexible Server (East US)",
+          "why_not": "Scored 2.0 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 3))."
+        },
+        {
+          "choice": "DigitalOcean Managed MongoDB (NYC3 New York)",
+          "why_not": "Scored 2.7 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 3))."
+        }
+      ],
+      "tradeoffs": [
+        "Horizontal write scaling needs partitioning, read replicas or Citus."
+      ]
+    },
+    "hosting": {
+      "choice": "Azure Static Web Apps (East US)",
+      "justification": "Static hosting with Entra auth on Azure. Fit for this project: strong time to market for Azure Static Web Apps (priority 4); scales automatically with spiky traffic; strong cost for Azure Static Web Apps (priority 3); strong performance for Azure Static Web Apps (priority 5).",
+      "driven_by": [
+        "priorities.time_to_market",
+        "requirements.realtime",
+        "scale.traffic_pattern",
+        "priorities.cost",
+        "priorities.performance",
+        "team.size",
+        "priorities.scalability"
+      ],
+      "alternatives": [
+        {
+          "choice": "Netlify (us-east-2)",
+          "why_not": "Scored 0.3 points lower: the chosen option wins on priorities.cost (strong cost for Azure Static Web Apps (priority 3))."
+        },
+        {
+          "choice": "Vercel (iad1 Washington)",
+          "why_not": "Scored 0.4 points lower: the chosen option wins on priorities.cost (strong cost for Azure Static Web Apps (priority 3))."
+        }
+      ],
+      "tradeoffs": [
+        "Static front end + Functions only."
+      ]
+    },
+    "supporting": [
+      {
+        "layer": "auth",
+        "choice": "Supabase Auth",
+        "justification": "Included in the Supabase project; issues JWTs that Postgres RLS policies check.",
+        "driven_by": [
+          "requirements.auth"
+        ],
+        "alternatives": [
+          {
+            "choice": "Clerk",
+            "why_not": "Separate vendor; user data stored in the US."
+          }
+        ],
+        "tradeoffs": [
+          "Account recovery and MFA flows must still be designed."
+        ],
+        "estimated_monthly_usd": [
+          25,
+          250
+        ]
+      },
+      {
+        "layer": "realtime",
+        "choice": "Supabase Realtime (Broadcast + Postgres changes)",
+        "justification": "Included; pushes chat messages and job-status changes to subscribed clients.",
+        "driven_by": [
+          "requirements.realtime"
+        ],
+        "alternatives": [
+          {
+            "choice": "Socket.IO server",
+            "why_not": "An extra service to run."
+          }
+        ],
+        "tradeoffs": [
+          "Long-lived connections need sticky sessions or a pub/sub layer."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ],
+        "separate_service": false
+      },
+      {
+        "layer": "queue",
+        "choice": "Supabase Queues (pgmq) + Edge Functions",
+        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "driven_by": [
+          "scale.users_12_months"
+        ],
+        "alternatives": [
+          {
+            "choice": "Kafka",
+            "why_not": "Event-streaming platform: heavy to run for job queues at this scale."
+          }
+        ],
+        "tradeoffs": [
+          "Jobs must be idempotent; monitor the dead-letter queue."
+        ],
+        "estimated_monthly_usd": [
+          10,
+          150
+        ]
+      },
+      {
+        "layer": "other",
+        "choice": "Firebase Cloud Messaging (push notifications)",
+        "justification": "Free push delivery to Android for job updates and reminders.",
+        "driven_by": [
+          "project.platforms"
+        ],
+        "alternatives": [
+          {
+            "choice": "SMS for every notification",
+            "why_not": "Costs per message and DLT templates."
+          }
+        ],
+        "tradeoffs": [
+          "Notification payloads must not contain sensitive data."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "ci_cd",
+        "choice": "GitHub Actions",
+        "justification": "Runs tests and deploys on every merge; free minutes cover a small team.",
+        "driven_by": [
+          "infrastructure.deployment_model",
+          "team.size"
+        ],
+        "alternatives": [
+          {
+            "choice": "Jenkins",
+            "why_not": "Self-hosted server to maintain."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          50
+        ]
+      },
+      {
+        "layer": "observability",
+        "choice": "Azure Monitor + Application Insights + OpenTelemetry tracing",
+        "justification": "Logs, metrics and traces stay in the same cloud and region as the data.",
+        "driven_by": [
+          "requirements.availability",
+          "infrastructure.data_residency"
+        ],
+        "alternatives": [
+          {
+            "choice": "Datadog",
+            "why_not": "Strong product but expensive per host at this budget."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          50,
+          500
+        ]
+      }
+    ]
+  },
+  "estimated_monthly_cost_usd": {
+    "min": 205,
+    "max": 1450,
+    "assumptions": [
+      "Scale level L3: ~80000 users, ~4000 peak concurrent, ~800 req/s at peak, ~156.2 GB stored",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+    ],
+    "breakdown": {
+      "hosting": [
+        20,
+        100
+      ],
+      "backend": [
+        100,
+        400
+      ],
+      "auth": [
+        25,
+        250
+      ],
+      "realtime": [
+        0,
+        0
+      ],
+      "queue": [
+        10,
+        150
+      ],
+      "other": [
+        0,
+        0
+      ],
+      "ci_cd": [
+        0,
+        50
+      ],
+      "observability": [
+        50,
+        500
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "code": "BUDGET_HEADROOM",
+      "severity": "info",
+      "message": "Upper estimate ($1450) exceeds the $400 budget; watch usage as you grow.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    }
+  ],
+  "assumptions": [
+    "team.has_devops not given; defaulted to false.",
+    "infrastructure.cloud_preference not given; defaulted to \"any\".",
+    "infrastructure.deployment_model not given; defaulted to \"managed_cloud\".",
+    "infrastructure.data_residency not given; defaulted to \"none\".",
+    "infrastructure.existing_systems not given; defaulted to [].",
+    "requirements.offline_support not given; defaulted to false.",
+    "requirements.full_text_search not given; defaulted to false.",
+    "requirements.file_media_storage not given; defaulted to false.",
+    "requirements.payments not given; defaulted to false.",
+    "requirements.multi_tenant not given; defaulted to false.",
+    "requirements.ml_features not given; defaulted to \"none\".",
+    "requirements.seo_critical not given; defaulted to false.",
+    "compliance not given; defaulted to [].",
+    "Priorities not given for cost, scalability, maintainability, security; defaulted to 3.",
+    "scale.data_volume_gb_12_months not given; estimated 156.2 GB (2 MB per user)."
+  ],
+  "validation_errors": [],
+  "derived": {
+    "scale_level": 3,
+    "peak_concurrent_users": 4000,
+    "estimated_peak_rps": 800,
+    "data_volume_gb": 156.2,
+    "effective_data_residency": "none",
+    "description_signals": {
+      "realtime": "live"
+    },
+    "combinations_evaluated": 1180,
+    "input_hash": "f1d94a435512114d"
+  }
+}

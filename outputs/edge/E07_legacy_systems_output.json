@@ -1,0 +1,485 @@
+{
+  "scenario_id": "E07",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "ok_with_warnings",
+  "summary": "Serverless Supabase on DigitalOcean App Platform with PostgreSQL as the database in India; front end: Next.js, React Native.",
+  "architecture_style": "serverless",
+  "stack": {
+    "frontend": {
+      "choice": "Next.js (React) (web) + React Native (Expo) (mobile)",
+      "justification": "Web: One React codebase gives SSR/SSG pages for SEO and app-style screens. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market for Next.js (priority 5); well suited to marketplace projects; seo_critical=true and it serves pre-rendered HTML. Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market for React Native (priority 5); well suited to marketplace projects; strong maintainability for React Native (priority 3).",
+      "driven_by": [
+        "team.languages",
+        "priorities.time_to_market",
+        "project.type",
+        "requirements.seo_critical",
+        "priorities.cost",
+        "priorities.maintainability",
+        "priorities.performance",
+        "priorities.scalability"
+      ],
+      "alternatives": [
+        {
+          "choice": "Nuxt (Vue)",
+          "why_not": "Scored 1.1 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+        },
+        {
+          "choice": "Progressive Web App",
+          "why_not": "Scored 0.1 points lower: limited camera/GPS access."
+        }
+      ],
+      "tradeoffs": [
+        "App Router and server/client component split add conceptual weight.",
+        "Best features assume a Node/serverless host; static export loses SSR.",
+        "JS runtime adds memory overhead on very low-end phones.",
+        "Some native modules need a development build."
+      ],
+      "parts": {
+        "web": "Next.js (React)",
+        "mobile": "React Native (Expo)"
+      }
+    },
+    "backend": {
+      "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market for Supabase (priority 5); well suited to marketplace projects; native WebSocket/real-time support.",
+      "driven_by": [
+        "team.languages",
+        "priorities.time_to_market",
+        "requirements.auth",
+        "project.type",
+        "requirements.realtime",
+        "timeline.mvp_weeks",
+        "priorities.cost"
+      ],
+      "alternatives": [
+        {
+          "choice": "Django (Python)",
+          "why_not": "Scored 2.2 points lower: the chosen option wins on requirements.realtime (native WebSocket/real-time support)."
+        },
+        {
+          "choice": "NestJS (Node.js, TypeScript)",
+          "why_not": "Scored 3.2 points lower: the chosen option wins on timeline.mvp_weeks (a 3-person team ships in 8 weeks without building auth/storage)."
+        },
+        {
+          "choice": "Firebase (Firestore + Cloud Functions)",
+          "why_not": "Excluded: Firebase (Google) has no India region for personal data (infrastructure.data_residency)."
+        }
+      ],
+      "tradeoffs": [
+        "Business logic split across RLS policies, SQL and Edge Functions is harder to test.",
+        "Free projects pause after a week of inactivity; production needs the Pro plan."
+      ]
+    },
+    "database": {
+      "choice": "PostgreSQL (Supabase, South Asia (Mumbai, ap-south-1))",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; well suited to marketplace projects; strong maintainability for PostgreSQL (priority 3); strong security for PostgreSQL (priority 3). Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india.",
+      "driven_by": [
+        "requirements.payments",
+        "project.type",
+        "priorities.maintainability",
+        "priorities.security",
+        "priorities.time_to_market",
+        "priorities.cost",
+        "requirements.full_text_search",
+        "infrastructure.data_residency"
+      ],
+      "alternatives": [
+        {
+          "choice": "DigitalOcean Managed MySQL (BLR1 Bengaluru)",
+          "why_not": "Scored 2.2 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+        },
+        {
+          "choice": "DigitalOcean Managed MongoDB (BLR1 Bengaluru)",
+          "why_not": "Scored 8.4 points lower: weaker multi-record transactions for money/bookings; the chosen option wins on requirements.payments (ACID transactions keep money/bookings consistent)."
+        }
+      ],
+      "tradeoffs": [
+        "Horizontal write scaling needs partitioning, read replicas or Citus."
+      ]
+    },
+    "hosting": {
+      "choice": "DigitalOcean App Platform (BLR1 Bengaluru)",
+      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market for DigitalOcean App Platform (priority 5); strong cost for DigitalOcean App Platform (priority 4); strong performance for DigitalOcean App Platform (priority 3); strong scalability for DigitalOcean App Platform (priority 3).",
+      "driven_by": [
+        "priorities.time_to_market",
+        "requirements.realtime",
+        "priorities.cost",
+        "team.size",
+        "priorities.performance",
+        "priorities.scalability"
+      ],
+      "alternatives": [
+        {
+          "choice": "Azure Static Web Apps (Central India (Pune))",
+          "why_not": "Scored 1.0 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+        },
+        {
+          "choice": "Cloudflare Pages",
+          "why_not": "Scored 1.3 points lower: static hosting only; the API must run elsewhere."
+        }
+      ],
+      "tradeoffs": [
+        "Fewer managed services than AWS/GCP/Azure (no managed search or ML)."
+      ]
+    },
+    "supporting": [
+      {
+        "layer": "auth",
+        "choice": "Supabase Auth + MSG91 (DLT-registered SMS OTP)",
+        "justification": "Included in the Supabase project; issues JWTs that Postgres RLS policies check. Phone OTP is sent through MSG91; in India every SMS template and sender ID must be registered on the TRAI DLT platform first.",
+        "driven_by": [
+          "requirements.auth"
+        ],
+        "alternatives": [
+          {
+            "choice": "Clerk",
+            "why_not": "Separate vendor; user data stored in the US."
+          },
+          {
+            "choice": "Firebase phone auth",
+            "why_not": "Firebase Authentication processes data in the US."
+          }
+        ],
+        "tradeoffs": [
+          "Account recovery and MFA flows must still be designed."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          25
+        ]
+      },
+      {
+        "layer": "payments",
+        "choice": "Razorpay + Razorpay Route (split settlements)",
+        "justification": "UPI, cards and netbanking; Route splits each payment between the platform commission and the provider's linked account, which is what a services marketplace needs.",
+        "driven_by": [
+          "compliance",
+          "infrastructure.data_residency",
+          "requirements.payments"
+        ],
+        "alternatives": [
+          {
+            "choice": "Cashfree Easy Split",
+            "why_not": "Similar split-payments product; fewer SDK examples."
+          },
+          {
+            "choice": "Stripe Connect",
+            "why_not": "Invite-only for new Indian businesses."
+          }
+        ],
+        "tradeoffs": [
+          "Gateway fees (~2% per transaction) are not part of the infra estimate.",
+          "Webhook handling must be idempotent."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "storage",
+        "choice": "Supabase Storage (S3-compatible, same region)",
+        "justification": "Clients upload directly with pre-signed URLs, so large files never pass through the API; objects are encrypted at rest and private by default.",
+        "driven_by": [
+          "requirements.file_media_storage",
+          "infrastructure.data_residency"
+        ],
+        "alternatives": [
+          {
+            "choice": "Amazon S3",
+            "why_not": "Another vendor; Supabase Storage enforces the same RLS rules."
+          }
+        ],
+        "tradeoffs": [
+          "Needs lifecycle rules to control growth."
+        ],
+        "estimated_monthly_usd": [
+          1,
+          8
+        ]
+      },
+      {
+        "layer": "cdn",
+        "choice": "Cloudflare (free plan)",
+        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
+        "driven_by": [
+          "requirements.seo_critical",
+          "requirements.file_media_storage"
+        ],
+        "alternatives": [
+          {
+            "choice": "No CDN",
+            "why_not": "Slower first loads for public pages and media."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          20
+        ]
+      },
+      {
+        "layer": "realtime",
+        "choice": "Supabase Realtime (Broadcast + Postgres changes)",
+        "justification": "Included; pushes chat messages and job-status changes to subscribed clients.",
+        "driven_by": [
+          "requirements.realtime"
+        ],
+        "alternatives": [
+          {
+            "choice": "Socket.IO server",
+            "why_not": "An extra service to run."
+          }
+        ],
+        "tradeoffs": [
+          "Long-lived connections need sticky sessions or a pub/sub layer."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ],
+        "separate_service": false
+      },
+      {
+        "layer": "queue",
+        "choice": "Supabase Queues (pgmq) + Edge Functions",
+        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "driven_by": [
+          "requirements.payments",
+          "requirements.file_media_storage"
+        ],
+        "alternatives": [
+          {
+            "choice": "Kafka",
+            "why_not": "Event-streaming platform: heavy to run for job queues at this scale."
+          }
+        ],
+        "tradeoffs": [
+          "Jobs must be idempotent; monitor the dead-letter queue."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          10
+        ]
+      },
+      {
+        "layer": "search",
+        "choice": "PostgreSQL full-text search (tsvector + GIN, pg_trgm for typos)",
+        "justification": "At 30000 users and ~50 GB the database's own search is fast enough, transactional and needs no sync pipeline.",
+        "driven_by": [
+          "requirements.full_text_search",
+          "scale.users_12_months"
+        ],
+        "alternatives": [
+          {
+            "choice": "Meilisearch",
+            "why_not": "Better typo tolerance and ranking, but another service to keep in sync; move to it if search becomes core."
+          },
+          {
+            "choice": "OpenSearch",
+            "why_not": "Over-sized at this scale."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "other",
+        "choice": "Firebase Cloud Messaging (push notifications)",
+        "justification": "Free push delivery to Android for job updates and reminders.",
+        "driven_by": [
+          "project.platforms"
+        ],
+        "alternatives": [
+          {
+            "choice": "SMS for every notification",
+            "why_not": "Costs per message and DLT templates."
+          }
+        ],
+        "tradeoffs": [
+          "Notification payloads must not contain sensitive data."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "ci_cd",
+        "choice": "GitHub Actions",
+        "justification": "Runs tests and deploys on every merge; free minutes cover a small team.",
+        "driven_by": [
+          "infrastructure.deployment_model",
+          "team.size"
+        ],
+        "alternatives": [
+          {
+            "choice": "Jenkins",
+            "why_not": "Self-hosted server to maintain."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "observability",
+        "choice": "Grafana Cloud (free tier) + OpenTelemetry",
+        "justification": "Free tier for logs/metrics; scrub personal data before export since data residency applies.",
+        "driven_by": [
+          "requirements.availability",
+          "infrastructure.data_residency"
+        ],
+        "alternatives": [
+          {
+            "choice": "Datadog",
+            "why_not": "Strong product but expensive per host at this budget."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          50
+        ]
+      }
+    ]
+  },
+  "estimated_monthly_cost_usd": {
+    "min": 51,
+    "max": 263,
+    "assumptions": [
+      "Scale level L2: ~30000 users, ~800 peak concurrent, ~160 req/s at peak, ~50 GB stored",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+    ],
+    "breakdown": {
+      "hosting": [
+        25,
+        90
+      ],
+      "backend": [
+        25,
+        60
+      ],
+      "auth": [
+        0,
+        25
+      ],
+      "payments": [
+        0,
+        0
+      ],
+      "storage": [
+        1,
+        8
+      ],
+      "cdn": [
+        0,
+        20
+      ],
+      "realtime": [
+        0,
+        0
+      ],
+      "queue": [
+        0,
+        10
+      ],
+      "search": [
+        0,
+        0
+      ],
+      "other": [
+        0,
+        0
+      ],
+      "ci_cd": [
+        0,
+        0
+      ],
+      "observability": [
+        0,
+        50
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "code": "END_OF_LIFE",
+      "severity": "warning",
+      "message": "Existing system 'CentOS 7 servers': CentOS Linux is end-of-life; move to RHEL, AlmaLinux or Rocky Linux. Source: https://www.redhat.com/en/topics/linux/centos-linux-eol",
+      "fields": [
+        "infrastructure.existing_systems"
+      ]
+    },
+    {
+      "code": "END_OF_LIFE",
+      "severity": "warning",
+      "message": "Existing system 'Node.js 16 API': End-of-life Node.js release. Source: https://nodejs.org/en/about/previous-releases",
+      "fields": [
+        "infrastructure.existing_systems"
+      ]
+    },
+    {
+      "code": "END_OF_LIFE",
+      "severity": "warning",
+      "message": "Existing system 'MySQL 5.7 database': MySQL 5.7 reached end of life in Oct 2023. Source: https://endoflife.date/mysql",
+      "fields": [
+        "infrastructure.existing_systems"
+      ]
+    },
+    {
+      "code": "END_OF_LIFE",
+      "severity": "warning",
+      "message": "Existing system 'AngularJS admin panel': AngularJS support ended 31 Dec 2021. Source: https://docs.angularjs.org/misc/version-support-status",
+      "fields": [
+        "infrastructure.existing_systems"
+      ]
+    },
+    {
+      "code": "BUDGET_HEADROOM",
+      "severity": "info",
+      "message": "Upper estimate ($263) exceeds the $150 budget; watch usage as you grow.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    },
+    {
+      "code": "PCI_SCOPE",
+      "severity": "info",
+      "message": "Taking payments: use the gateway's hosted checkout/SDK so card data never touches your servers (PCI DSS SAQ A).",
+      "fields": [
+        "requirements.payments"
+      ]
+    },
+    {
+      "code": "DPDP_NOTES",
+      "severity": "info",
+      "message": "DPDP Act 2023: collect consent per purpose, honour erasure requests and report breaches; the Act itself does not force India-only storage unless data_residency requires it.",
+      "fields": [
+        "compliance"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "validation_errors": [],
+  "derived": {
+    "scale_level": 2,
+    "peak_concurrent_users": 800,
+    "estimated_peak_rps": 160,
+    "data_volume_gb": 50,
+    "effective_data_residency": "india",
+    "description_signals": {
+      "booking": "book",
+      "payments": "paid",
+      "realtime": "chat"
+    },
+    "combinations_evaluated": 396,
+    "input_hash": "bafa2f6db80dd6b2"
+  }
+}

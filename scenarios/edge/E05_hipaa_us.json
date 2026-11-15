@@ -1,0 +1,53 @@
+{
+  "scenario_id": "E05",
+  "project": {
+    "name": "CareBridge",
+    "type": "healthtech",
+    "description": "Patients book telehealth appointments, upload lab reports and chat with nurses.",
+    "platforms": [
+      "web",
+      "ios",
+      "android"
+    ]
+  },
+  "scale": {
+    "users_at_launch": 5000,
+    "users_12_months": 60000,
+    "peak_concurrent_users": 1500
+  },
+  "team": {
+    "size": 6,
+    "experience": "senior",
+    "languages": [
+      "typescript",
+      "python"
+    ],
+    "has_devops": true
+  },
+  "budget": {
+    "monthly_infra_usd": 3000
+  },
+  "timeline": {
+    "mvp_weeks": 14
+  },
+  "infrastructure": {
+    "cloud_preference": "any",
+    "data_residency": "us"
+  },
+  "requirements": {
+    "realtime": true,
+    "file_media_storage": true,
+    "auth": "email_password",
+    "payments": true,
+    "availability": "99.95",
+    "p95_latency_ms": 300
+  },
+  "compliance": [
+    "hipaa",
+    "soc2"
+  ],
+  "priorities": {
+    "security": 5,
+    "maintainability": 4
+  }
+}

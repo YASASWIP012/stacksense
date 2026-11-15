@@ -1,0 +1,397 @@
+{
+  "scenario_id": "E03",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "ok_with_warnings",
+  "summary": "Serverless Supabase on Cloudflare Pages with PostgreSQL as the database; front end: React + Vite, React Native.",
+  "architecture_style": "serverless",
+  "stack": {
+    "frontend": {
+      "choice": "React + Vite (SPA) (web) + React Native (Expo) (mobile)",
+      "justification": "Web: A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes JavaScript; strong cost for React + Vite (priority 5); strong time to market for React + Vite (priority 5); strong maintainability for React + Vite (priority 3). Mobile: Shares JavaScript/TypeScript skills and code with the web team. Fit for this project: team.languages includes JavaScript; strong time to market for React Native (priority 5); well suited to social projects; strong maintainability for React Native (priority 3).",
+      "driven_by": [
+        "team.languages",
+        "priorities.cost",
+        "priorities.time_to_market",
+        "priorities.maintainability",
+        "priorities.performance",
+        "priorities.scalability",
+        "project.type"
+      ],
+      "alternatives": [
+        {
+          "choice": "Next.js (React)",
+          "why_not": "Scored 1.9 points lower: learning curve 3/5 for a beginner team."
+        },
+        {
+          "choice": "Ionic Capacitor",
+          "why_not": "Scored 1.6 points lower: the chosen option wins on priorities.time_to_market (strong time to market for React Native (priority 5))."
+        }
+      ],
+      "tradeoffs": [
+        "Client-rendered: no SEO for public pages.",
+        "Routing/data fetching are your choices.",
+        "JS runtime adds memory overhead on very low-end phones.",
+        "Some native modules need a development build."
+      ],
+      "parts": {
+        "web": "React + Vite (SPA)",
+        "mobile": "React Native (Expo)"
+      }
+    },
+    "backend": {
+      "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript; strong time to market for Supabase (priority 5); native WebSocket/real-time support; a 1-person team ships in 3 weeks without building auth/storage.",
+      "driven_by": [
+        "budget.monthly_infra_usd",
+        "team.languages",
+        "scale.users_12_months",
+        "priorities.time_to_market",
+        "requirements.auth",
+        "requirements.realtime",
+        "timeline.mvp_weeks"
+      ],
+      "alternatives": [
+        {
+          "choice": "Node.js + Fastify",
+          "why_not": "Scored 2.6 points lower: the chosen option wins on timeline.mvp_weeks (a 1-person team ships in 3 weeks without building auth/storage)."
+        },
+        {
+          "choice": "NestJS (Node.js, TypeScript)",
+          "why_not": "Scored 3.3 points lower: learning curve 3/5 for a beginner team."
+        }
+      ],
+      "tradeoffs": [
+        "Business logic split across RLS policies, SQL and Edge Functions is harder to test.",
+        "Free projects pause after a week of inactivity; production needs the Pro plan.",
+        "Costs at least $600/month but the budget is $0.",
+        "Large scale outgrows a single BaaS project."
+      ]
+    },
+    "database": {
+      "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong cost for PostgreSQL (priority 5); strong maintainability for PostgreSQL (priority 3); strong security for PostgreSQL (priority 3); strong time to market for PostgreSQL (priority 5).",
+      "driven_by": [
+        "priorities.cost",
+        "priorities.maintainability",
+        "priorities.security",
+        "priorities.time_to_market",
+        "project.type",
+        "priorities.performance",
+        "priorities.scalability"
+      ],
+      "alternatives": [
+        {
+          "choice": "Cloud Firestore (Firebase)",
+          "why_not": "Scored 2.2 points lower: proprietary API increases lock-in; the chosen option wins on priorities.cost (strong cost for PostgreSQL (priority 5))."
+        },
+        {
+          "choice": "Azure Database for MySQL – Flexible Server (East US)",
+          "why_not": "Scored 3.9 points lower: the chosen option wins on project.type (well suited to social projects)."
+        }
+      ],
+      "tradeoffs": [
+        "Horizontal write scaling needs partitioning, read replicas or Citus."
+      ]
+    },
+    "hosting": {
+      "choice": "Cloudflare Pages",
+      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost for Cloudflare Pages (priority 5); strong time to market for Cloudflare Pages (priority 5); strong performance for Cloudflare Pages (priority 3); strong scalability for Cloudflare Pages (priority 3).",
+      "driven_by": [
+        "budget.monthly_infra_usd",
+        "priorities.cost",
+        "priorities.time_to_market",
+        "project.type",
+        "requirements.realtime",
+        "priorities.performance",
+        "priorities.scalability"
+      ],
+      "alternatives": [
+        {
+          "choice": "Firebase Hosting (nam5)",
+          "why_not": "Scored 2.2 points lower: static hosting only; the API must run elsewhere; the chosen option wins on priorities.performance (strong performance for Cloudflare Pages (priority 3))."
+        },
+        {
+          "choice": "Azure Static Web Apps (East US)",
+          "why_not": "Scored 2.9 points lower: costs at least $100/month but the budget is $0."
+        }
+      ],
+      "tradeoffs": [
+        "Workers runtime is not Node.js; some libraries need adapters.",
+        "Static hosting only; the API must run elsewhere."
+      ]
+    },
+    "supporting": [
+      {
+        "layer": "auth",
+        "choice": "Supabase Auth",
+        "justification": "Included in the Supabase project; issues JWTs that Postgres RLS policies check.",
+        "driven_by": [
+          "requirements.auth"
+        ],
+        "alternatives": [
+          {
+            "choice": "Clerk",
+            "why_not": "Separate vendor; user data stored in the US."
+          }
+        ],
+        "tradeoffs": [
+          "Account recovery and MFA flows must still be designed."
+        ],
+        "estimated_monthly_usd": [
+          25,
+          250
+        ]
+      },
+      {
+        "layer": "storage",
+        "choice": "Supabase Storage (S3-compatible, same region)",
+        "justification": "Clients upload directly with pre-signed URLs, so large files never pass through the API; objects are encrypted at rest and private by default.",
+        "driven_by": [
+          "requirements.file_media_storage"
+        ],
+        "alternatives": [
+          {
+            "choice": "Amazon S3",
+            "why_not": "Another vendor; Supabase Storage enforces the same RLS rules."
+          }
+        ],
+        "tradeoffs": [
+          "Needs lifecycle rules to control growth."
+        ],
+        "estimated_monthly_usd": [
+          400,
+          1005
+        ]
+      },
+      {
+        "layer": "realtime",
+        "choice": "Supabase Realtime (Broadcast + Postgres changes)",
+        "justification": "Included; pushes chat messages and job-status changes to subscribed clients.",
+        "driven_by": [
+          "requirements.realtime"
+        ],
+        "alternatives": [
+          {
+            "choice": "Socket.IO server",
+            "why_not": "An extra service to run."
+          }
+        ],
+        "tradeoffs": [
+          "Long-lived connections need sticky sessions or a pub/sub layer."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ],
+        "separate_service": false
+      },
+      {
+        "layer": "queue",
+        "choice": "Supabase Queues (pgmq) + Edge Functions",
+        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "driven_by": [
+          "requirements.file_media_storage",
+          "scale.users_12_months"
+        ],
+        "alternatives": [
+          {
+            "choice": "Kafka",
+            "why_not": "Event-streaming platform: heavy to run for job queues at this scale."
+          }
+        ],
+        "tradeoffs": [
+          "Jobs must be idempotent; monitor the dead-letter queue."
+        ],
+        "estimated_monthly_usd": [
+          10,
+          150
+        ]
+      },
+      {
+        "layer": "other",
+        "choice": "Firebase Cloud Messaging (push notifications)",
+        "justification": "Free push delivery to Android and iOS (via APNs) for job updates and reminders.",
+        "driven_by": [
+          "project.platforms"
+        ],
+        "alternatives": [
+          {
+            "choice": "SMS for every notification",
+            "why_not": "Costs per message and DLT templates."
+          }
+        ],
+        "tradeoffs": [
+          "Notification payloads must not contain sensitive data."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "ci_cd",
+        "choice": "GitHub Actions",
+        "justification": "Runs tests and deploys on every merge; free minutes cover a small team.",
+        "driven_by": [
+          "infrastructure.deployment_model",
+          "team.size"
+        ],
+        "alternatives": [
+          {
+            "choice": "Jenkins",
+            "why_not": "Self-hosted server to maintain."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          50
+        ]
+      },
+      {
+        "layer": "observability",
+        "choice": "Sentry (errors + performance) + host logs + uptime checks and on-call paging",
+        "justification": "Free Developer plan catches crashes in the app and mobile clients with stack traces. 99.99% needs alerting that wakes someone up.",
+        "driven_by": [
+          "requirements.availability",
+          "infrastructure.data_residency"
+        ],
+        "alternatives": [
+          {
+            "choice": "Datadog",
+            "why_not": "Strong product but expensive per host at this budget."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          26
+        ]
+      }
+    ]
+  },
+  "estimated_monthly_cost_usd": {
+    "min": 1035,
+    "max": 3981,
+    "assumptions": [
+      "Scale level L4: ~2000000 users, ~80000 peak concurrent, ~16000 req/s at peak, ~20000 GB stored",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+    ],
+    "breakdown": {
+      "hosting": [
+        0,
+        0
+      ],
+      "backend": [
+        600,
+        2500
+      ],
+      "auth": [
+        25,
+        250
+      ],
+      "storage": [
+        400,
+        1005
+      ],
+      "realtime": [
+        0,
+        0
+      ],
+      "queue": [
+        10,
+        150
+      ],
+      "other": [
+        0,
+        0
+      ],
+      "ci_cd": [
+        0,
+        50
+      ],
+      "observability": [
+        0,
+        26
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "code": "OVER_BUDGET",
+      "severity": "critical",
+      "message": "Even the leanest compliant stack costs about $1035-3981/month; the $0 budget cannot cover it. Shown as a reduced-cost stack with the budget relaxed.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    },
+    {
+      "code": "AVAILABILITY_VS_TEAM",
+      "severity": "critical",
+      "message": "99.99% availability allows ~4 minutes of downtime a month. That needs multi-zone (often multi-region) failover and 24x7 on-call, which a beginner team of 1 without DevOps cannot realistically run. The stack uses managed multi-zone services; plan for 99.9% until on-call exists.",
+      "fields": [
+        "requirements.availability",
+        "team.size",
+        "team.experience",
+        "team.has_devops"
+      ]
+    },
+    {
+      "code": "TIMELINE_VS_SCOPE",
+      "severity": "critical",
+      "message": "3 client platform(s) plus 1 major feature(s) in 3 week(s) with 1 engineer(s) is very tight. Ship one platform first (the stack favours shared code across platforms).",
+      "fields": [
+        "timeline.mvp_weeks",
+        "project.platforms",
+        "team.size"
+      ]
+    },
+    {
+      "code": "SCALE_VS_BUDGET",
+      "severity": "critical",
+      "message": "2000000 users with a $0/month budget is not realistic for a dynamic app; expect at least a few hundred dollars a month.",
+      "fields": [
+        "scale.users_12_months",
+        "budget.monthly_infra_usd"
+      ]
+    },
+    {
+      "code": "AVAILABILITY_VS_BUDGET",
+      "severity": "warning",
+      "message": "99.99% needs redundant capacity in several zones; $0/month is unlikely to fund it.",
+      "fields": [
+        "requirements.availability",
+        "budget.monthly_infra_usd"
+      ]
+    }
+  ],
+  "assumptions": [
+    "infrastructure.cloud_preference not given; defaulted to \"any\".",
+    "infrastructure.deployment_model not given; defaulted to \"managed_cloud\".",
+    "infrastructure.data_residency not given; defaulted to \"none\".",
+    "infrastructure.existing_systems not given; defaulted to [].",
+    "requirements.offline_support not given; defaulted to false.",
+    "requirements.full_text_search not given; defaulted to false.",
+    "requirements.payments not given; defaulted to false.",
+    "requirements.multi_tenant not given; defaulted to false.",
+    "requirements.ml_features not given; defaulted to \"none\".",
+    "requirements.seo_critical not given; defaulted to false.",
+    "Priorities not given for scalability, performance, maintainability, security; defaulted to 3.",
+    "Relaxed: budget.monthly_infra_usd ($0) treated as soft; cheapest viable stack shown."
+  ],
+  "validation_errors": [],
+  "derived": {
+    "scale_level": 4,
+    "peak_concurrent_users": 80000,
+    "estimated_peak_rps": 16000,
+    "data_volume_gb": 20000,
+    "effective_data_residency": "none",
+    "description_signals": {
+      "media": "video",
+      "realtime": "chat"
+    },
+    "combinations_evaluated": 1376,
+    "input_hash": "051f631b6939c1e3"
+  }
+}

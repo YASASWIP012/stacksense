@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StackSense</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="logo">◆</span>
+    <div>
+      <h1>StackSense</h1>
+      <p>Tech stack recommendations you can defend: every choice traced to your inputs.</p>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge ok" title="The stack is chosen by StackSense's own rules and scoring. No LLM is called anywhere.">LLM: off (none used)</span>
+    <span class="badge" id="ver">engine</span>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="panel inputs">
+    <div class="toolbar">
+      <select id="sample"><option value="">Load a sample scenario…</option></select>
+      <label class="btn ghost" for="file">Import JSON</label>
+      <input type="file" id="file" accept=".json,application/json" hidden>
+      <button class="btn ghost" id="reset" type="button">Clear</button>
+    </div>
+    <form id="form" autocomplete="off"></form>
+    <div class="actions">
+      <button class="btn primary" id="run" type="button">Recommend stack</button>
+      <button class="btn ghost" id="exportIn" type="button">Export input JSON</button>
+    </div>
+  </section>
+
+  <section class="panel results" id="results">
+    <div class="empty">
+      <h2>Describe a project, or load a sample</h2>
+      <p>StackSense filters out options that break hard constraints (residency, compliance, cloud, deployment model),
+        scores the rest against your team, scale, budget and priorities, and searches every compatible combination of
+        layers. You get the stack, the input fields that drove each choice, the alternatives it rejected and why,
+        warnings and a cost band.</p>
+    </div>
+  </section>
+</main>
+<footer class="foot">StackSense · Synergy '26 StackSense Challenge · deterministic engine, same input → same stack</footer>
+<script src="app.js"></script>
+</body>
+</html>

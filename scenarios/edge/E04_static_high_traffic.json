@@ -1,0 +1,41 @@
+{
+  "scenario_id": "E04",
+  "project": {
+    "name": "FestInfo",
+    "type": "content_site",
+    "description": "College fest schedule, results and photo gallery written in Markdown.",
+    "platforms": [
+      "web"
+    ]
+  },
+  "scale": {
+    "users_at_launch": 50000,
+    "users_12_months": 400000,
+    "peak_concurrent_users": 20000,
+    "traffic_pattern": "seasonal",
+    "workload": "read_heavy"
+  },
+  "team": {
+    "size": 2,
+    "experience": "intermediate",
+    "languages": [
+      "javascript",
+      "python"
+    ]
+  },
+  "budget": {
+    "monthly_infra_usd": 20
+  },
+  "timeline": {
+    "mvp_weeks": 3
+  },
+  "requirements": {
+    "seo_critical": true,
+    "availability": "99.9"
+  },
+  "priorities": {
+    "cost": 5,
+    "time_to_market": 4,
+    "scalability": 3
+  }
+}

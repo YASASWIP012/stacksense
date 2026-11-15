@@ -1,0 +1,40 @@
+{
+  "scenario_id": "E10",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "infeasible",
+  "summary": "Hard constraints contradict each other (RBI_VS_RESIDENCY); no compliant stack exists until one is relaxed.",
+  "architecture_style": null,
+  "stack": null,
+  "estimated_monthly_cost_usd": null,
+  "warnings": [
+    {
+      "code": "RBI_VS_RESIDENCY",
+      "severity": "critical",
+      "message": "rbi_localisation requires payment data to be stored only in India, but data_residency=eu. These cannot both hold.",
+      "fields": [
+        "compliance",
+        "infrastructure.data_residency"
+      ]
+    },
+    {
+      "code": "PCI_SCOPE",
+      "severity": "info",
+      "message": "Taking payments: use the gateway's hosted checkout/SDK so card data never touches your servers (PCI DSS SAQ A).",
+      "fields": [
+        "requirements.payments"
+      ]
+    },
+    {
+      "code": "RBI_LOCALISATION",
+      "severity": "info",
+      "message": "RBI storage directive (2018): the entire payment data, including backups, logs and the DR copy, must stay in India. Use an Indian DR region (e.g. AWS ap-south-2 Hyderabad / Azure South India) and keep observability data in-country.",
+      "fields": [
+        "compliance",
+        "infrastructure.data_residency"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "validation_errors": []
+}

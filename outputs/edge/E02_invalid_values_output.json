@@ -1,0 +1,38 @@
+{
+  "scenario_id": "E02",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "invalid_input",
+  "summary": "The input has 6 invalid or missing field(s); fix them and run again.",
+  "architecture_style": null,
+  "stack": null,
+  "estimated_monthly_cost_usd": null,
+  "warnings": [],
+  "assumptions": [],
+  "validation_errors": [
+    {
+      "field": "project.type",
+      "message": "Unknown value 'crypto_exchange'. Allowed: content_site, web_app, saas_b2b, ecommerce, marketplace, social, realtime_collab, fintech, healthtech, data_analytics, iot, ai_ml_product, internal_tool, gaming, api_platform, other."
+    },
+    {
+      "field": "scale.users_at_launch",
+      "message": "Must be >= 0 (got -5)."
+    },
+    {
+      "field": "team.experience",
+      "message": "Unknown value 'expert'. Allowed: beginner, intermediate, senior, mixed."
+    },
+    {
+      "field": "budget.monthly_infra_usd",
+      "message": "Must be a number."
+    },
+    {
+      "field": "requirements.realtime",
+      "message": "Must be true or false (JSON boolean)."
+    },
+    {
+      "field": "priorities.cost",
+      "message": "Priority 9 is out of range 1-5."
+    }
+  ]
+}

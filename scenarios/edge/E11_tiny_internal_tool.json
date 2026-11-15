@@ -1,0 +1,38 @@
+{
+  "scenario_id": "E11",
+  "project": {
+    "name": "LabBooking",
+    "type": "internal_tool",
+    "description": "Book lab slots for a 40-person research group.",
+    "platforms": [
+      "web"
+    ]
+  },
+  "scale": {
+    "users_at_launch": 40,
+    "users_12_months": 60,
+    "peak_concurrent_users": 10
+  },
+  "team": {
+    "size": 1,
+    "experience": "beginner",
+    "languages": [
+      "python"
+    ]
+  },
+  "budget": {
+    "monthly_infra_usd": 10
+  },
+  "timeline": {
+    "mvp_weeks": 2
+  },
+  "requirements": {
+    "auth": "email_password",
+    "availability": "99"
+  },
+  "priorities": {
+    "cost": 5,
+    "time_to_market": 5,
+    "scalability": 1
+  }
+}

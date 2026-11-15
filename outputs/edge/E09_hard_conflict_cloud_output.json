@@ -1,0 +1,39 @@
+{
+  "scenario_id": "E09",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "infeasible",
+  "summary": "Hard constraints contradict each other (CLOUD_VS_DEPLOYMENT); no compliant stack exists until one is relaxed.",
+  "architecture_style": null,
+  "stack": null,
+  "estimated_monthly_cost_usd": null,
+  "warnings": [
+    {
+      "code": "CLOUD_VS_DEPLOYMENT",
+      "severity": "critical",
+      "message": "cloud_preference=aws conflicts with deployment_model=on_premise: a public cloud cannot also be on-premise/air-gapped. Set cloud_preference to 'none' or pick a cloud deployment model.",
+      "fields": [
+        "infrastructure.cloud_preference",
+        "infrastructure.deployment_model"
+      ]
+    },
+    {
+      "code": "PCI_SCOPE",
+      "severity": "info",
+      "message": "Taking payments: use the gateway's hosted checkout/SDK so card data never touches your servers (PCI DSS SAQ A).",
+      "fields": [
+        "requirements.payments"
+      ]
+    },
+    {
+      "code": "DPDP_NOTES",
+      "severity": "info",
+      "message": "DPDP Act 2023: collect consent per purpose, honour erasure requests and report breaches; the Act itself does not force India-only storage unless data_residency requires it.",
+      "fields": [
+        "compliance"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "validation_errors": []
+}

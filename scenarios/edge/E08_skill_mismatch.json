@@ -1,0 +1,42 @@
+{
+  "scenario_id": "E08",
+  "project": {
+    "name": "QuizDuel",
+    "type": "gaming",
+    "description": "Live multiplayer quiz battles with leaderboards.",
+    "platforms": [
+      "web",
+      "android"
+    ]
+  },
+  "scale": {
+    "users_at_launch": 5000,
+    "users_12_months": 80000,
+    "peak_concurrent_users": 4000,
+    "traffic_pattern": "spiky",
+    "workload": "write_heavy"
+  },
+  "team": {
+    "size": 3,
+    "experience": "intermediate",
+    "languages": [
+      "php"
+    ]
+  },
+  "budget": {
+    "monthly_infra_usd": 400
+  },
+  "timeline": {
+    "mvp_weeks": 10
+  },
+  "requirements": {
+    "realtime": true,
+    "auth": "social",
+    "availability": "99.9",
+    "p95_latency_ms": 150
+  },
+  "priorities": {
+    "performance": 5,
+    "time_to_market": 4
+  }
+}

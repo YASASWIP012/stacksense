@@ -1,0 +1,48 @@
+{
+  "scenario_id": "E06",
+  "project": {
+    "name": "DefenceStores",
+    "type": "internal_tool",
+    "description": "Inventory and approvals for a defence depot network, no internet access.",
+    "platforms": [
+      "web"
+    ]
+  },
+  "scale": {
+    "users_at_launch": 800,
+    "users_12_months": 1200,
+    "peak_concurrent_users": 200
+  },
+  "team": {
+    "size": 4,
+    "experience": "intermediate",
+    "languages": [
+      "java",
+      "sql"
+    ],
+    "has_devops": true
+  },
+  "budget": {
+    "monthly_infra_usd": 500
+  },
+  "timeline": {
+    "mvp_weeks": 12
+  },
+  "infrastructure": {
+    "cloud_preference": "none",
+    "deployment_model": "air_gapped",
+    "data_residency": "india"
+  },
+  "requirements": {
+    "auth": "social",
+    "payments": true,
+    "full_text_search": true,
+    "availability": "99.9"
+  },
+  "compliance": [
+    "iso27001"
+  ],
+  "priorities": {
+    "security": 5
+  }
+}

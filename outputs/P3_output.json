@@ -1,0 +1,428 @@
+{
+  "scenario_id": "P3",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "ok",
+  "summary": "Service oriented Go on Azure Container Apps with Azure Database for PostgreSQL – Flexible Server as the database; front end: React + Vite.",
+  "architecture_style": "service_oriented",
+  "stack": {
+    "frontend": {
+      "choice": "React + Vite (SPA)",
+      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: well suited to realtime collab projects; team.languages includes TypeScript; strong performance for React + Vite (priority 5); strong scalability for React + Vite (priority 5).",
+      "driven_by": [
+        "project.type",
+        "team.languages",
+        "priorities.performance",
+        "priorities.scalability",
+        "priorities.maintainability",
+        "priorities.cost",
+        "priorities.time_to_market"
+      ],
+      "alternatives": [
+        {
+          "choice": "Angular",
+          "why_not": "Scored 1.1 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
+        },
+        {
+          "choice": "Next.js (React)",
+          "why_not": "Scored 1.9 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
+        }
+      ],
+      "tradeoffs": [
+        "Client-rendered: no SEO for public pages.",
+        "Routing/data fetching are your choices."
+      ],
+      "parts": {
+        "web": "React + Vite (SPA)"
+      }
+    },
+    "backend": {
+      "choice": "Go (net/http + chi)",
+      "justification": "Cheap goroutines handle many concurrent WebSocket connections per core. Fit for this project: team.languages includes Go; strong performance for Go (priority 5); strong scalability for Go (priority 5); well suited to realtime collab projects.",
+      "driven_by": [
+        "team.languages",
+        "priorities.performance",
+        "priorities.scalability",
+        "project.type",
+        "requirements.realtime",
+        "requirements.p95_latency_ms",
+        "scale.peak_concurrent_users"
+      ],
+      "alternatives": [
+        {
+          "choice": "ASP.NET Core (C#)",
+          "why_not": "Scored 1.0 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Go)."
+        },
+        {
+          "choice": "Elixir Phoenix",
+          "why_not": "Scored 3.1 points lower: the team would have to learn Elixir; the chosen option wins on team.languages (team.languages includes Go)."
+        }
+      ],
+      "tradeoffs": [
+        "More hand-written code for CRUD/admin than Django/Rails."
+      ]
+    },
+    "database": {
+      "choice": "Azure Database for PostgreSQL – Flexible Server (West Europe)",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep money/bookings consistent; strong maintainability for PostgreSQL (priority 4); strong performance for PostgreSQL (priority 5); strong scalability for PostgreSQL (priority 5).",
+      "driven_by": [
+        "requirements.payments",
+        "priorities.maintainability",
+        "priorities.performance",
+        "priorities.scalability",
+        "priorities.security",
+        "requirements.multi_tenant",
+        "priorities.time_to_market"
+      ],
+      "alternatives": [
+        {
+          "choice": "Azure Database for MySQL – Flexible Server (West Europe)",
+          "why_not": "Scored 0.9 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 4))."
+        },
+        {
+          "choice": "TimescaleDB on Azure VM (self-managed) (West Europe)",
+          "why_not": "Scored 1.7 points lower: time-series extension adds operations without a time-series need."
+        }
+      ],
+      "tradeoffs": [
+        "Horizontal write scaling needs partitioning, read replicas or Citus."
+      ]
+    },
+    "hosting": {
+      "choice": "Azure Container Apps (West Europe)",
+      "justification": "Serverless containers on Azure. Fit for this project: strong scalability for Azure Container Apps (priority 5); scales automatically with spiky traffic; strong performance for Azure Container Apps (priority 5); strong time to market for Azure Container Apps (priority 3).",
+      "driven_by": [
+        "priorities.scalability",
+        "scale.traffic_pattern",
+        "priorities.performance",
+        "priorities.time_to_market"
+      ],
+      "alternatives": [
+        {
+          "choice": "Azure Static Web Apps (West Europe)",
+          "why_not": "Scored 1.5 points lower: the chosen option wins on priorities.scalability (strong scalability for Azure Container Apps (priority 5))."
+        },
+        {
+          "choice": "Google Cloud Run (europe-west1 Belgium)",
+          "why_not": "Scored 0.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+        }
+      ],
+      "tradeoffs": [
+        "Dapr/KEDA concepts add learning."
+      ]
+    },
+    "supporting": [
+      {
+        "layer": "auth",
+        "choice": "Keycloak (self-hosted, Organizations for tenants)",
+        "justification": "Multi-tenant B2B SaaS with social login: Keycloak's Organizations feature models customer teams, and the DevOps engineer can run it. No per-MAU fees as seats grow.",
+        "driven_by": [
+          "requirements.auth",
+          "requirements.multi_tenant",
+          "team.has_devops"
+        ],
+        "alternatives": [
+          {
+            "choice": "Auth0 Organizations",
+            "why_not": "Per-MAU pricing climbs quickly as seats grow."
+          },
+          {
+            "choice": "Clerk",
+            "why_not": "Stores data in the US; weaker fit for GDPR-minded EU customers."
+          }
+        ],
+        "tradeoffs": [
+          "Account recovery and MFA flows must still be designed."
+        ],
+        "estimated_monthly_usd": [
+          25,
+          250
+        ]
+      },
+      {
+        "layer": "payments",
+        "choice": "Stripe Billing (per-seat subscriptions) + Stripe Tax",
+        "justification": "Per-seat plans, proration and invoices out of the box; Stripe Tax handles EU VAT.",
+        "driven_by": [
+          "project.description",
+          "requirements.payments"
+        ],
+        "alternatives": [
+          {
+            "choice": "Paddle",
+            "why_not": "Merchant of record removes VAT work, but higher fees and less control."
+          },
+          {
+            "choice": "Chargebee",
+            "why_not": "Billing layer on top of a gateway: one more vendor."
+          }
+        ],
+        "tradeoffs": [
+          "Gateway fees (~2% per transaction) are not part of the infra estimate.",
+          "Webhook handling must be idempotent."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "storage",
+        "choice": "Azure Blob Storage (nearest region)",
+        "justification": "Clients upload directly with pre-signed URLs, so large files never pass through the API; objects are encrypted at rest and private by default.",
+        "driven_by": [
+          "requirements.file_media_storage"
+        ],
+        "alternatives": [
+          {
+            "choice": "SharePoint/OneDrive via Microsoft Graph",
+            "why_not": "Fine for documents, poor as app storage."
+          }
+        ],
+        "tradeoffs": [
+          "Needs lifecycle rules to control growth."
+        ],
+        "estimated_monthly_usd": [
+          4,
+          15
+        ]
+      },
+      {
+        "layer": "cdn",
+        "choice": "Azure Front Door",
+        "justification": "Caches static assets and public media close to users and absorbs traffic spikes.",
+        "driven_by": [
+          "requirements.seo_critical",
+          "requirements.file_media_storage"
+        ],
+        "alternatives": [
+          {
+            "choice": "No CDN",
+            "why_not": "Slower first loads for public pages and media."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          20,
+          200
+        ]
+      },
+      {
+        "layer": "realtime",
+        "choice": "Yjs (CRDT) + Hocuspocus sync server, Redis pub/sub between nodes",
+        "justification": "Concurrent edits to one board must merge without conflicts: Yjs CRDTs do that, Hocuspocus (TypeScript) syncs documents and awareness (live cursors) over WebSockets, and Redis fans updates out across instances for 5000 concurrent users. Board snapshots persist to the database.",
+        "driven_by": [
+          "requirements.realtime",
+          "project.type",
+          "scale.peak_concurrent_users"
+        ],
+        "alternatives": [
+          {
+            "choice": "Liveblocks",
+            "why_not": "Managed and fast to start, but per-MAU pricing and US data storage."
+          },
+          {
+            "choice": "Custom operational-transform server in Go",
+            "why_not": "Months of work to get conflict handling right."
+          }
+        ],
+        "tradeoffs": [
+          "Long-lived connections need sticky sessions or a pub/sub layer."
+        ],
+        "estimated_monthly_usd": [
+          50,
+          400
+        ],
+        "separate_service": true
+      },
+      {
+        "layer": "cache",
+        "choice": "Azure Managed Redis",
+        "justification": "Caches hot reads and sessions to hold p95=100ms, and doubles as the pub/sub and job-queue broker.",
+        "driven_by": [
+          "requirements.p95_latency_ms",
+          "scale.peak_concurrent_users",
+          "requirements.realtime"
+        ],
+        "alternatives": [
+          {
+            "choice": "Memcached",
+            "why_not": "No pub/sub or persistence, so it cannot double as a broker."
+          },
+          {
+            "choice": "No cache",
+            "why_not": "Every read hits the database at peak."
+          }
+        ],
+        "tradeoffs": [
+          "Another stateful component to size and monitor."
+        ],
+        "estimated_monthly_usd": [
+          50,
+          400
+        ]
+      },
+      {
+        "layer": "queue",
+        "choice": "NATS JetStream",
+        "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
+        "driven_by": [
+          "requirements.payments",
+          "requirements.file_media_storage",
+          "scale.users_12_months"
+        ],
+        "alternatives": [
+          {
+            "choice": "Kafka",
+            "why_not": "Event-streaming platform: heavy to run for job queues at this scale."
+          }
+        ],
+        "tradeoffs": [
+          "Jobs must be idempotent; monitor the dead-letter queue."
+        ],
+        "estimated_monthly_usd": [
+          10,
+          150
+        ]
+      },
+      {
+        "layer": "ci_cd",
+        "choice": "GitHub Actions",
+        "justification": "Runs tests and deploys on every merge; free minutes cover a small team.",
+        "driven_by": [
+          "infrastructure.deployment_model",
+          "team.size"
+        ],
+        "alternatives": [
+          {
+            "choice": "Jenkins",
+            "why_not": "Self-hosted server to maintain."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          50
+        ]
+      },
+      {
+        "layer": "observability",
+        "choice": "Azure Monitor + Application Insights + OpenTelemetry tracing",
+        "justification": "Logs, metrics and traces stay in the same cloud and region as the data.",
+        "driven_by": [
+          "requirements.availability",
+          "infrastructure.data_residency"
+        ],
+        "alternatives": [
+          {
+            "choice": "Datadog",
+            "why_not": "Strong product but expensive per host at this budget."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          50,
+          500
+        ]
+      }
+    ]
+  },
+  "estimated_monthly_cost_usd": {
+    "min": 479,
+    "max": 3515,
+    "assumptions": [
+      "Scale level L3: ~50000 users, ~5000 peak concurrent, ~1000 req/s at peak, ~200 GB stored",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+    ],
+    "breakdown": {
+      "hosting": [
+        100,
+        700
+      ],
+      "database": [
+        170,
+        850
+      ],
+      "auth": [
+        25,
+        250
+      ],
+      "payments": [
+        0,
+        0
+      ],
+      "storage": [
+        4,
+        15
+      ],
+      "cdn": [
+        20,
+        200
+      ],
+      "realtime": [
+        50,
+        400
+      ],
+      "cache": [
+        50,
+        400
+      ],
+      "queue": [
+        10,
+        150
+      ],
+      "ci_cd": [
+        0,
+        50
+      ],
+      "observability": [
+        50,
+        500
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "code": "BUDGET_HEADROOM",
+      "severity": "info",
+      "message": "Upper estimate ($3515) exceeds the $1500 budget; watch usage as you grow.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    },
+    {
+      "code": "PCI_SCOPE",
+      "severity": "info",
+      "message": "Taking payments: use the gateway's hosted checkout/SDK so card data never touches your servers (PCI DSS SAQ A).",
+      "fields": [
+        "requirements.payments"
+      ]
+    },
+    {
+      "code": "GDPR_REGION",
+      "severity": "info",
+      "message": "GDPR: an EU region is the simplest option; otherwise rely on the provider's DPA and SCCs.",
+      "fields": [
+        "compliance",
+        "infrastructure.data_residency"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "validation_errors": [],
+  "derived": {
+    "scale_level": 3,
+    "peak_concurrent_users": 5000,
+    "estimated_peak_rps": 1000,
+    "data_volume_gb": 200,
+    "effective_data_residency": "none",
+    "description_signals": {
+      "multi_tenant": "teams pay",
+      "payments": "pay per seat",
+      "realtime": "live",
+      "subscription": "per seat"
+    },
+    "combinations_evaluated": 280,
+    "input_hash": "5ce3c181265effaa"
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "scenario_id": "E11",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "ok_with_warnings",
+  "summary": "Monolith Django on DigitalOcean App Platform with DigitalOcean Managed PostgreSQL as the database; front end: Django templates + HTMX.",
+  "architecture_style": "monolith",
+  "stack": {
+    "frontend": {
+      "choice": "Django templates + HTMX",
+      "justification": "Server-rendered pages from the same Django codebase, no separate SPA. Fit for this project: team.languages includes Python; strong cost for Django templates + HTMX (priority 5); strong time to market for Django templates + HTMX (priority 5); well suited to internal tool projects.",
+      "driven_by": [
+        "team.languages",
+        "priorities.cost",
+        "priorities.time_to_market",
+        "project.type",
+        "priorities.security",
+        "priorities.maintainability",
+        "priorities.performance"
+      ],
+      "alternatives": [
+        {
+          "choice": "React + Vite (SPA)",
+          "why_not": "Scored 7.9 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
+        },
+        {
+          "choice": "Nuxt (Vue)",
+          "why_not": "Scored 9.8 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on team.languages (team.languages includes Python)."
+        }
+      ],
+      "tradeoffs": [
+        "Highly interactive UIs (drag/drop, live canvases) get awkward."
+      ],
+      "parts": {
+        "web": "Django templates + HTMX"
+      }
+    },
+    "backend": {
+      "choice": "Django (Python)",
+      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong time to market for Django (priority 5); well suited to internal tool projects; built-in admin/back-office screens.",
+      "driven_by": [
+        "team.languages",
+        "priorities.time_to_market",
+        "project.type",
+        "priorities.security",
+        "requirements.auth",
+        "priorities.maintainability"
+      ],
+      "alternatives": [
+        {
+          "choice": "FastAPI (Python)",
+          "why_not": "Scored 11.2 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
+        },
+        {
+          "choice": "Azure Functions",
+          "why_not": "Scored 14.1 points lower: operational burden (ops 2/5) with no DevOps engineer; learning curve 3/5 for a beginner team; the chosen option wins on project.type (well suited to internal tool projects)."
+        }
+      ],
+      "tradeoffs": [
+        "Synchronous-first; WebSockets need Django Channels.",
+        "Heavier per-request overhead than Go/Node for very high RPS."
+      ]
+    },
+    "database": {
+      "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong cost for PostgreSQL (priority 5); strong maintainability for PostgreSQL (priority 3); strong security for PostgreSQL (priority 3); strong time to market for PostgreSQL (priority 5).",
+      "driven_by": [
+        "priorities.cost",
+        "priorities.maintainability",
+        "priorities.security",
+        "priorities.time_to_market",
+        "project.type",
+        "priorities.performance"
+      ],
+      "alternatives": [
+        {
+          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
+          "why_not": "Scored 1.3 points lower: the chosen option wins on project.type (well suited to internal tool projects)."
+        },
+        {
+          "choice": "MongoDB Atlas (AWS N. Virginia)",
+          "why_not": "Scored 1.2 points lower: the chosen option wins on priorities.cost (strong cost for PostgreSQL (priority 5))."
+        }
+      ],
+      "tradeoffs": [
+        "Horizontal write scaling needs partitioning, read replicas or Citus."
+      ]
+    },
+    "hosting": {
+      "choice": "DigitalOcean App Platform (NYC3 New York)",
+      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market for DigitalOcean App Platform (priority 5); strong cost for DigitalOcean App Platform (priority 5); strong performance for DigitalOcean App Platform (priority 3).",
+      "driven_by": [
+        "budget.monthly_infra_usd",
+        "priorities.time_to_market",
+        "priorities.cost",
+        "priorities.performance"
+      ],
+      "alternatives": [
+        {
+          "choice": "Azure Static Web Apps (East US)",
+          "why_not": "Scored 14.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+        },
+        {
+          "choice": "Cloudflare Pages",
+          "why_not": "Scored 15.8 points lower: static hosting only; the API must run elsewhere."
+        }
+      ],
+      "tradeoffs": [
+        "Fewer managed services than AWS/GCP/Azure (no managed search or ML).",
+        "Core stack starts near $12/month against a $10 budget."
+      ]
+    },
+    "supporting": [
+      {
+        "layer": "auth",
+        "choice": "Django auth + django-allauth",
+        "justification": "Uses the backend framework's maintained auth library, so user data stays in your own database.",
+        "driven_by": [
+          "requirements.auth"
+        ],
+        "alternatives": [
+          {
+            "choice": "Auth0 / Clerk",
+            "why_not": "Separate vendor with per-MAU pricing."
+          }
+        ],
+        "tradeoffs": [
+          "Account recovery and MFA flows must still be designed."
+        ],
+        "estimated_monthly_usd": [
+          0,
+          25
+        ]
+      },
+      {
+        "layer": "ci_cd",
+        "choice": "GitHub Actions",
+        "justification": "Runs tests and deploys on every merge; free minutes cover a small team.",
+        "driven_by": [
+          "infrastructure.deployment_model",
+          "team.size"
+        ],
+        "alternatives": [
+          {
+            "choice": "Jenkins",
+            "why_not": "Self-hosted server to maintain."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "observability",
+        "choice": "Sentry (errors + performance) + host logs",
+        "justification": "Free Developer plan catches crashes in the app and mobile clients with stack traces.",
+        "driven_by": [
+          "requirements.availability",
+          "infrastructure.data_residency"
+        ],
+        "alternatives": [
+          {
+            "choice": "Datadog",
+            "why_not": "Strong product but expensive per host at this budget."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          26
+        ]
+      }
+    ]
+  },
+  "estimated_monthly_cost_usd": {
+    "min": 12,
+    "max": 96,
+    "assumptions": [
+      "Scale level L1: ~60 users, ~10 peak concurrent, ~2 req/s at peak, ~0.1 GB stored",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+    ],
+    "breakdown": {
+      "hosting": [
+        5,
+        25
+      ],
+      "database": [
+        7,
+        20
+      ],
+      "auth": [
+        0,
+        25
+      ],
+      "ci_cd": [
+        0,
+        0
+      ],
+      "observability": [
+        0,
+        26
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "code": "OVER_BUDGET",
+      "severity": "warning",
+      "message": "Estimated $12-96/month exceeds the $10 budget at the low end. Use the cheapest tier of each service or raise the budget.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    }
+  ],
+  "assumptions": [
+    "scale.traffic_pattern not given; defaulted to \"steady\".",
+    "scale.workload not given; defaulted to \"balanced\".",
+    "team.has_devops not given; defaulted to false.",
+    "infrastructure.cloud_preference not given; defaulted to \"any\".",
+    "infrastructure.deployment_model not given; defaulted to \"managed_cloud\".",
+    "infrastructure.data_residency not given; defaulted to \"none\".",
+    "infrastructure.existing_systems not given; defaulted to [].",
+    "requirements.realtime not given; defaulted to false.",
+    "requirements.offline_support not given; defaulted to false.",
+    "requirements.full_text_search not given; defaulted to false.",
+    "requirements.file_media_storage not given; defaulted to false.",
+    "requirements.payments not given; defaulted to false.",
+    "requirements.multi_tenant not given; defaulted to false.",
+    "requirements.ml_features not given; defaulted to \"none\".",
+    "requirements.seo_critical not given; defaulted to false.",
+    "compliance not given; defaulted to [].",
+    "Priorities not given for performance, maintainability, security; defaulted to 3.",
+    "scale.data_volume_gb_12_months not given; estimated 0.1 GB (2 MB per user)."
+  ],
+  "validation_errors": [],
+  "derived": {
+    "scale_level": 1,
+    "peak_concurrent_users": 10,
+    "estimated_peak_rps": 2,
+    "data_volume_gb": 0.1,
+    "effective_data_residency": "none",
+    "description_signals": {
+      "booking": "book"
+    },
+    "combinations_evaluated": 142,
+    "input_hash": "a9d6ebd1bb90a551"
+  }
+}

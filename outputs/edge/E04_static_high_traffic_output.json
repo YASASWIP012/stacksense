@@ -1,0 +1,218 @@
+{
+  "scenario_id": "E04",
+  "engine_version": "1.0.0",
+  "llm_used": false,
+  "status": "ok",
+  "summary": "Static site built with Astro and served free from Cloudflare Pages; no backend or database to run.",
+  "architecture_style": "static",
+  "stack": {
+    "frontend": {
+      "choice": "Astro",
+      "justification": "Pre-renders pages to static HTML with zero JS by default. Fit for this project: team.languages includes JavaScript; well suited to content site projects; strong cost for Astro (priority 5); seo_critical=true and it serves pre-rendered HTML.",
+      "driven_by": [
+        "team.languages",
+        "project.type",
+        "priorities.cost",
+        "requirements.seo_critical",
+        "priorities.time_to_market",
+        "priorities.performance",
+        "priorities.scalability"
+      ],
+      "alternatives": [
+        {
+          "choice": "Django templates + HTMX",
+          "why_not": "Scored 26.8 points lower: the chosen option wins on project.type (well suited to content site projects)."
+        },
+        {
+          "choice": "Next.js (React)",
+          "why_not": "Scored 6.3 points lower: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
+        }
+      ],
+      "tradeoffs": [
+        "Rich app-like interactivity needs islands; large SPAs are a poor fit."
+      ],
+      "parts": {
+        "web": "Astro"
+      }
+    },
+    "backend": {
+      "choice": "None",
+      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost for None (priority 5); strong time to market for None (priority 4); strong maintainability for None (priority 3).",
+      "driven_by": [
+        "project.type",
+        "priorities.cost",
+        "priorities.time_to_market",
+        "priorities.maintainability",
+        "priorities.security"
+      ],
+      "alternatives": [
+        {
+          "choice": "Django (Python)",
+          "why_not": "Scored 23.8 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+        },
+        {
+          "choice": "FastAPI (Python)",
+          "why_not": "Scored 24.9 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+        }
+      ],
+      "tradeoffs": []
+    },
+    "database": {
+      "choice": "None",
+      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost for None (priority 5); strong time to market for None (priority 4); strong maintainability for None (priority 3).",
+      "driven_by": [
+        "project.type",
+        "priorities.cost",
+        "priorities.time_to_market",
+        "priorities.maintainability",
+        "priorities.security"
+      ],
+      "alternatives": [
+        {
+          "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
+          "why_not": "Scored 20.8 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+        },
+        {
+          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
+          "why_not": "Scored 23.9 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+        }
+      ],
+      "tradeoffs": []
+    },
+    "hosting": {
+      "choice": "Cloudflare Pages",
+      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost for Cloudflare Pages (priority 5); well suited to content site projects; strong time to market for Cloudflare Pages (priority 4); serves pre-built static files from a CDN.",
+      "driven_by": [
+        "priorities.cost",
+        "project.type",
+        "priorities.time_to_market",
+        "priorities.performance",
+        "priorities.scalability"
+      ],
+      "alternatives": [
+        {
+          "choice": "GitHub Pages",
+          "why_not": "Scored 0.7 points lower: the chosen option wins on priorities.performance (strong performance for Cloudflare Pages (priority 3))."
+        },
+        {
+          "choice": "Azure Static Web Apps (East US)",
+          "why_not": "Scored 3.5 points lower: starts around $20/month against a $20 budget."
+        }
+      ],
+      "tradeoffs": [
+        "Workers runtime is not Node.js; some libraries need adapters."
+      ]
+    },
+    "supporting": [
+      {
+        "layer": "ci_cd",
+        "choice": "GitHub Actions (build and deploy on push)",
+        "justification": "Builds the static site on every push to main and deploys it; free for public repos.",
+        "driven_by": [
+          "project.type",
+          "budget.monthly_infra_usd"
+        ],
+        "alternatives": [
+          {
+            "choice": "Host's built-in Git integration",
+            "why_not": "Equally fine; Actions keeps build steps in the repo."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      },
+      {
+        "layer": "observability",
+        "choice": "Free uptime check (e.g. UptimeRobot) + host analytics",
+        "justification": "A static site only needs to know it is up; no servers to monitor.",
+        "driven_by": [
+          "requirements.availability"
+        ],
+        "alternatives": [
+          {
+            "choice": "Sentry",
+            "why_not": "No server code to instrument."
+          }
+        ],
+        "tradeoffs": [],
+        "estimated_monthly_usd": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "estimated_monthly_cost_usd": {
+    "min": 0,
+    "max": 0,
+    "assumptions": [
+      "Scale level L3: ~400000 users, ~20000 peak concurrent, ~4000 req/s at peak, ~1 GB stored",
+      "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
+    ],
+    "breakdown": {
+      "hosting": [
+        0,
+        0
+      ],
+      "database": [
+        0,
+        0
+      ],
+      "ci_cd": [
+        0,
+        0
+      ],
+      "observability": [
+        0,
+        0
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "code": "DESCRIPTION_MISMATCH",
+      "severity": "info",
+      "message": "The description mentions 'photo' but requirements.file_media_storage is false. StackSense follows the structured field; check it.",
+      "fields": [
+        "project.description",
+        "requirements.file_media_storage"
+      ]
+    }
+  ],
+  "assumptions": [
+    "team.has_devops not given; defaulted to false.",
+    "infrastructure.cloud_preference not given; defaulted to \"any\".",
+    "infrastructure.deployment_model not given; defaulted to \"managed_cloud\".",
+    "infrastructure.data_residency not given; defaulted to \"none\".",
+    "infrastructure.existing_systems not given; defaulted to [].",
+    "requirements.realtime not given; defaulted to false.",
+    "requirements.offline_support not given; defaulted to false.",
+    "requirements.full_text_search not given; defaulted to false.",
+    "requirements.file_media_storage not given; defaulted to false.",
+    "requirements.payments not given; defaulted to false.",
+    "requirements.auth not given; defaulted to \"none\".",
+    "requirements.multi_tenant not given; defaulted to false.",
+    "requirements.ml_features not given; defaulted to \"none\".",
+    "compliance not given; defaulted to [].",
+    "Priorities not given for performance, maintainability, security; defaulted to 3.",
+    "scale.data_volume_gb_12_months not given; a content site is assumed to store ~1 GB."
+  ],
+  "validation_errors": [],
+  "derived": {
+    "scale_level": 3,
+    "peak_concurrent_users": 20000,
+    "estimated_peak_rps": 4000,
+    "data_volume_gb": 1,
+    "effective_data_residency": "none",
+    "description_signals": {
+      "booking": "schedul",
+      "markdown": "markdown",
+      "media": "photo"
+    },
+    "combinations_evaluated": 110,
+    "input_hash": "3d24c8595473b048"
+  }
+}
