@@ -87,6 +87,21 @@ def _domain_items(c, combo, dbs, hp, onprem, prior=()):
         out.append(S("other", ch, "Several non-developer editors need drafts, roles, scheduling and media management; the site "
                      "pulls content from the CMS at build time and the CDN serves the pages.", ["project.type", "team.size"],
                      [("Markdown in Git", "Fine for one developer-author, not for an editorial team.")], [], (10, 60)))
+    if re.search(r"online judge|coding judge|code execution|run (user|their) code|submit code|compile and run", d):
+        out.append(S("other", "Judge0 (self-hosted) on isolated worker VMs for sandboxed code execution",
+                     "Running untrusted submissions needs sandboxes with CPU/memory/time limits and no network; Judge0 provides "
+                     "isolate-based sandboxes for 60+ languages, run on separate worker machines fed by the queue, never on the API servers.",
+                     ["project.description"],
+                     [("Executing code in the API process", "Remote-code-execution risk and noisy-neighbour slowdowns."),
+                      ("Judge0 hosted API (RapidAPI)", "Fine to start, but per-call pricing and a third party sees submissions.")],
+                     ["Worker capacity must match contest-time submission spikes."], (40, 400), separate_service=True))
+    if re.search(r"podcast|audio episodes?|audiobook", d):
+        out.append(S("other", "Audio pipeline: FFmpeg transcode (MP3/AAC, loudness-normalised) + CDN delivery + RSS feed generation",
+                     "Uploaded episodes are transcoded and normalised in background jobs, served from object storage through a CDN "
+                     "(egress dominates cost), and published via podcast RSS feeds that Apple/Spotify ingest.",
+                     ["project.description", "requirements.file_media_storage"],
+                     [("Serving raw uploads", "Inconsistent formats and loudness; no feed for podcast apps.")],
+                     ["CDN egress grows with downloads."], (20, 300)))
     if "newsletter" in d or "email campaign" in d or "mailing list" in d:
         ch = "Amazon SES (newsletter sending) + double opt-in list" if hp == "aws" else "Buttondown / Resend (newsletter + transactional email)"
         out.append(S("other", ch, "The description mentions a newsletter: a sending service handles deliverability (SPF/DKIM/DMARC), "

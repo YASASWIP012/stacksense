@@ -712,6 +712,8 @@ def pair_rules(combo, c):
         return False, ("hosting", "Lambda is hosted by the AWS serverless stack"), out, None
     if be["id"] == "azure_functions" and host["id"] not in ("azure_static", "azure_app_service", "azure_container_apps"):
         return False, ("hosting", "Azure Functions run on Azure"), out, None
+    if db["id"] == "firestore" and be["id"] != "firebase":
+        return False, ("database", "Firestore is designed for Firebase client SDKs, not a server-side ORM"), out, None
     if be["id"] == "none" and db["id"] != "none":
         return False, ("database", "a database needs a backend"), out, None
     if db["id"] == "none" and be["id"] != "none":
