@@ -20,12 +20,12 @@
       ],
       "alternatives": [
         {
-          "choice": "Django templates + HTMX",
-          "why_not": "Scored 26.8 points lower: the chosen option wins on project.type (well suited to content site projects)."
-        },
-        {
           "choice": "Next.js (React)",
           "why_not": "Scored 6.3 points lower: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
+        },
+        {
+          "choice": "Nuxt (Vue)",
+          "why_not": "Scored 5.8 points lower: app framework is heavier than this content site needs; the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": [
@@ -47,12 +47,12 @@
       ],
       "alternatives": [
         {
-          "choice": "Django (Python)",
-          "why_not": "Scored 23.8 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "choice": "Next.js Route Handlers + Server Actions",
+          "why_not": "Scored 23.1 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         },
         {
-          "choice": "FastAPI (Python)",
-          "why_not": "Scored 24.9 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+          "why_not": "Scored 17.5 points lower: starts around $100/month against a $20 budget; a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         }
       ],
       "tradeoffs": []
@@ -70,11 +70,11 @@
       "alternatives": [
         {
           "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
-          "why_not": "Scored 20.8 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "why_not": "Scored 17.5 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         },
         {
-          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
-          "why_not": "Scored 23.9 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "choice": "Azure Database for MySQL – Flexible Server (East US)",
+          "why_not": "Scored 24.2 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
       "tradeoffs": []
@@ -95,8 +95,8 @@
           "why_not": "Scored 0.7 points lower: the chosen option wins on priorities.performance (strong performance for Cloudflare Pages (priority 3))."
         },
         {
-          "choice": "Azure Static Web Apps (East US)",
-          "why_not": "Scored 3.5 points lower: starts around $20/month against a $20 budget."
+          "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
+          "why_not": "Scored 1.1 points lower: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": [
@@ -212,7 +212,7 @@
       "markdown": "markdown",
       "media": "photo"
     },
-    "combinations_evaluated": 110,
+    "combinations_evaluated": 54,
     "input_hash": "3d24c8595473b048"
   }
 }

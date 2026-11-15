@@ -21,7 +21,7 @@
       "alternatives": [
         {
           "choice": "React + Vite (SPA)",
-          "why_not": "Scored 0.9 points lower: the chosen option wins on priorities.security (strong security for Angular (priority 5))."
+          "why_not": "Scored 0.8 points lower: the chosen option wins on priorities.security (strong security for Angular (priority 5))."
         },
         {
           "choice": "Kotlin Multiplatform + Compose Multiplatform",
@@ -40,10 +40,10 @@
     },
     "backend": {
       "choice": "Spring Boot (Java/Kotlin)",
-      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: well suited to fintech projects; team.languages includes Java/Kotlin; strong security for Spring Boot (priority 5); strong maintainability for Spring Boot (priority 4).",
+      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java/Kotlin; well suited to fintech projects; strong security for Spring Boot (priority 5); strong maintainability for Spring Boot (priority 4).",
       "driven_by": [
-        "project.type",
         "team.languages",
+        "project.type",
         "priorities.security",
         "priorities.maintainability",
         "priorities.scalability",
@@ -52,12 +52,12 @@
       ],
       "alternatives": [
         {
-          "choice": "ASP.NET Core (C#)",
-          "why_not": "Scored 2.0 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java/Kotlin)."
+          "choice": "AWS Lambda + API Gateway",
+          "why_not": "Scored 0.9 points lower: proprietary API increases lock-in; the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
-          "choice": "AWS Lambda + API Gateway",
-          "why_not": "Scored 1.0 points lower: proprietary API increases lock-in; the chosen option wins on project.type (well suited to fintech projects)."
+          "choice": "NestJS (Node.js, TypeScript)",
+          "why_not": "Scored 4.0 points lower: the chosen option wins on project.type (well suited to fintech projects)."
         },
         {
           "choice": "Azure Functions",
@@ -113,7 +113,7 @@
       "alternatives": [
         {
           "choice": "AWS serverless (Lambda + API Gateway + S3/CloudFront) (ap-south-1 Mumbai)",
-          "why_not": "Scored 1.0 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "why_not": "Scored 0.9 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
           "choice": "Amazon EC2 + Docker Compose (ap-south-1 Mumbai)",

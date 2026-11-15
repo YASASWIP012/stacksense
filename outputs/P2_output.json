@@ -90,8 +90,8 @@
           "why_not": "Scored 4.7 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
-          "choice": "DigitalOcean Managed MongoDB (BLR1 Bengaluru)",
-          "why_not": "Scored 8.4 points lower: weaker multi-record transactions for money/bookings; the chosen option wins on requirements.payments (ACID transactions keep money/bookings consistent)."
+          "choice": "TimescaleDB on Azure VM (self-managed) (Central India (Pune))",
+          "why_not": "Scored 14.5 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
         }
       ],
       "tradeoffs": [
@@ -447,7 +447,7 @@
       "payments": "paid",
       "realtime": "chat"
     },
-    "combinations_evaluated": 396,
+    "combinations_evaluated": 332,
     "input_hash": "51e536e4d511f23a"
   }
 }

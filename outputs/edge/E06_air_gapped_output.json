@@ -10,8 +10,8 @@
       "choice": "React + Vite (SPA)",
       "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: well suited to internal tool projects; strong cost for React + Vite (priority 3); strong maintainability for React + Vite (priority 3); strong performance for React + Vite (priority 3).",
       "driven_by": [
-        "project.type",
         "team.languages",
+        "project.type",
         "priorities.cost",
         "priorities.maintainability",
         "priorities.performance",
@@ -21,7 +21,7 @@
       "alternatives": [
         {
           "choice": "Django templates + HTMX",
-          "why_not": "Scored 1.7 points lower: the team would have to learn Python."
+          "why_not": "Scored 6.4 points lower: the team would have to learn Python."
         },
         {
           "choice": "Angular",
@@ -52,11 +52,11 @@
       "alternatives": [
         {
           "choice": "ASP.NET Core (C#)",
-          "why_not": "Scored 1.8 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java)."
+          "why_not": "Scored 6.4 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Java)."
         },
         {
           "choice": "Django (Python)",
-          "why_not": "Scored 1.7 points lower: the team would have to learn Python; the chosen option wins on team.languages (team.languages includes Java)."
+          "why_not": "Scored 6.4 points lower: the team would have to learn Python; the chosen option wins on team.languages (team.languages includes Java)."
         },
         {
           "choice": "AWS Lambda + API Gateway",
@@ -88,7 +88,7 @@
         },
         {
           "choice": "SQL Server (licensed) (self-hosted)",
-          "why_not": "Scored 3.0 points lower: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates; the chosen option wins on team.languages (the team already writes SQL)."
+          "why_not": "Scored 3.1 points lower: SQL Server licensing and tooling only pay off for .NET teams or existing SQL Server estates; the chosen option wins on team.languages (the team already writes SQL)."
         },
         {
           "choice": "Cloud Firestore",

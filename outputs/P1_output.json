@@ -48,11 +48,11 @@
       "alternatives": [
         {
           "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-          "why_not": "Scored 8.4 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "why_not": "Scored 4.9 points lower: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
-          "why_not": "Scored 11.5 points lower: a server is unnecessary for a static content site; proprietary API increases lock-in; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
+          "why_not": "Scored 8.0 points lower: a server is unnecessary for a static content site; proprietary API increases lock-in; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         }
       ],
       "tradeoffs": []
@@ -70,11 +70,11 @@
       "alternatives": [
         {
           "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
-          "why_not": "Scored 8.4 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "why_not": "Scored 4.9 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         },
         {
-          "choice": "Cloud SQL for MySQL (us-central1 Iowa)",
-          "why_not": "Scored 17.7 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
+          "choice": "Azure Database for MySQL – Flexible Server (East US)",
+          "why_not": "Scored 18.9 points lower: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
       "tradeoffs": []
@@ -90,12 +90,12 @@
       ],
       "alternatives": [
         {
-          "choice": "GitHub Pages",
-          "why_not": "Scored 0.4 points lower: the chosen option wins on priorities.performance (strong performance for Cloudflare Pages (priority 3))."
+          "choice": "Cloud Storage + Cloud CDN (static site) (us-central1 Iowa)",
+          "why_not": "Scored 0.1 points lower: the chosen option wins on project.type (well suited to content site projects)."
         },
         {
-          "choice": "Azure Static Web Apps (East US)",
-          "why_not": "Scored 0.6 points lower: the chosen option wins on project.type (well suited to content site projects)."
+          "choice": "Amazon S3 + CloudFront (static site) (us-east-1 N. Virginia)",
+          "why_not": "Scored 0.1 points lower: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
       "tradeoffs": [
@@ -191,7 +191,7 @@
     "description_signals": {
       "markdown": "markdown"
     },
-    "combinations_evaluated": 146,
+    "combinations_evaluated": 117,
     "input_hash": "481bb0d49db0c843"
   }
 }

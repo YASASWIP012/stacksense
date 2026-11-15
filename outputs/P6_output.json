@@ -23,7 +23,7 @@
         },
         {
           "choice": "Progressive Web App",
-          "why_not": "Scored 3.6 points lower: browser storage can be evicted and background upload of photos is unreliable; limited camera/GPS access; the chosen option wins on requirements.offline_support (on-device SQLite storage with a sync queue)."
+          "why_not": "Scored 3.7 points lower: browser storage can be evicted and background upload of photos is unreliable; limited camera/GPS access; the chosen option wins on requirements.offline_support (on-device SQLite storage with a sync queue)."
         }
       ],
       "tradeoffs": [

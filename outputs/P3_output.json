@@ -8,10 +8,10 @@
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA)",
-      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: well suited to realtime collab projects; team.languages includes TypeScript; strong performance for React + Vite (priority 5); strong scalability for React + Vite (priority 5).",
+      "justification": "A client-rendered app behind login needs no server rendering. Fit for this project: team.languages includes TypeScript; well suited to realtime collab projects; strong performance for React + Vite (priority 5); strong scalability for React + Vite (priority 5).",
       "driven_by": [
-        "project.type",
         "team.languages",
+        "project.type",
         "priorities.performance",
         "priorities.scalability",
         "priorities.maintainability",
@@ -50,12 +50,12 @@
       ],
       "alternatives": [
         {
-          "choice": "ASP.NET Core (C#)",
-          "why_not": "Scored 1.0 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Go)."
+          "choice": "NestJS (Node.js, TypeScript)",
+          "why_not": "Scored 3.5 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
         },
         {
-          "choice": "Elixir Phoenix",
-          "why_not": "Scored 3.1 points lower: the team would have to learn Elixir; the chosen option wins on team.languages (team.languages includes Go)."
+          "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
+          "why_not": "Scored 1.5 points lower: the chosen option wins on project.type (well suited to realtime collab projects)."
         }
       ],
       "tradeoffs": [
@@ -422,7 +422,7 @@
       "realtime": "live",
       "subscription": "per seat"
     },
-    "combinations_evaluated": 280,
+    "combinations_evaluated": 254,
     "input_hash": "5ce3c181265effaa"
   }
 }

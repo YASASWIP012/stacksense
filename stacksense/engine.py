@@ -138,7 +138,7 @@ def backend_needs(c):
 
 # ------------------------------------------------------------------ helpers
 def _lang_weight(c):
-    w = {"beginner": 3.0, "intermediate": 2.2, "mixed": 2.2, "senior": 1.5}[c.exp]
+    w = {"beginner": 3.0, "intermediate": 2.5, "mixed": 2.5, "senior": 2.0}[c.exp]
     if c.size <= 2:
         w *= 1.2
     if c.mvp <= 4:
@@ -160,6 +160,8 @@ def lang_fit(cand, c, contribs, layer):
         if "csharp" in langs and "csharp" in team:
             contribs.append(("team.languages", 0.5, "first-class .NET tooling for a C# team"))
         return
+    if layer == "backend":
+        w *= 1.8  # switching the server language costs the most: domain code, libraries, hiring
     hit = sorted(langs & team)
     if hit:
         contribs.append(("team.languages", w, "team.languages includes %s" % "/".join(LANG_LABEL.get(h, h) for h in hit)))
@@ -674,7 +676,7 @@ def pair_rules(combo, c):
         out.append(("hosting", 1.0, "Vercel builds and serves Next.js natively"))
     if be["id"] == "next_fullstack" and "next_native" in caps:
         out.append(("hosting", 0.8, "API routes deploy with the front end"))
-    if be["id"] in ("aspnet",) and host_provider(host, c) == "azure":
+    if be["id"] in ("aspnet",) and host_provider(host, c) == "azure" and "csharp" in c.langs:
         out.append(("team.languages", 0.8, "Azure is the home platform for .NET"))
     if db["id"] == "sqlserver" and host_provider(host, c) == "azure":
         out.append(("infrastructure.existing_systems", 0.8, "Azure SQL is managed SQL Server"))

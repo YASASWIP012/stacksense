@@ -43,8 +43,8 @@
       "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
       "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript; strong time to market for Supabase (priority 5); native WebSocket/real-time support; a 1-person team ships in 3 weeks without building auth/storage.",
       "driven_by": [
-        "budget.monthly_infra_usd",
         "team.languages",
+        "budget.monthly_infra_usd",
         "scale.users_12_months",
         "priorities.time_to_market",
         "requirements.auth",
@@ -391,7 +391,7 @@
       "media": "video",
       "realtime": "chat"
     },
-    "combinations_evaluated": 1376,
+    "combinations_evaluated": 620,
     "input_hash": "051f631b6939c1e3"
   }
 }

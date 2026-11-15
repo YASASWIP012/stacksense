@@ -3,8 +3,8 @@
   "engine_version": "1.0.0",
   "llm_used": false,
   "status": "ok",
-  "summary": "Serverless Supabase on Azure Static Web Apps with PostgreSQL as the database; front end: React + Vite, Progressive Web App.",
-  "architecture_style": "serverless",
+  "summary": "Service oriented Laravel on DigitalOcean App Platform with DigitalOcean Managed PostgreSQL as the database; front end: React + Vite, Progressive Web App.",
+  "architecture_style": "service_oriented",
   "stack": {
     "frontend": {
       "choice": "React + Vite (SPA) (web) + Progressive Web App (mobile)",
@@ -22,7 +22,7 @@
       "alternatives": [
         {
           "choice": "Next.js (React)",
-          "why_not": "Scored 0.4 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.type (well suited to gaming projects)."
+          "why_not": "Scored 0.7 points lower: the team would have to learn JavaScript/TypeScript; the chosen option wins on project.type (well suited to gaming projects)."
         },
         {
           "choice": "React Native (Expo)",
@@ -42,35 +42,34 @@
       }
     },
     "backend": {
-      "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: native WebSocket/real-time support; strong time to market for Supabase (priority 4); a 3-person team ships in 10 weeks without building auth/storage; strong performance for Supabase (priority 5).",
+      "choice": "Laravel (PHP)",
+      "justification": "Batteries-included PHP framework with queues and auth. Fit for this project: team.languages includes PHP; strong time to market for Laravel (priority 4); built-in authentication; strong maintainability for Laravel (priority 3).",
       "driven_by": [
         "team.languages",
-        "requirements.realtime",
         "priorities.time_to_market",
-        "timeline.mvp_weeks",
+        "requirements.p95_latency_ms",
         "requirements.auth",
-        "priorities.performance",
-        "priorities.cost"
+        "priorities.maintainability",
+        "priorities.scalability",
+        "priorities.security"
       ],
       "alternatives": [
         {
-          "choice": "Laravel (PHP)",
-          "why_not": "Scored 1.7 points lower: per-request overhead is tight for p95=150ms."
+          "choice": "ASP.NET Core (C#)",
+          "why_not": "Scored 4.8 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes PHP)."
         },
         {
-          "choice": "ASP.NET Core (C#)",
-          "why_not": "Scored 1.3 points lower: the team would have to learn C#; the chosen option wins on timeline.mvp_weeks (a 3-person team ships in 10 weeks without building auth/storage)."
+          "choice": "Firebase (Firestore + Cloud Functions)",
+          "why_not": "Scored 4.1 points lower: the team would have to learn JavaScript/TypeScript; proprietary API increases lock-in; the chosen option wins on team.languages (team.languages includes PHP)."
         }
       ],
       "tradeoffs": [
-        "Business logic split across RLS policies, SQL and Edge Functions is harder to test.",
-        "Free projects pause after a week of inactivity; production needs the Pro plan.",
-        "The team would have to learn JavaScript/TypeScript."
+        "Long-lived WebSockets run in Laravel Reverb, a separate first-party process.",
+        "Per-request overhead is tight for p95=150ms."
       ]
     },
     "database": {
-      "choice": "PostgreSQL (Supabase, East US (N. Virginia))",
+      "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
       "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong maintainability for PostgreSQL (priority 3); strong performance for PostgreSQL (priority 5); strong security for PostgreSQL (priority 3); strong time to market for PostgreSQL (priority 4).",
       "driven_by": [
         "priorities.maintainability",
@@ -82,12 +81,12 @@
       ],
       "alternatives": [
         {
-          "choice": "Azure Database for MySQL – Flexible Server (East US)",
-          "why_not": "Scored 2.0 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 3))."
+          "choice": "DigitalOcean Managed MySQL (NYC3 New York)",
+          "why_not": "Scored 0.7 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 3))."
         },
         {
           "choice": "DigitalOcean Managed MongoDB (NYC3 New York)",
-          "why_not": "Scored 2.7 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 3))."
+          "why_not": "Scored 1.0 points lower: the chosen option wins on priorities.maintainability (strong maintainability for PostgreSQL (priority 3))."
         }
       ],
       "tradeoffs": [
@@ -95,43 +94,40 @@
       ]
     },
     "hosting": {
-      "choice": "Azure Static Web Apps (East US)",
-      "justification": "Static hosting with Entra auth on Azure. Fit for this project: strong time to market for Azure Static Web Apps (priority 4); scales automatically with spiky traffic; strong cost for Azure Static Web Apps (priority 3); strong performance for Azure Static Web Apps (priority 5).",
+      "choice": "DigitalOcean App Platform (NYC3 New York)",
+      "justification": "Simple PaaS with a Bengaluru (BLR1) region and managed Postgres. Fit for this project: strong time to market for DigitalOcean App Platform (priority 4); strong performance for DigitalOcean App Platform (priority 5); strong cost for DigitalOcean App Platform (priority 3); strong scalability for DigitalOcean App Platform (priority 3).",
       "driven_by": [
         "priorities.time_to_market",
-        "requirements.realtime",
-        "scale.traffic_pattern",
-        "priorities.cost",
         "priorities.performance",
-        "team.size",
+        "priorities.cost",
         "priorities.scalability"
       ],
       "alternatives": [
         {
-          "choice": "Netlify (us-east-2)",
-          "why_not": "Scored 0.3 points lower: the chosen option wins on priorities.cost (strong cost for Azure Static Web Apps (priority 3))."
+          "choice": "Azure Static Web Apps (East US)",
+          "why_not": "Scored 2.9 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         },
         {
-          "choice": "Vercel (iad1 Washington)",
-          "why_not": "Scored 0.4 points lower: the chosen option wins on priorities.cost (strong cost for Azure Static Web Apps (priority 3))."
+          "choice": "Netlify (us-east-2)",
+          "why_not": "Scored 3.3 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
-        "Static front end + Functions only."
+        "Fewer managed services than AWS/GCP/Azure (no managed search or ML)."
       ]
     },
     "supporting": [
       {
         "layer": "auth",
-        "choice": "Supabase Auth",
-        "justification": "Included in the Supabase project; issues JWTs that Postgres RLS policies check.",
+        "choice": "Laravel Fortify + Socialite",
+        "justification": "Uses the backend framework's maintained auth library, so user data stays in your own database.",
         "driven_by": [
           "requirements.auth"
         ],
         "alternatives": [
           {
-            "choice": "Clerk",
-            "why_not": "Separate vendor; user data stored in the US."
+            "choice": "Auth0 / Clerk",
+            "why_not": "Separate vendor with per-MAU pricing."
           }
         ],
         "tradeoffs": [
@@ -144,29 +140,62 @@
       },
       {
         "layer": "realtime",
-        "choice": "Supabase Realtime (Broadcast + Postgres changes)",
-        "justification": "Included; pushes chat messages and job-status changes to subscribed clients.",
+        "choice": "Yjs (CRDT) + Hocuspocus sync server, Redis pub/sub between nodes",
+        "justification": "Concurrent edits to one board must merge without conflicts: Yjs CRDTs do that, Hocuspocus (TypeScript) syncs documents and awareness (live cursors) over WebSockets, and Redis fans updates out across instances for 4000 concurrent users. Board snapshots persist to the database.",
         "driven_by": [
-          "requirements.realtime"
+          "requirements.realtime",
+          "project.type",
+          "scale.peak_concurrent_users"
         ],
         "alternatives": [
           {
-            "choice": "Socket.IO server",
-            "why_not": "An extra service to run."
+            "choice": "Liveblocks",
+            "why_not": "Managed and fast to start, but per-MAU pricing and US data storage."
+          },
+          {
+            "choice": "Custom operational-transform server in Go",
+            "why_not": "Months of work to get conflict handling right."
           }
         ],
         "tradeoffs": [
           "Long-lived connections need sticky sessions or a pub/sub layer."
         ],
         "estimated_monthly_usd": [
-          0,
-          0
+          50,
+          400
         ],
-        "separate_service": false
+        "separate_service": true
+      },
+      {
+        "layer": "cache",
+        "choice": "DigitalOcean Managed Caching (Valkey)",
+        "justification": "Caches hot reads and sessions to hold p95=150ms, and doubles as the pub/sub and job-queue broker.",
+        "driven_by": [
+          "requirements.p95_latency_ms",
+          "scale.peak_concurrent_users",
+          "requirements.realtime"
+        ],
+        "alternatives": [
+          {
+            "choice": "Memcached",
+            "why_not": "No pub/sub or persistence, so it cannot double as a broker."
+          },
+          {
+            "choice": "No cache",
+            "why_not": "Every read hits the database at peak."
+          }
+        ],
+        "tradeoffs": [
+          "Another stateful component to size and monitor."
+        ],
+        "estimated_monthly_usd": [
+          50,
+          400
+        ]
       },
       {
         "layer": "queue",
-        "choice": "Supabase Queues (pgmq) + Edge Functions",
+        "choice": "Laravel Queues (Redis)",
         "justification": "Moves slow or retry-prone work (payment webhooks, notifications, image processing, scoring) off the request path so p95 stays low and failures retry safely.",
         "driven_by": [
           "scale.users_12_months"
@@ -228,8 +257,8 @@
       },
       {
         "layer": "observability",
-        "choice": "Azure Monitor + Application Insights + OpenTelemetry tracing",
-        "justification": "Logs, metrics and traces stay in the same cloud and region as the data.",
+        "choice": "Sentry (errors + performance) + host logs",
+        "justification": "Free Developer plan catches crashes in the app and mobile clients with stack traces.",
         "driven_by": [
           "requirements.availability",
           "infrastructure.data_residency"
@@ -242,35 +271,39 @@
         ],
         "tradeoffs": [],
         "estimated_monthly_usd": [
-          50,
-          500
+          0,
+          26
         ]
       }
     ]
   },
   "estimated_monthly_cost_usd": {
-    "min": 205,
-    "max": 1450,
+    "min": 341,
+    "max": 2315,
     "assumptions": [
       "Scale level L3: ~80000 users, ~4000 peak concurrent, ~800 req/s at peak, ~156.2 GB stored",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees, SMS and payment-gateway transaction fees"
     ],
     "breakdown": {
       "hosting": [
-        20,
-        100
+        90,
+        500
       ],
-      "backend": [
-        100,
-        400
+      "database": [
+        116,
+        539
       ],
       "auth": [
         25,
         250
       ],
       "realtime": [
-        0,
-        0
+        50,
+        400
+      ],
+      "cache": [
+        50,
+        400
       ],
       "queue": [
         10,
@@ -285,8 +318,8 @@
         50
       ],
       "observability": [
-        50,
-        500
+        0,
+        26
       ]
     }
   },
@@ -294,7 +327,7 @@
     {
       "code": "BUDGET_HEADROOM",
       "severity": "info",
-      "message": "Upper estimate ($1450) exceeds the $400 budget; watch usage as you grow.",
+      "message": "Upper estimate ($2315) exceeds the $400 budget; watch usage as you grow.",
       "fields": [
         "budget.monthly_infra_usd"
       ]
@@ -327,7 +360,7 @@
     "description_signals": {
       "realtime": "live"
     },
-    "combinations_evaluated": 1180,
+    "combinations_evaluated": 780,
     "input_hash": "f1d94a435512114d"
   }
 }

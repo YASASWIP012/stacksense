@@ -57,8 +57,8 @@
           "why_not": "Scored 1.9 points lower: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
-          "choice": "ASP.NET Core (C#)",
-          "why_not": "Scored 1.5 points lower: the team would have to learn C#; the chosen option wins on team.languages (team.languages includes Python)."
+          "choice": "FastAPI (Python)",
+          "why_not": "Scored 2.3 points lower: the chosen option wins on project.type (well suited to healthtech projects)."
         },
         {
           "choice": "Firebase (Firestore + Cloud Functions)",
@@ -109,12 +109,12 @@
       ],
       "alternatives": [
         {
-          "choice": "Google Cloud Run (us-central1 Iowa)",
-          "why_not": "Scored 0.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
+          "choice": "Azure Static Web Apps (East US)",
+          "why_not": "Scored 2.6 points lower: the chosen option wins on priorities.scalability (strong scalability for Azure Container Apps (priority 3))."
         },
         {
-          "choice": "Azure App Service (East US)",
-          "why_not": "Scored 0.1 points lower: the chosen option wins on priorities.cost (strong cost for Azure Container Apps (priority 3))."
+          "choice": "Google Cloud Run (us-central1 Iowa)",
+          "why_not": "Scored 0.1 points lower: close runner-up; the chosen option combines better with the rest of the stack."
         }
       ],
       "tradeoffs": [
@@ -469,7 +469,7 @@
       "media": "upload",
       "realtime": "chat"
     },
-    "combinations_evaluated": 1740,
+    "combinations_evaluated": 1292,
     "input_hash": "9d56ee5bdcac43ce"
   }
 }

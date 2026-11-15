@@ -55,7 +55,7 @@
       "alternatives": [
         {
           "choice": "NestJS (Node.js, TypeScript)",
-          "why_not": "Scored 1.0 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Scored 1.1 points lower: the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "FastAPI (Python)",
@@ -91,7 +91,7 @@
         },
         {
           "choice": "PostgreSQL + TimescaleDB (in Docker Compose on the VM)",
-          "why_not": "Scored 3.5 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
+          "why_not": "Scored 3.6 points lower: time-series extension adds operations without a time-series need; the chosen option wins on project.type (well suited to marketplace projects)."
         },
         {
           "choice": "Cloud Firestore",

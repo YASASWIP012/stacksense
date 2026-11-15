@@ -102,7 +102,7 @@
         },
         {
           "choice": "Cloudflare Pages",
-          "why_not": "Scored 15.8 points lower: static hosting only; the API must run elsewhere."
+          "why_not": "Scored 22.7 points lower: static hosting only; the API must run elsewhere."
         }
       ],
       "tradeoffs": [
