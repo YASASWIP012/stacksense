@@ -47,7 +47,7 @@
     },
     "backend": {
       "choice": "Django (Python)",
-      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong security, which you rated 5/5; well suited to healthtech projects; built-in admin/back-office screens.",
+      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong security, which you rated 5/5; well suited to healthtech projects; built-in admin/back-office screens. Margin: the full stack scores 1.1 fit points above the best stack built on NestJS.",
       "driven_by": [
         "team.languages",
         "priorities.security",
@@ -80,11 +80,17 @@
       "tradeoffs": [
         "Synchronous-first; WebSockets need Django Channels.",
         "Heavier per-request overhead than Go/Node for very high RPS."
-      ]
+      ],
+      "margin": {
+        "runner_up": "NestJS",
+        "fit_points_ahead": 1.07,
+        "chosen_layer_score": 10.18,
+        "runner_up_layer_score": 9.1
+      }
     },
     "database": {
       "choice": "Azure Database for PostgreSQL – Flexible Server zone-redundant HA (East US)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep patient records and appointments consistent; strong security, which you rated 5/5; well suited to healthtech projects; strong maintainability, which you rated 4/5. Data stays in East US to satisfy data_residency=us.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep patient records and appointments consistent; strong security, which you rated 5/5; well suited to healthtech projects; strong maintainability, which you rated 4/5. Data stays in East US to satisfy data_residency=us. Margin: the full stack scores 2.4 fit points above the best stack built on MySQL.",
       "driven_by": [
         "requirements.payments",
         "priorities.security",
@@ -104,11 +110,17 @@
       ],
       "tradeoffs": [
         "Horizontal write scaling needs partitioning, read replicas or Citus."
-      ]
+      ],
+      "margin": {
+        "runner_up": "MySQL",
+        "fit_points_ahead": 2.43,
+        "chosen_layer_score": 6.55,
+        "runner_up_layer_score": 4.12
+      }
     },
     "hosting": {
       "choice": "Azure Container Apps (East US)",
-      "justification": "Serverless containers on Azure. Fit for this project: multi-zone deployments for 99.95%.",
+      "justification": "Serverless containers on Azure. Fit for this project: multi-zone deployments for 99.95%. Margin: the full stack scores 0.0 fit points above the best stack built on Google Cloud Run.",
       "driven_by": [
         "requirements.availability"
       ],
@@ -132,7 +144,13 @@
       ],
       "tradeoffs": [
         "Dapr/KEDA concepts add learning."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Google Cloud Run",
+        "fit_points_ahead": 0.0,
+        "chosen_layer_score": 2.5,
+        "runner_up_layer_score": 2.5
+      }
     },
     "supporting": [
       {

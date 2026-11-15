@@ -39,7 +39,7 @@
     },
     "backend": {
       "choice": "Django (Python)",
-      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong time to market, which you rated 5/5; well suited to internal tool projects; built-in admin/back-office screens.",
+      "justification": "Ships auth, admin panel, ORM and migrations out of the box. Fit for this project: team.languages includes Python; strong time to market, which you rated 5/5; well suited to internal tool projects; built-in admin/back-office screens. Margin: the full stack scores 12.9 fit points above the best stack built on FastAPI.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
@@ -55,11 +55,17 @@
       "tradeoffs": [
         "Synchronous-first; WebSockets need Django Channels.",
         "Heavier per-request overhead than Go/Node for very high RPS."
-      ]
+      ],
+      "margin": {
+        "runner_up": "FastAPI",
+        "fit_points_ahead": 12.93,
+        "chosen_layer_score": 14.55,
+        "runner_up_layer_score": 11.25
+      }
     },
     "database": {
       "choice": "MongoDB Atlas (AWS N. Virginia)",
-      "justification": "Flexible document model with Atlas Search and geo queries. Fit for this project: strong time to market, which you rated 5/5.",
+      "justification": "Flexible document model with Atlas Search and geo queries. Fit for this project: strong time to market, which you rated 5/5. Margin: the full stack scores -1.2 fit points above the best stack built on PostgreSQL.",
       "driven_by": [
         "priorities.time_to_market"
       ],
@@ -80,11 +86,17 @@
       "tradeoffs": [
         "Multi-document transactions and joins are weaker than in a relational DB.",
         "Server is SSPL-licensed (not OSI open source)."
-      ]
+      ],
+      "margin": {
+        "runner_up": "PostgreSQL",
+        "fit_points_ahead": -1.25,
+        "chosen_layer_score": 1.4,
+        "runner_up_layer_score": 3.75
+      }
     },
     "hosting": {
       "choice": "Railway (US East/West)",
-      "justification": "Usage-billed PaaS with one-click databases. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 5/5.",
+      "justification": "Usage-billed PaaS with one-click databases. Fit for this project: strong time to market, which you rated 5/5; strong cost, which you rated 5/5. Margin: the full stack scores -0.1 fit points above the best stack built on Render.",
       "driven_by": [
         "priorities.time_to_market",
         "priorities.cost",
@@ -110,7 +122,13 @@
       ],
       "tradeoffs": [
         "No India region; usage-based billing."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Render",
+        "fit_points_ahead": -0.08,
+        "chosen_layer_score": 2.45,
+        "runner_up_layer_score": 2.03
+      }
     },
     "supporting": [
       {

@@ -47,7 +47,7 @@
     },
     "backend": {
       "choice": "Go (net/http + chi)",
-      "justification": "Cheap goroutines handle many concurrent WebSocket connections per core. Fit for this project: team.languages includes Go; strong performance, which you rated 5/5; strong scalability, which you rated 5/5; well suited to realtime collab projects.",
+      "justification": "Cheap goroutines handle many concurrent WebSocket connections per core. Fit for this project: team.languages includes Go; strong performance, which you rated 5/5; strong scalability, which you rated 5/5; well suited to realtime collab projects. Margin: the full stack scores 0.7 fit points above the best stack built on Supabase.",
       "driven_by": [
         "team.languages",
         "priorities.performance",
@@ -73,11 +73,17 @@
       ],
       "tradeoffs": [
         "More hand-written code for CRUD/admin than Django/Rails."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Supabase",
+        "fit_points_ahead": 0.67,
+        "chosen_layer_score": 12.18,
+        "runner_up_layer_score": 9.25
+      }
     },
     "database": {
       "choice": "Azure Database for PostgreSQL – Flexible Server (West Europe)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep payments and subscriptions consistent; strong maintainability, which you rated 4/5; strong performance, which you rated 5/5; strong scalability, which you rated 5/5.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep payments and subscriptions consistent; strong maintainability, which you rated 4/5; strong performance, which you rated 5/5; strong scalability, which you rated 5/5. Margin: the full stack scores 0.9 fit points above the best stack built on MySQL.",
       "driven_by": [
         "requirements.payments",
         "priorities.maintainability",
@@ -105,11 +111,17 @@
       ],
       "tradeoffs": [
         "Horizontal write scaling needs partitioning, read replicas or Citus."
-      ]
+      ],
+      "margin": {
+        "runner_up": "MySQL",
+        "fit_points_ahead": 0.88,
+        "chosen_layer_score": 5.5,
+        "runner_up_layer_score": 4.62
+      }
     },
     "hosting": {
       "choice": "Azure Container Apps (West Europe)",
-      "justification": "Serverless containers on Azure. Fit for this project: strong scalability, which you rated 5/5; scales automatically with spiky traffic; strong performance, which you rated 5/5.",
+      "justification": "Serverless containers on Azure. Fit for this project: strong scalability, which you rated 5/5; scales automatically with spiky traffic; strong performance, which you rated 5/5. Margin: the full stack scores 0.0 fit points above the best stack built on Google Cloud Run.",
       "driven_by": [
         "priorities.scalability",
         "scale.traffic_pattern",
@@ -135,7 +147,13 @@
       ],
       "tradeoffs": [
         "Dapr/KEDA concepts add learning."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Google Cloud Run",
+        "fit_points_ahead": 0.0,
+        "chosen_layer_score": 3.0,
+        "runner_up_layer_score": 3.0
+      }
     },
     "supporting": [
       {

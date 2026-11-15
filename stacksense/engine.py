@@ -1185,6 +1185,21 @@ def _recommend(raw, _nested=False):
     if c.cloud in ("aws", "gcp", "azure") and "infrastructure.cloud_preference" not in hc["driven_by"]:
         hc["driven_by"].insert(0, "infrastructure.cloud_preference")
     stack["hosting"] = hc
+    # quantified margin over the runner-up for each core layer (from the actual scoring)
+    for layer_key, lay in (("backend", "backend"), ("database", "database"), ("hosting", "hosting")):
+        chosen_id = combo[lay]["id"]
+        best_other = None
+        for row in combos[1:200]:
+            if row[2][lay]["id"] != chosen_id:
+                best_other = row
+                break
+        if best_other:
+            gap = best[0] - best_other[0]
+            other_name = best_other[2][lay]["name"].split(" (")[0]
+            stack[layer_key]["margin"] = {"runner_up": other_name, "fit_points_ahead": round(gap, 2),
+                                          "chosen_layer_score": round(parts[lay][1], 2),
+                                          "runner_up_layer_score": round(best_other[5][lay][1], 2)}
+            stack[layer_key]["justification"] += " Margin: the full stack scores %.1f fit points above the best stack built on %s." % (gap, other_name)
     for k in ("backend", "database", "hosting"):
         stack[k].pop("id", None)
 

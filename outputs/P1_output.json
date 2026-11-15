@@ -41,7 +41,7 @@
     },
     "backend": {
       "choice": "None",
-      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
+      "justification": "The site has no server-side logic. Fit for this project: static content needs no server: nothing to run, patch or pay for; strong cost, which you rated 5/5; strong time to market, which you rated 4/5. Margin: the full stack scores 3.2 fit points above the best stack built on Supabase.",
       "driven_by": [
         "project.type",
         "priorities.cost",
@@ -54,11 +54,17 @@
           "why_not": "Lower overall fit: a server is unnecessary for a static content site; the chosen option wins on project.type (static content needs no server: nothing to run, patch or pay for)."
         }
       ],
-      "tradeoffs": []
+      "tradeoffs": [],
+      "margin": {
+        "runner_up": "Supabase",
+        "fit_points_ahead": 3.17,
+        "chosen_layer_score": 6.5,
+        "runner_up_layer_score": 10.6
+      }
     },
     "database": {
       "choice": "None",
-      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
+      "justification": "Content lives in the repository as Markdown files. Fit for this project: content is Markdown in the repository; no database to run; strong cost, which you rated 5/5; strong time to market, which you rated 4/5. Margin: the full stack scores 3.2 fit points above the best stack built on PostgreSQL.",
       "driven_by": [
         "project.type",
         "priorities.cost",
@@ -75,11 +81,17 @@
           "why_not": "Lower overall fit: a database is unnecessary for static content; the chosen option wins on project.type (content is Markdown in the repository; no database to run)."
         }
       ],
-      "tradeoffs": []
+      "tradeoffs": [],
+      "margin": {
+        "runner_up": "PostgreSQL",
+        "fit_points_ahead": 3.17,
+        "chosen_layer_score": 6.5,
+        "runner_up_layer_score": -0.38
+      }
     },
     "hosting": {
       "choice": "Cloudflare Pages",
-      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost, which you rated 5/5; well suited to content site projects; strong time to market, which you rated 4/5; serves pre-built static files from a CDN.",
+      "justification": "Free global CDN with unlimited static bandwidth on the free plan. Fit for this project: strong cost, which you rated 5/5; well suited to content site projects; strong time to market, which you rated 4/5; serves pre-built static files from a CDN. Margin: the full stack scores 0.1 fit points above the best stack built on Cloud Storage + Cloud CDN.",
       "driven_by": [
         "priorities.cost",
         "project.type",
@@ -103,7 +115,13 @@
           "why_not": "Close runner-up: the chosen option wins on project.type (well suited to content site projects)."
         }
       ],
-      "tradeoffs": []
+      "tradeoffs": [],
+      "margin": {
+        "runner_up": "Cloud Storage + Cloud CDN",
+        "fit_points_ahead": 0.12,
+        "chosen_layer_score": 5.35,
+        "runner_up_layer_score": 5.22
+      }
     },
     "supporting": [
       {

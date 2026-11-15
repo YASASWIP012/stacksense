@@ -43,7 +43,7 @@
     },
     "backend": {
       "choice": "Spring Boot (Java/Kotlin)",
-      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java; strong security, which you rated 5/5; mature transaction management for money/ledger flows.",
+      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java; strong security, which you rated 5/5; mature transaction management for money/ledger flows. Margin: the full stack scores 8.4 fit points above the best stack built on ASP.NET Core on .NET 10 LTS.",
       "driven_by": [
         "team.languages",
         "priorities.security",
@@ -64,11 +64,17 @@
         "Slower start-up and more memory than Go/Node.",
         "More ceremony for small apps.",
         "Learning curve 4/5 for a intermediate team."
-      ]
+      ],
+      "margin": {
+        "runner_up": "ASP.NET Core on .NET 10 LTS",
+        "fit_points_ahead": 8.4,
+        "chosen_layer_score": 8.85,
+        "runner_up_layer_score": 0.45
+      }
     },
     "database": {
       "choice": "PostgreSQL (self-hosted)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep related records consistent; strong security, which you rated 5/5; well suited to internal tool projects; the team already writes SQL.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep related records consistent; strong security, which you rated 5/5; well suited to internal tool projects; the team already writes SQL. Margin: the full stack scores 1.7 fit points above the best stack built on MySQL.",
       "driven_by": [
         "project.type",
         "priorities.security",
@@ -99,7 +105,13 @@
       ],
       "tradeoffs": [
         "Horizontal write scaling needs partitioning, read replicas or Citus."
-      ]
+      ],
+      "margin": {
+        "runner_up": "MySQL",
+        "fit_points_ahead": 1.65,
+        "chosen_layer_score": 6.7,
+        "runner_up_layer_score": 5.05
+      }
     },
     "hosting": {
       "choice": "On-premise servers (Docker Compose; k3s for HA)",

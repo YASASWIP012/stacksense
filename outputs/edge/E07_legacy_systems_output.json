@@ -51,7 +51,7 @@
     },
     "backend": {
       "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects; native WebSocket/real-time support.",
+      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript/TypeScript; strong time to market, which you rated 5/5; well suited to marketplace projects; native WebSocket/real-time support. Margin: the full stack scores 3.5 fit points above the best stack built on Django.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
@@ -82,11 +82,17 @@
       "tradeoffs": [
         "Business logic split across RLS policies, SQL and Edge Functions is harder to test.",
         "Free projects pause after a week of inactivity; production needs the Pro plan."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Django",
+        "fit_points_ahead": 3.45,
+        "chosen_layer_score": 13.07,
+        "runner_up_layer_score": 11.1
+      }
     },
     "database": {
       "choice": "PostgreSQL (Supabase, South Asia (Mumbai, ap-south-1))",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep bookings and payouts consistent; well suited to marketplace projects; strong time to market, which you rated 5/5; strong cost, which you rated 4/5. Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Existing data is handled as described in the migration plan (supporting services).",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep bookings and payouts consistent; well suited to marketplace projects; strong time to market, which you rated 5/5; strong cost, which you rated 4/5. Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Existing data is handled as described in the migration plan (supporting services). Margin: the full stack scores 3.5 fit points above the best stack built on MySQL.",
       "driven_by": [
         "requirements.payments",
         "project.type",
@@ -104,11 +110,17 @@
       ],
       "tradeoffs": [
         "Horizontal write scaling needs partitioning, read replicas or Citus."
-      ]
+      ],
+      "margin": {
+        "runner_up": "MySQL",
+        "fit_points_ahead": 3.45,
+        "chosen_layer_score": 6.52,
+        "runner_up_layer_score": 7.12
+      }
     },
     "hosting": {
       "choice": "Vercel (bom1 Mumbai)",
-      "justification": "Zero-config Next.js hosting with preview deploys and regional functions. Fit for this project: strong time to market, which you rated 5/5; Vercel builds and serves Next.js natively.",
+      "justification": "Zero-config Next.js hosting with preview deploys and regional functions. Fit for this project: strong time to market, which you rated 5/5; Vercel builds and serves Next.js natively. Margin: the full stack scores 0.5 fit points above the best stack built on AWS Elastic Beanstalk.",
       "driven_by": [
         "priorities.time_to_market",
         "team.size"
@@ -134,7 +146,13 @@
       "tradeoffs": [
         "Hobby (free) plan is non-commercial only; commercial use needs Pro ($20/member).",
         "Serverless functions cannot hold WebSockets."
-      ]
+      ],
+      "margin": {
+        "runner_up": "AWS Elastic Beanstalk",
+        "fit_points_ahead": 0.48,
+        "chosen_layer_score": 2.1,
+        "runner_up_layer_score": 2.62
+      }
     },
     "supporting": [
       {

@@ -74,7 +74,7 @@
     },
     "database": {
       "choice": "DigitalOcean Managed PostgreSQL (NYC3 New York)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong performance, which you rated 5/5; strong time to market, which you rated 4/5.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong performance, which you rated 5/5; strong time to market, which you rated 4/5. Margin: the full stack scores 0.2 fit points above the best stack built on Amazon DynamoDB.",
       "driven_by": [
         "priorities.performance",
         "priorities.time_to_market"
@@ -95,11 +95,17 @@
       ],
       "tradeoffs": [
         "Horizontal write scaling needs partitioning, read replicas or Citus."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Amazon DynamoDB",
+        "fit_points_ahead": 0.18,
+        "chosen_layer_score": 3.32,
+        "runner_up_layer_score": 3.15
+      }
     },
     "hosting": {
       "choice": "DigitalOcean App Platform (NYC3 New York)",
-      "justification": "Simple PaaS with managed Postgres and regions in India, Europe and the US. Fit for this project: strong time to market, which you rated 4/5; strong performance, which you rated 5/5.",
+      "justification": "Simple PaaS with managed Postgres and regions in India, Europe and the US. Fit for this project: strong time to market, which you rated 4/5; strong performance, which you rated 5/5. Margin: the full stack scores 0.0 fit points above the best stack built on Render.",
       "driven_by": [
         "priorities.time_to_market",
         "priorities.performance"
@@ -124,7 +130,13 @@
       ],
       "tradeoffs": [
         "Fewer managed services than AWS/GCP/Azure (no managed search or ML)."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Render",
+        "fit_points_ahead": 0.0,
+        "chosen_layer_score": 2.45,
+        "runner_up_layer_score": 2.45
+      }
     },
     "supporting": [
       {

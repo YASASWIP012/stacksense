@@ -50,7 +50,7 @@
     },
     "backend": {
       "choice": "Spring Boot (Java/Kotlin)",
-      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java/Kotlin; well suited to fintech projects; strong security, which you rated 5/5; strong maintainability, which you rated 4/5.",
+      "justification": "Mature transaction management and Spring Security for regulated domains. Fit for this project: team.languages includes Java/Kotlin; well suited to fintech projects; strong security, which you rated 5/5; strong maintainability, which you rated 4/5. Margin: the full stack scores 1.3 fit points above the best stack built on AWS Lambda + API Gateway.",
       "driven_by": [
         "team.languages",
         "project.type",
@@ -77,11 +77,17 @@
       "tradeoffs": [
         "Slower start-up and more memory than Go/Node.",
         "More ceremony for small apps."
-      ]
+      ],
+      "margin": {
+        "runner_up": "AWS Lambda + API Gateway",
+        "fit_points_ahead": 1.35,
+        "chosen_layer_score": 11.75,
+        "runner_up_layer_score": 10.0
+      }
     },
     "database": {
       "choice": "Amazon RDS for PostgreSQL Multi-AZ (ap-south-1 Mumbai)",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep balances and ledger entries consistent; strong security, which you rated 5/5; well suited to fintech projects; strong maintainability, which you rated 4/5. Data stays in ap-south-1 Mumbai to satisfy data_residency=india. Model the ledger as append-only double-entry journal tables with SERIALIZABLE transactions.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: ACID transactions keep balances and ledger entries consistent; strong security, which you rated 5/5; well suited to fintech projects; strong maintainability, which you rated 4/5. Data stays in ap-south-1 Mumbai to satisfy data_residency=india. Model the ledger as append-only double-entry journal tables with SERIALIZABLE transactions. Margin: the full stack scores 2.4 fit points above the best stack built on MySQL.",
       "driven_by": [
         "requirements.payments",
         "priorities.security",
@@ -106,11 +112,17 @@
       ],
       "tradeoffs": [
         "Horizontal write scaling needs partitioning, read replicas or Citus."
-      ]
+      ],
+      "margin": {
+        "runner_up": "MySQL",
+        "fit_points_ahead": 2.42,
+        "chosen_layer_score": 6.38,
+        "runner_up_layer_score": 3.95
+      }
     },
     "hosting": {
       "choice": "AWS ECS on Fargate (+ ALB) (ap-south-1 Mumbai)",
-      "justification": "Managed containers inside your own AWS VPC, multi-AZ. Fit for this project: strong scalability, which you rated 4/5; private subnets, security groups and per-task IAM roles make the PCI/regulated scope auditable; multi-zone deployments for 99.95%.",
+      "justification": "Managed containers inside your own AWS VPC, multi-AZ. Fit for this project: strong scalability, which you rated 4/5; private subnets, security groups and per-task IAM roles make the PCI/regulated scope auditable; multi-zone deployments for 99.95%. Margin: the full stack scores 1.3 fit points above the best stack built on AWS serverless.",
       "driven_by": [
         "infrastructure.cloud_preference",
         "priorities.scalability",
@@ -139,7 +151,13 @@
       "tradeoffs": [
         "More moving parts (VPC, ALB, task definitions, IAM) than a PaaS.",
         "A fair amount of infrastructure to operate."
-      ]
+      ],
+      "margin": {
+        "runner_up": "AWS serverless",
+        "fit_points_ahead": 1.35,
+        "chosen_layer_score": 2.8,
+        "runner_up_layer_score": 3.2
+      }
     },
     "supporting": [
       {

@@ -41,7 +41,7 @@
     },
     "backend": {
       "choice": "ASP.NET Core on .NET 10 LTS (C#)",
-      "justification": "High-performance C# on .NET 10 LTS (supported to Nov 2028; .NET 8 support ended 10 Nov 2026) with first-class Entra ID and SignalR support. Fit for this project: team.languages includes C#; first-class Microsoft Entra ID integration; strong maintainability, which you rated 5/5; well suited to internal tool projects.",
+      "justification": "High-performance C# on .NET 10 LTS (supported to Nov 2028; .NET 8 support ended 10 Nov 2026) with first-class Entra ID and SignalR support. Fit for this project: team.languages includes C#; first-class Microsoft Entra ID integration; strong maintainability, which you rated 5/5; well suited to internal tool projects. Margin: the full stack scores 6.5 fit points above the best stack built on Azure Functions.",
       "driven_by": [
         "team.languages",
         "infrastructure.existing_systems",
@@ -63,11 +63,17 @@
       ],
       "tradeoffs": [
         "Best tooling assumes the Microsoft ecosystem."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Azure Functions",
+        "fit_points_ahead": 6.47,
+        "chosen_layer_score": 13.7,
+        "runner_up_layer_score": 8.03
+      }
     },
     "database": {
       "choice": "Azure SQL Database (Central India (Pune))",
-      "justification": "Reuses existing SQL Server skills, schemas and tooling. Fit for this project: reuses the existing SQL Server / Azure SQL Database data and skills; strong security, which you rated 4/5; strong maintainability, which you rated 5/5; strong time to market, which you rated 5/5. Data stays in Central India (Pune) to satisfy data_residency=india.",
+      "justification": "Reuses existing SQL Server skills, schemas and tooling. Fit for this project: reuses the existing SQL Server / Azure SQL Database data and skills; strong security, which you rated 4/5; strong maintainability, which you rated 5/5; strong time to market, which you rated 5/5. Data stays in Central India (Pune) to satisfy data_residency=india. Margin: the full stack scores 2.4 fit points above the best stack built on PostgreSQL.",
       "driven_by": [
         "infrastructure.existing_systems",
         "priorities.security",
@@ -93,11 +99,17 @@
       ],
       "tradeoffs": [
         "Licensing makes self-hosted or non-Azure deployments expensive."
-      ]
+      ],
+      "margin": {
+        "runner_up": "PostgreSQL",
+        "fit_points_ahead": 2.4,
+        "chosen_layer_score": 6.3,
+        "runner_up_layer_score": 4.7
+      }
     },
     "hosting": {
       "choice": "Azure App Service (Central India (Pune))",
-      "justification": "Managed web hosting with built-in Entra ID sign-in, slots and VNet integration. Fit for this project: strong time to market, which you rated 5/5; well suited to internal tool projects; built-in Entra ID sign-in (Easy Auth).",
+      "justification": "Managed web hosting with built-in Entra ID sign-in, slots and VNet integration. Fit for this project: strong time to market, which you rated 5/5; well suited to internal tool projects; built-in Entra ID sign-in (Easy Auth). Margin: the full stack scores 3.7 fit points above the best stack built on Azure Container Apps.",
       "driven_by": [
         "infrastructure.cloud_preference",
         "priorities.time_to_market",
@@ -120,7 +132,13 @@
       ],
       "tradeoffs": [
         "Per-instance pricing does not scale to zero."
-      ]
+      ],
+      "margin": {
+        "runner_up": "Azure Container Apps",
+        "fit_points_ahead": 3.72,
+        "chosen_layer_score": 3.6,
+        "runner_up_layer_score": -0.12
+      }
     },
     "supporting": [
       {

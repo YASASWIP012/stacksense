@@ -44,7 +44,7 @@
     },
     "backend": {
       "choice": "Supabase (Postgres + Auth + Storage + Realtime + Edge Functions)",
-      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 4/5; a 2-person team ships in 10 weeks without building auth/storage; JavaScript is listed first (treated as the team's primary language).",
+      "justification": "One managed Postgres project gives auth, storage, realtime and APIs. Fit for this project: team.languages includes JavaScript; strong time to market, which you rated 4/5; a 2-person team ships in 10 weeks without building auth/storage; JavaScript is listed first (treated as the team's primary language). Margin: the full stack scores 2.8 fit points above the best stack built on NestJS.",
       "driven_by": [
         "team.languages",
         "priorities.time_to_market",
@@ -78,11 +78,17 @@
       "tradeoffs": [
         "Business logic split across RLS policies, SQL and Edge Functions is harder to test.",
         "Free projects pause after a week of inactivity; production needs the Pro plan."
-      ]
+      ],
+      "margin": {
+        "runner_up": "NestJS",
+        "fit_points_ahead": 2.77,
+        "chosen_layer_score": 11.25,
+        "runner_up_layer_score": 9.22
+      }
     },
     "database": {
       "choice": "PostgreSQL (Supabase, South Asia (Mumbai, ap-south-1))",
-      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong maintainability, which you rated 4/5; geo queries (description mentions 'gps'); strong cost, which you rated 5/5; strong time to market, which you rated 4/5. Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Existing data is handled as described in the migration plan (supporting services). Enable PostGIS for the GPS/location data.",
+      "justification": "ACID transactions, JSONB, full-text search, PostGIS and pgvector in one engine. Fit for this project: strong maintainability, which you rated 4/5; geo queries (description mentions 'gps'); strong cost, which you rated 5/5; strong time to market, which you rated 4/5. Data stays in South Asia (Mumbai, ap-south-1) to satisfy data_residency=india. Existing data is handled as described in the migration plan (supporting services). Enable PostGIS for the GPS/location data. Margin: the full stack scores 2.8 fit points above the best stack built on MongoDB.",
       "driven_by": [
         "priorities.maintainability",
         "project.description",
@@ -99,11 +105,17 @@
       ],
       "tradeoffs": [
         "Horizontal write scaling needs partitioning, read replicas or Citus."
-      ]
+      ],
+      "margin": {
+        "runner_up": "MongoDB",
+        "fit_points_ahead": 2.77,
+        "chosen_layer_score": 4.12,
+        "runner_up_layer_score": 4.88
+      }
     },
     "hosting": {
       "choice": "Supabase (managed; the mobile app calls it directly, no separate app hosting)",
-      "justification": "A mobile-only app on a backend-as-a-service needs no web hosting. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 4/5.",
+      "justification": "A mobile-only app on a backend-as-a-service needs no web hosting. Fit for this project: strong cost, which you rated 5/5; strong time to market, which you rated 4/5. Margin: the full stack scores 2.8 fit points above the best stack built on DigitalOcean App Platform.",
       "driven_by": [
         "priorities.cost",
         "priorities.time_to_market"
@@ -128,7 +140,13 @@
       ],
       "tradeoffs": [
         "Nothing separate to host: the mobile app talks to the BaaS directly."
-      ]
+      ],
+      "margin": {
+        "runner_up": "DigitalOcean App Platform",
+        "fit_points_ahead": 2.77,
+        "chosen_layer_score": 2.8,
+        "runner_up_layer_score": 2.1
+      }
     },
     "supporting": [
       {
