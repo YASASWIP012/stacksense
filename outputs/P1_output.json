@@ -184,7 +184,7 @@
     }
   ],
   "assumptions": [
-    "cloud_preference=any: provider chosen by scoring (Cloudflare)."
+    "cloud_preference=any: Cloudflare was chosen by scoring; the best stack on Google Cloud (Cloud Storage + Cloud CDN (static site)) scored 0.1 fit points lower once team skills, managed-service fit, cost and the other layers were combined."
   ],
   "validation_errors": [],
   "decision_trace": {

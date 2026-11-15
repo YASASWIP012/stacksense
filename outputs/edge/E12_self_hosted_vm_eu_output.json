@@ -2,7 +2,7 @@
   "scenario_id": "E12",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
+  "status": "ok_with_warnings",
   "summary": "Modular monolith Django on DigitalOcean Droplet + Docker Compose with PostgreSQL as the database in EU; front end: Next.js, React Native.",
   "architecture_style": "modular_monolith",
   "architecture_rationale": {
@@ -399,7 +399,7 @@
     "assumptions": [
       "Scale level L2: ~30000 users, ~800 peak concurrent, ~160 req/s at peak, ~50 GB stored",
       "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
-      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, so the per-line maxima in the breakdown are not meant to add up to the total",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -443,7 +443,7 @@
         0,
         0
       ],
-      "other": [
+      "other: Firebase Cloud Messaging": [
         0,
         0
       ],
@@ -464,7 +464,7 @@
   "warnings": [
     {
       "code": "BUDGET_HEADROOM",
-      "severity": "info",
+      "severity": "warning",
       "message": "The low estimate ($56) fits the $150 budget, but the upper estimate ($218) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
       "fields": [
         "budget.monthly_infra_usd"

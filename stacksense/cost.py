@@ -66,7 +66,8 @@ def estimate(c, combo, dbs, supporting, host_pid):
     for s in supporting:
         cs = s.get("estimated_monthly_usd")
         if cs:
-            items.append((s["layer"], cs[0], cs[1]))
+            label = s["layer"] if s["layer"] != "other" else "other: " + s["choice"].split(" (")[0].split(" + ")[0][:40]
+            items.append((label, cs[0], cs[1]))
     if c.req["auth"] == "phone_otp" and c.deploy != "air_gapped":
         logins = max(c.users, 1)
         items.append(("sms_otp", logins * 0.001, logins * 0.004))
@@ -75,7 +76,8 @@ def estimate(c, combo, dbs, supporting, host_pid):
     mx = sum(x[2] for x in items)
     if mn > 0 and mx > 3 * mn + 50:
         mx = 3 * mn + 50
-        assumptions.append("Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month")
+        assumptions.append("Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, "
+                           "so the per-line maxima in the breakdown are not meant to add up to the total")
     assumptions.insert(0, "Scale level L%d: ~%d users, ~%d peak concurrent, ~%d req/s at peak, ~%s GB stored" % (
         c.L, c.users, c.peak, c.rps, ("%g" % c.data_gb)))
     assumptions.append("List prices for the smallest production tier that fits; no reserved-instance or startup "

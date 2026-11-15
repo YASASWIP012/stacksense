@@ -196,7 +196,7 @@
     "Priorities not given for performance, maintainability, security; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; a content site is assumed to store ~1 GB.",
     "team.languages lists several languages; the first (javascript) is treated as the team's primary language.",
-    "cloud_preference=any: provider chosen by scoring (Cloudflare)."
+    "cloud_preference=any: Cloudflare was chosen by scoring; the best stack on AWS (Amazon S3 + CloudFront (static site)) scored 1.1 fit points lower once team skills, managed-service fit, cost and the other layers were combined."
   ],
   "validation_errors": [],
   "decision_trace": {

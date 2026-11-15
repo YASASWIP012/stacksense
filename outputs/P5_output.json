@@ -2,7 +2,7 @@
   "scenario_id": "P5",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
+  "status": "ok_with_warnings",
   "summary": "Monolith ASP.NET Core on .NET 10 LTS on Azure App Service with Azure SQL Database as the database in India; front end: Blazor.",
   "architecture_style": "monolith",
   "architecture_rationale": {
@@ -297,7 +297,7 @@
     "max": 356,
     "assumptions": [
       "Scale level L2: ~1500 users, ~300 peak concurrent, ~60 req/s at peak, ~20 GB stored",
-      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, so the per-line maxima in the breakdown are not meant to add up to the total",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -321,7 +321,15 @@
         0,
         10
       ],
-      "other": [
+      "other: Microsoft Graph API": [
+        0,
+        0
+      ],
+      "other: Migration and integration plan for exist": [
+        0,
+        0
+      ],
+      "other: Azure Key Vault": [
         20,
         200
       ],
@@ -337,6 +345,14 @@
   },
   "warnings": [
     {
+      "code": "BUDGET_HEADROOM",
+      "severity": "warning",
+      "message": "The low estimate ($102) fits the $300 budget, but the upper estimate ($356) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
+      "fields": [
+        "budget.monthly_infra_usd"
+      ]
+    },
+    {
       "code": "RENAMED_PRODUCT",
       "severity": "info",
       "message": "Existing system 'Microsoft Entra ID (Azure AD)': Azure AD is now Microsoft Entra ID; same service, new name. Integrate via OIDC/SAML. Source: https://learn.microsoft.com/en-us/entra/fundamentals/new-name",
@@ -350,14 +366,6 @@
       "message": "Existing system 'On-prem SQL Server 2019': Mainstream support ended 28 Feb 2025; extended (security-only) support runs to 8 Jan 2030. Plan an upgrade or migrate to Azure SQL Database. Source: https://learn.microsoft.com/en-us/lifecycle/products/sql-server-2019",
       "fields": [
         "infrastructure.existing_systems"
-      ]
-    },
-    {
-      "code": "BUDGET_HEADROOM",
-      "severity": "info",
-      "message": "The low estimate ($102) fits the $300 budget, but the upper estimate ($356) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
-      "fields": [
-        "budget.monthly_infra_usd"
       ]
     },
     {

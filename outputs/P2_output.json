@@ -345,7 +345,7 @@
       "Scale level L2: ~30000 users, ~800 peak concurrent, ~160 req/s at peak, ~50 GB stored",
       "Supabase Pro ($25/month) for production: free projects pause when idle and include ~1 GB of file storage",
       "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
-      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, so the per-line maxima in the breakdown are not meant to add up to the total",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -381,7 +381,7 @@
         0,
         0
       ],
-      "other": [
+      "other: Firebase Cloud Messaging": [
         0,
         0
       ],
@@ -435,7 +435,7 @@
   ],
   "assumptions": [
     "team.languages lists several languages; the first (javascript) is treated as the team's primary language.",
-    "cloud_preference=any: provider chosen by scoring (Vercel)."
+    "cloud_preference=any: Vercel was chosen by scoring; the best stack on AWS (AWS Elastic Beanstalk) scored 0.5 fit points lower once team skills, managed-service fit, cost and the other layers were combined."
   ],
   "validation_errors": [],
   "decision_trace": {

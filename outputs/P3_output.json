@@ -2,7 +2,7 @@
   "scenario_id": "P3",
   "engine_version": "1.0.0",
   "llm_used": false,
-  "status": "ok",
+  "status": "ok_with_warnings",
   "summary": "Modular monolith Go on Azure Container Apps with Azure Database for PostgreSQL – Flexible Server as the database; front end: React + Vite.",
   "architecture_style": "modular_monolith",
   "architecture_rationale": {
@@ -356,7 +356,7 @@
     "max": 1547,
     "assumptions": [
       "Scale level L3: ~50000 users, ~5000 peak concurrent, ~1000 req/s at peak, ~200 GB stored",
-      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, so the per-line maxima in the breakdown are not meant to add up to the total",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -409,7 +409,7 @@
   "warnings": [
     {
       "code": "BUDGET_HEADROOM",
-      "severity": "info",
+      "severity": "warning",
       "message": "The low estimate ($499) fits the $1500 budget, but the upper estimate ($1547) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
       "fields": [
         "budget.monthly_infra_usd"
@@ -436,7 +436,7 @@
   "assumptions": [
     "team.languages lists several languages; the first (typescript) is treated as the team's primary language.",
     "No data_residency given but GDPR applies: services are placed in an EU region.",
-    "cloud_preference=any: provider chosen by scoring (Microsoft Azure)."
+    "cloud_preference=any: Microsoft Azure and Google Cloud (Google Cloud Run) scored equally; Microsoft Azure was kept by the engine's deterministic tie-break. Either is a sound choice; prefer the cloud the organisation already has an account and skills on."
   ],
   "validation_errors": [],
   "decision_trace": {

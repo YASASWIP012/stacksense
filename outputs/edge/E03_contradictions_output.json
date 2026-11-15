@@ -294,7 +294,7 @@
     "assumptions": [
       "Scale level L4: ~2000000 users, ~80000 peak concurrent, ~16000 req/s at peak, ~20000 GB stored",
       "Supabase Pro ($25/month) for production: free projects pause when idle and include ~1 GB of file storage",
-      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, so the per-line maxima in the breakdown are not meant to add up to the total",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -322,7 +322,7 @@
         10,
         150
       ],
-      "other": [
+      "other: Firebase Cloud Messaging": [
         0,
         0
       ],
@@ -398,7 +398,7 @@
     "requirements.seo_critical not given; defaulted to false.",
     "Priorities not given for scalability, performance, maintainability, security; defaulted to 3.",
     "Relaxed: budget.monthly_infra_usd ($0) treated as soft; cheapest viable stack shown.",
-    "cloud_preference=any: provider chosen by scoring (Cloudflare)."
+    "cloud_preference=any: Cloudflare was chosen by scoring; the best stack on AWS (AWS Elastic Beanstalk) scored 1.9 fit points lower once team skills, managed-service fit, cost and the other layers were combined."
   ],
   "validation_errors": [],
   "decision_trace": {

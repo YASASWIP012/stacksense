@@ -235,7 +235,7 @@
     "Priorities not given for performance, maintainability, security; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; estimated 0.1 GB (2 MB per user).",
     "Budget fallback: the top-scoring stack starts at ~$12/month, above the $10 budget; the best-scoring stack that fits (from ~$5/month, 1.2 fit points lower) was chosen instead.",
-    "cloud_preference=any: provider chosen by scoring (Railway)."
+    "cloud_preference=any: Railway and DigitalOcean (DigitalOcean App Platform) scored equally; Railway was kept by the engine's deterministic tie-break. Either is a sound choice; prefer the cloud the organisation already has an account and skills on."
   ],
   "validation_errors": [],
   "decision_trace": {

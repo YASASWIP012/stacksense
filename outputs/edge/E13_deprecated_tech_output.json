@@ -314,7 +314,7 @@
       "Scale level L1: ~2000 users, ~200 peak concurrent, ~40 req/s at peak, ~100 GB stored",
       "Supabase Pro ($25/month) for production: free projects pause when idle and include ~1 GB of file storage",
       "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
-      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, so the per-line maxima in the breakdown are not meant to add up to the total",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -334,7 +334,19 @@
         2,
         10
       ],
-      "other": [
+      "other: Offline-first sync: expo-sqlite": [
+        0,
+        0
+      ],
+      "other: Firebase Cloud Messaging": [
+        0,
+        0
+      ],
+      "other: Migration and integration plan for exist": [
+        0,
+        0
+      ],
+      "other: PostGIS extension": [
         0,
         0
       ],
@@ -387,7 +399,7 @@
     },
     {
       "code": "BUDGET_HEADROOM",
-      "severity": "info",
+      "severity": "warning",
       "message": "The low estimate ($29) fits the $100 budget, but the upper estimate ($137) exceeds it as usage grows; set billing alerts and use the cost-control notes in each component.",
       "fields": [
         "budget.monthly_infra_usd"
@@ -429,7 +441,7 @@
   ],
   "assumptions": [
     "team.languages lists several languages; the first (javascript) is treated as the team's primary language.",
-    "cloud_preference=any: provider chosen by scoring (No separate hosting (BaaS))."
+    "cloud_preference=any: No separate hosting (BaaS) was chosen by scoring; the best stack on DigitalOcean (DigitalOcean App Platform) scored 2.8 fit points lower once team skills, managed-service fit, cost and the other layers were combined."
   ],
   "validation_errors": [],
   "decision_trace": {

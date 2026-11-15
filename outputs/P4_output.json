@@ -405,7 +405,7 @@
       "Scale level L3: ~300000 users, ~10000 peak concurrent, ~2000 req/s at peak, ~500 GB stored",
       "Compute sized for at least two zones for 99.95% availability",
       "SMS OTP: ~$0.001-0.004 per user per month (OTP only on new devices/expired sessions, ~$0.002-0.005 per SMS)",
-      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, so the per-line maxima in the breakdown are not meant to add up to the total",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -445,7 +445,11 @@
         100,
         600
       ],
-      "other": [
+      "other: Firebase Cloud Messaging": [
+        0,
+        0
+      ],
+      "other: AWS KMS": [
         20,
         200
       ],

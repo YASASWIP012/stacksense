@@ -291,7 +291,7 @@
     "max": 998,
     "assumptions": [
       "Scale level L3: ~80000 users, ~4000 peak concurrent, ~800 req/s at peak, ~156.2 GB stored",
-      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month",
+      "Upper bound capped at ~3x the lower bound: components do not all reach their peak tier in the same month, so the per-line maxima in the breakdown are not meant to add up to the total",
       "List prices for the smallest production tier that fits; no reserved-instance or startup credits; excludes domains, app-store fees and payment-gateway transaction fees"
     ],
     "breakdown": {
@@ -319,7 +319,7 @@
         10,
         150
       ],
-      "other": [
+      "other: Firebase Cloud Messaging": [
         0,
         0
       ],
@@ -376,7 +376,7 @@
     "Priorities not given for cost, scalability, maintainability, security; defaulted to 3.",
     "scale.data_volume_gb_12_months not given; estimated 156.2 GB (2 MB per user).",
     "Budget fallback: the top-scoring stack starts at ~$476/month, above the $400 budget; the best-scoring stack that fits (from ~$316/month, 0.0 fit points lower) was chosen instead.",
-    "cloud_preference=any: provider chosen by scoring (DigitalOcean)."
+    "cloud_preference=any: DigitalOcean was chosen by scoring; the best stack on AWS (AWS Elastic Beanstalk) scored 0.2 fit points lower once team skills, managed-service fit, cost and the other layers were combined."
   ],
   "validation_errors": [],
   "decision_trace": {

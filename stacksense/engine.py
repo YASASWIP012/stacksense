@@ -1221,7 +1221,25 @@ def _recommend(raw, _nested=False):
     if c.residency == "none" and "gdpr" in c.compliance:
         assumptions.append("No data_residency given but GDPR applies: services are placed in an EU region.")
     if c.cloud == "any":
-        assumptions.append("cloud_preference=any: provider chosen by scoring (%s)." % kb.PROVIDERS.get(host_provider(host, c), {}).get("name", host["name"]))
+        chosen_p = host_provider(host, c)
+        runner = None
+        for row in combos[1:80]:
+            rp = host_provider(row[2]["hosting"], c)
+            if rp not in (chosen_p, None) and rp in ("aws", "gcp", "azure", "digitalocean"):
+                runner = (rp, best[0] - row[0], row[2]["hosting"]["name"])
+                break
+        if runner:
+            if runner[1] < 0.1:
+                assumptions.append("cloud_preference=any: %s and %s (%s) scored equally; %s was kept by the engine's deterministic "
+                                   "tie-break. Either is a sound choice; prefer the cloud the organisation already has an account and "
+                                   "skills on." % (kb.PROVIDERS.get(chosen_p, {}).get("name", host["name"]), kb.PROVIDERS[runner[0]]["name"],
+                                                   runner[2], kb.PROVIDERS.get(chosen_p, {}).get("name", host["name"])))
+            else:
+                assumptions.append("cloud_preference=any: %s was chosen by scoring; the best stack on %s (%s) scored %.1f fit points "
+                                   "lower once team skills, managed-service fit, cost and the other layers were combined." % (
+                                       kb.PROVIDERS.get(chosen_p, {}).get("name", host["name"]), kb.PROVIDERS[runner[0]]["name"], runner[2], runner[1]))
+        else:
+            assumptions.append("cloud_preference=any: provider chosen by scoring (%s)." % kb.PROVIDERS.get(chosen_p, {}).get("name", host["name"]))
     if c.type == "fintech" and re.search(r"\bloans?\b|lending|\bemis?\b|disburs", (c.spec.get("project.description") or "").lower()):
         warnings.append({"code": "RBI_DIGITAL_LENDING", "severity": "info",
                          "message": "RBI Digital Lending Directions: loans must be disbursed and repaid directly between the borrower and "
@@ -1410,7 +1428,7 @@ def budget_warnings(c, cost, assumptions):
                                "be more than double it; set billing alerts and revisit sizing." % (mn, c.budget, mx),
                     "fields": ["budget.monthly_infra_usd"]})
     elif c.budget > 0 and mx > c.budget:
-        out.append({"code": "BUDGET_HEADROOM", "severity": "warning" if mx > 1.5 * c.budget else "info",
+        out.append({"code": "BUDGET_HEADROOM", "severity": "warning",
                     "message": "The low estimate ($%d) fits the $%g budget, but the upper estimate ($%d) exceeds it as usage "
                                "grows; set billing alerts and use the cost-control notes in each component." % (mn, c.budget, mx),
                     "fields": ["budget.monthly_infra_usd"]})
